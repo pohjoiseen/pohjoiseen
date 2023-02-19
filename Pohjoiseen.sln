@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fennica2", "Fennica2\Fennica2.csproj", "{A5E37424-A7F5-4211-A57D-C2D8E0F585E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teos", "Teos\Teos.csproj", "{9D8DEB26-B895-4D2F-9886-0C7D47C249AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5E37424-A7F5-4211-A57D-C2D8E0F585E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5E37424-A7F5-4211-A57D-C2D8E0F585E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5E37424-A7F5-4211-A57D-C2D8E0F585E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5E37424-A7F5-4211-A57D-C2D8E0F585E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D8DEB26-B895-4D2F-9886-0C7D47C249AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D8DEB26-B895-4D2F-9886-0C7D47C249AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D8DEB26-B895-4D2F-9886-0C7D47C249AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D8DEB26-B895-4D2F-9886-0C7D47C249AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B11D8E74-3A98-4B0B-AC53-9F4AE366751E}
+	EndGlobalSection
+EndGlobal

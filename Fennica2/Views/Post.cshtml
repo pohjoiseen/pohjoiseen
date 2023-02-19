@@ -1,0 +1,43 @@
+﻿@model Post
+@{
+    var useTitleImage = Model.TitleImage.Length > 0 && !Model.TitleImageInText;
+}
+
+<div class="@(useTitleImage ? "post-heading" : "post-heading-no-pic")"
+     style="@(useTitleImage ? "background-image: url(" + Model.TitleImage + "); background-position: 50% " + (Model.TitleImageOffsetY > 0 ? Model.TitleImageOffsetY : 50) + "%" : "")">
+    @if (Model.CoatsOfArms.Length > 0)
+    {
+        <div class="post-heading-coatsofarms">
+            @foreach (var coa in Model.CoatsOfArms)
+            {
+                <img src="@coa.Url" style="--width: @(coa.Size > 0 ? coa.Size : Fennica.CoatOfArmsSize)px" />
+            }
+        </div>
+    }   
+    <div class="post-title">
+        <h1>@Model.Title</h1>
+        @if (Model.DateDescription.Length > 0)
+        {
+            <h4><span class="time"><time>@Model.DateDescription</time></span></h4>
+        }
+        @if (ViewBag.PrevPost != null)
+        {
+            <h4><span class="prev">@Localizer.GetString("previous"):
+                    <a href="@((ViewBag.PrevPost as Post)!.CanonicalURL)">@((ViewBag.PrevPost as Post)!.Title)</a>
+            </span></h4>
+        }
+        @if (ViewBag.NextPost != null)
+        {
+            <h4><span class="next">@Localizer.GetString("next"):
+                    <a href="@((ViewBag.NextPost as Post)!.CanonicalURL)">@((ViewBag.NextPost as Post)!.Title)</a>
+            </span></h4>
+        }
+    </div>
+</div>
+<main class="post-main">
+    <article>
+        <hr />
+        @Html.Raw(Model.HTML)
+        <h4>@Localizer.GetString("published-on"): <time>@Model.GetFormattedPostDate()</time></h4>
+    </article>
+</main>
