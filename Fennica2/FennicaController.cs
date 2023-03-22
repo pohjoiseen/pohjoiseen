@@ -9,11 +9,7 @@ namespace Fennica2;
 /// </summary>
 public abstract class FennicaController : IContentController
 {
-    protected string ContentPath;
-    protected string BuildPath;
-    protected IDictionary<string, IStaticProcessor> StaticFiles;
-    protected IDictionary<string, (Content, IContentController)> AllContent;
-    protected IFormatHTML HTMLFormat;
+    protected ITeosEngine TeosEngine;
 
     /// <inheritdoc cref="IContentController.GetRoutes"/>
     public abstract IList<string> GetRoutes(Content content);
@@ -36,17 +32,10 @@ public abstract class FennicaController : IContentController
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc cref="IContentController.SetParameters"/>
-    public void SetParameters(string contentPath, string buildPath,
-        IDictionary<string, IStaticProcessor> staticFiles,
-        IDictionary<string, (Content, IContentController)> allContent,
-        IFormatHTML htmlFormat)
+    /// <inheritdoc cref="ITeosEngineAware.SetTeosEngine"/>
+    public void SetTeosEngine(ITeosEngine teosEngine)
     {
-        ContentPath = contentPath;
-        BuildPath = buildPath;
-        StaticFiles = staticFiles;
-        AllContent = allContent;
-        HTMLFormat = htmlFormat;
+        TeosEngine = teosEngine;
     }
 
     /// <summary>
@@ -78,9 +67,9 @@ public abstract class FennicaController : IContentController
         {
             splitPath[splitPath.Length - 3] = lang;
             var langPath = string.Join('.', splitPath);
-            if (AllContent.ContainsKey(langPath))
+            if (TeosEngine.AllContent.ContainsKey(langPath))
             {
-                result[lang] = AllContent[langPath].Item1.CanonicalURL;
+                result[lang] = TeosEngine.AllContent[langPath].Item1.CanonicalURL;
             }
         }
 

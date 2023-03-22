@@ -11,8 +11,13 @@ namespace Teos;
 public class ImageProcessor : IStaticProcessor
 {
     private readonly ImageProcessorConfiguration _configuration;
-    private string _contentPath = "";
-    private string _buildPath = "";
+
+    private ITeosEngine _teosEngine;
+
+    public void SetTeosEngine(ITeosEngine teosEngine)
+    {
+        _teosEngine = teosEngine;
+    }
 
     /// <summary>
     /// ImageProcessor constructor.
@@ -21,17 +26,6 @@ public class ImageProcessor : IStaticProcessor
     public ImageProcessor(ImageProcessorConfiguration configuration)
     {
         _configuration = configuration;
-    }
-
-    /// <summary>
-    /// Sets paths from engine configuration.
-    /// </summary>
-    /// <param name="contentPath">Absolute path to content base dir</param>
-    /// <param name="buildPath">Absolute path to output dir</param>
-    public void SetBasePaths(string contentPath, string buildPath)
-    {
-        _contentPath = contentPath;
-        _buildPath = buildPath;
     }
 
     /// <summary>
@@ -81,7 +75,7 @@ public class ImageProcessor : IStaticProcessor
         }
 
         // original mtime
-        DateTime inputDateTime = File.GetLastWriteTimeUtc(_contentPath + path);
+        DateTime inputDateTime = File.GetLastWriteTimeUtc(_teosEngine.ContentPath + path);
 
         // to be able to determine exact output file names, we need to know the size of the original
         // (because images are not upscaled, and sizes that would be larger than the original are never generated).
@@ -96,10 +90,10 @@ public class ImageProcessor : IStaticProcessor
         // check original
         if (!_configuration.NoOriginal)
         {
-            bool outputExists = File.Exists(_buildPath + outputPath);
+            bool outputExists = File.Exists(_teosEngine.BuildPath + outputPath);
             if (outputExists)
             { 
-                DateTime outputDateTime = File.GetLastWriteTimeUtc(_buildPath + outputPath);
+                DateTime outputDateTime = File.GetLastWriteTimeUtc(_teosEngine.BuildPath + outputPath);
                 if (inputDateTime > outputDateTime)
                 {
                     // exists and stale
@@ -115,10 +109,10 @@ public class ImageProcessor : IStaticProcessor
             foreach (string size in _configuration.Sizes.Keys)
             {
                 string resizedOutputPath = GetPathVersionForSize(outputPath, size);
-                bool outputExists = File.Exists(_buildPath + resizedOutputPath);
+                bool outputExists = File.Exists(_teosEngine.BuildPath + resizedOutputPath);
                 if (outputExists)
                 {
-                    DateTime outputDateTime = File.GetLastWriteTimeUtc(_buildPath + resizedOutputPath);
+                    DateTime outputDateTime = File.GetLastWriteTimeUtc(_teosEngine.BuildPath + resizedOutputPath);
                     if (inputDateTime > outputDateTime)
                     {
                         // exists and stale
@@ -147,15 +141,15 @@ public class ImageProcessor : IStaticProcessor
         }
 
         // create destination directory if not exists
-        Directory.CreateDirectory(Path.GetDirectoryName(_buildPath + outputPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(_teosEngine.BuildPath + outputPath)!);
 
         // async copy of original, unless explicitly disabled
         if (!_configuration.NoOriginal)
         {
-            using (var sourceStream = new FileStream(_contentPath + path, FileMode.Open, FileAccess.Read, FileShare.Read,
+            using (var sourceStream = new FileStream(_teosEngine.ContentPath + path, FileMode.Open, FileAccess.Read, FileShare.Read,
                        4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
-                using (var destinationStream = new FileStream(_buildPath + outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                using (var destinationStream = new FileStream(_teosEngine.BuildPath + outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
                            4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 {
                     await sourceStream.CopyToAsync(destinationStream);
@@ -170,7 +164,7 @@ public class ImageProcessor : IStaticProcessor
         }
 
         // load image for resized versions
-        using (Image image = await Image.LoadAsync(_contentPath + path))
+        using (Image image = await Image.LoadAsync(_teosEngine.ContentPath + path))
         {
             foreach (var size in _configuration.Sizes)
             {
@@ -222,11 +216,11 @@ public class ImageProcessor : IStaticProcessor
                     // TODO: for other formats?
                     if (path.EndsWith(".jpg") || path.EndsWith(".jpeg"))
                     {
-                        await resizedImage.SaveAsync(GetPathVersionForSize(_buildPath + outputPath, sizeSuffix), new JpegEncoder { Quality = _configuration.Quality });
+                        await resizedImage.SaveAsync(GetPathVersionForSize(_teosEngine.BuildPath + outputPath, sizeSuffix), new JpegEncoder { Quality = _configuration.Quality });
                     }
                     else
                     {
-                        await resizedImage.SaveAsync(GetPathVersionForSize(_buildPath + outputPath, sizeSuffix));
+                        await resizedImage.SaveAsync(GetPathVersionForSize(_teosEngine.BuildPath + outputPath, sizeSuffix));
                     }
                 }
             }

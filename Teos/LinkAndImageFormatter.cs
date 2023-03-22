@@ -17,8 +17,12 @@ public class LinkAndImageFormatter : IContentFormatter
     private readonly bool _linkOriginalImage;
     private readonly bool _wrapImagesInFigure;
 
-    private string _buildPath = "";
-    private IDictionary<string, (Content, IContentController)> _allContent;
+    private ITeosEngine _teosEngine;
+    
+    public void SetTeosEngine(ITeosEngine teosEngine)
+    {
+        _teosEngine = teosEngine;
+    }
 
     /// <summary>
     /// LinkAndImageFormatter constructor with settings.
@@ -42,14 +46,6 @@ public class LinkAndImageFormatter : IContentFormatter
         _wrapImagesInFigure = wrapImagesInFigure;
     }
 
-    public void SetParameters(string contentPath, string buildPath,
-        IDictionary<string, IStaticProcessor> staticFiles,
-        IDictionary<string, (Content, IContentController)> allContent)
-    {
-        _buildPath = buildPath;
-        _allContent = allContent;
-    }
-
     /// <inheritdoc cref="IContentFormatter.FormatHTML"/>
     public async Task<string> FormatHTML(string html, string path)
     {
@@ -61,17 +57,15 @@ public class LinkAndImageFormatter : IContentFormatter
         var document = XElement.Parse(wrappedHtml, LoadOptions.PreserveWhitespace);
 
         // only interested in base dir
-        var basepath = Path.GetDirectoryName(path) == null ? "" : Path.GetDirectoryName(path)!.Replace('\\', '/');
-
-        convertAHref(document, basepath);
-        await convertImgSrc(document, basepath);
+        convertAHref(document, path);
+        await convertImgSrc(document, path);
 
         // back to string and unwrap
         wrappedHtml = document.ToString(SaveOptions.DisableFormatting);
-        return wrappedHtml.Substring(6, wrappedHtml.Length - 13);
+        return wrappedHtml.Replace("<html>", "").Replace("</html>", "");
     }
 
-    private XElement convertAHref(XElement document, string basepath)
+    private XElement convertAHref(XElement document, string source)
     {
         // shortcut if nothing to do
         if (_convertLinksTo.Count == 0)
@@ -111,27 +105,7 @@ public class LinkAndImageFormatter : IContentFormatter
             }
 
             // convert from relative path if necessary
-            var path = href.Value;
-            if (path.StartsWith("."))
-            {
-                if (basepath.Length > 0)
-                {
-                    // TODO: this is really ridiculous, is there no other way...
-                    path = Path.GetFullPath(Path.Combine(basepath, path))
-                        .Replace(Directory.GetCurrentDirectory(), "").Replace('\\', '/').Substring(1);
-                }
-                else
-                {
-                    if (path.StartsWith("./"))
-                    {
-                        path = path.Substring(2);
-                    }
-                    else
-                    {
-                        throw new Exception("Could not resolve path " + path + ", base file already in root directory");
-                    }
-                }
-            }
+            var path = _teosEngine.ResolvePath(href.Value, source);
 
             // possible hash in link, remove and preserve it
             var hash = "";
@@ -143,7 +117,7 @@ public class LinkAndImageFormatter : IContentFormatter
             }
 
             (Content, IContentController) contentTuple;
-            if (_allContent.TryGetValue(path, out contentTuple))
+            if (_teosEngine.AllContent.TryGetValue(path, out contentTuple))
             {
                 // replace with canonical content URL
                 if (hash.Length > 0)
@@ -164,7 +138,7 @@ public class LinkAndImageFormatter : IContentFormatter
         return document;
     }
 
-    private async Task<XElement> convertImgSrc(XElement document, string basepath)
+    private async Task<XElement> convertImgSrc(XElement document, string source)
     {
         // get all <img> in a document
         foreach (var image in from image in document.Descendants("img") select image)
@@ -189,27 +163,7 @@ public class LinkAndImageFormatter : IContentFormatter
             }
 
             // convert from relative path if necessary
-            var path = src.Value;
-            if (path.StartsWith("."))
-            {
-                if (basepath.Length > 0)
-                {
-                    // TODO: this is really ridiculous, is there no other way...
-                    path = Path.GetFullPath(Path.Combine(basepath, path))
-                        .Replace(Directory.GetCurrentDirectory(), "").Replace('\\', '/').Substring(1);
-                }
-                else
-                {
-                    if (path.StartsWith("./"))
-                    {
-                        path = path.Substring(2);
-                    }
-                    else
-                    {
-                        throw new Exception("Could not resolve path " + path + ", base file already in root directory");
-                    }
-                }
-            }
+            var path = _teosEngine.ResolvePath(src.Value, source);
 
             // found image
             string baseSrc = path[0] == '/' ? path : "/" + path;
@@ -221,7 +175,7 @@ public class LinkAndImageFormatter : IContentFormatter
             {
                 string suffix = size.Item1, srcSetValue = size.Item2;
                 string srcForSize = GenerateImageFilename(baseSrc, suffix);
-                string filenameForSize = _buildPath + srcForSize;
+                string filenameForSize = _teosEngine.BuildPath + srcForSize;
                 // ImageProcessor does not upscale images, so not every image might actually exist
                 if (File.Exists(filenameForSize))
                 {

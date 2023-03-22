@@ -7,22 +7,8 @@ namespace Teos;
 /// Renders, and also formats and defines routes, a particular content item.
 /// TODO: can this use a type parameter?
 /// </summary>
-public interface IContentController
+public interface IContentController : ITeosEngineAware
 {
-    /// <summary>
-    /// Sets various parameters which can be useful for the controller.
-    /// </summary>
-    /// <param name="contentPath">Absolute path to content dir</param>
-    /// <param name="buildPath">Absolute path to output dir</param>
-    /// <param name="staticFiles">Full static files map</param>
-    /// <param name="allContent">Full content map</param>
-    /// <param name="htmlFormat">Function to format HTML with formatter chain applied</param>
-    public void SetParameters(string contentPath, string buildPath,
-        IDictionary<string, IStaticProcessor> staticFiles,
-        IDictionary<string, (Content, IContentController)> allContent,
-        IFormatHTML htmlFormat)
-    { }
-
     /// <summary>
     /// Apply HTML formatting (with IFormatHTML passed with SetParameters()) to a particular content item.
     /// The default HTML property and all possibly other HTML snippets should be formatted.

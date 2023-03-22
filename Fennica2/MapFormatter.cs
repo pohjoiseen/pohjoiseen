@@ -23,13 +23,11 @@ namespace Fennica2;
 /// </summary>
 public class MapFormatter : IContentFormatter
 {
-    private IDictionary<string, (Content, IContentController)> _allContent;
+    private ITeosEngine _teosEngine;
 
-    public void SetParameters(string contentPath, string buildPath,
-        IDictionary<string, IStaticProcessor> staticFiles,
-        IDictionary<string, (Content, IContentController)> allContent)
+    public void SetTeosEngine(ITeosEngine teosEngine)
     {
-        _allContent = allContent;
+        _teosEngine = teosEngine;
     }
 
     /// <summary>
@@ -43,12 +41,11 @@ public class MapFormatter : IContentFormatter
     {
         FeatureCollection[] geoJSONs = new FeatureCollection[16];
             
-        var posts = (from p in _allContent
+        var posts = (from p in _teosEngine.AllContent
             where p.Value.Item1 is Post post
                   && post.Language == language
             select (Post)p.Value.Item1).ToList();
 
-            
         for (int i = 0; i < 16; i++)
         {
             geoJSONs[i] = new FeatureCollection();
@@ -100,7 +97,7 @@ public class MapFormatter : IContentFormatter
         bool matched;
         const string openTag = "<!--map\\s*([^>]+)?-->", closeTag = "<!--/map-->";
 
-        var content = (FennicaContent)_allContent[path].Item1;
+        var content = (FennicaContent)_teosEngine.AllContent[path].Item1;
             
         do
         {

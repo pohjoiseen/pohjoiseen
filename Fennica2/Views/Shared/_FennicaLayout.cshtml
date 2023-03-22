@@ -134,6 +134,8 @@
                         <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" ? "active" : "")">@(Localizer["blog"].Value)</a> |
                         <a href="/@layoutParams.Language/article/contents/" class="@(layoutParams.BigHeaderPage == "contents" ? "active" : "")">@(Localizer["contents"])</a> |
                         <a href="/@layoutParams.Language/article/about/" class="@(layoutParams.BigHeaderPage == "about" ? "active" : "")">@(Localizer["about-website"])</a> |
+                        <a href="@Fennica.Twitter"><img class="twitter" alt="Twitter" src="/static/twitter-white.svg" />Twitter</a> |
+                        <br class="onlymobile-inline" />
                     </text>
                 }
                 @if (layoutParams.LanguageVersions.ContainsKey("fi"))

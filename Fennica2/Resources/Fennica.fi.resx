@@ -147,6 +147,15 @@
   <data name="previous" xml:space="preserve">
     <value>Edellinen</value>
   </data>
+  <data name="address">
+    <value>Ajo-osoite</value>
+  </data>
+  <data name="public-transport">
+    <value>Saavutettavuus joukkoliikenteellä</value>
+  </data>
+  <data name="twitter-thread">
+    <value>Alkuperäinen Twitter-ketju</value>
+  </data>
   <data name="published-on" xml:space="preserve">
     <value>Julkaistu</value>
   </data>

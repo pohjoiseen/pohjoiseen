@@ -3,7 +3,7 @@
 /// <summary>
 /// Loads (deserializes) a content file into an instance of a class inheriting from Content.
 /// </summary>
-public interface IContentLoader
+public interface IContentLoader : ITeosEngineAware
 {
     /// <summary>
     /// Loads (deserializes) a content item.

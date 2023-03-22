@@ -34,7 +34,7 @@ public class PostController : FennicaController
         var post = (Post)content;
         if (post.Description.Length > 0)
         {
-            post.Description = await HTMLFormat.FormatHTML(post.Description, post.Name);
+            post.Description = await TeosEngine.FormatHTML(post.Description, post.Name);
         }
 
         if (post.Geo != null)
@@ -43,7 +43,20 @@ public class PostController : FennicaController
             {
                 if (geo.Description.Length > 0)
                 {
-                    geo.Description = await HTMLFormat.FormatHTML(geo.Description, post.Name);
+                    geo.Description = await TeosEngine.FormatHTML(geo.Description, post.Name);
+                }
+
+                if (geo.Links != null && geo.Links.Length > 0)
+                {
+                    foreach (var link in geo.Links)
+                    {
+                        if (link.Path != null)
+                        {
+                            // this is for frontend usage, so convert to public URL
+                            link.Path = TeosEngine.AllContent[TeosEngine.ResolvePath(link.Path, post.Name)].Item1
+                                .CanonicalURL;
+                        }
+                    }
                 }
             }
         }
@@ -77,7 +90,7 @@ public class PostController : FennicaController
 
         // next/prev post: same language, sort by date then title, next one after this one
         var allPosts =
-            (from p in AllContent
+            (from p in TeosEngine.AllContent
                 where p.Value.Item1 as Post != null
                 select p.Value.Item1 as Post).ToList();
         var prevPost =

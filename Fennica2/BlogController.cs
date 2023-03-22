@@ -27,7 +27,7 @@ public class BlogController : FennicaController
     /// <returns>Posts</returns>
     private List<Post> GetPosts(Blog blog)
     {
-        return (from p in AllContent
+        return (from p in TeosEngine.AllContent
             where p.Value.Item1 is Post
                   && ((Post)p.Value.Item1).Language == blog.Language
             orderby ((Post)p.Value.Item1).PostDate descending,
@@ -225,7 +225,7 @@ public class BlogController : FennicaController
             { "Page", page },
             { "TotalPages", CountPages(allPosts) },
             { "Pagination", GetPagesForPagination(CountPages(allPosts), page) },
-            { "BuildPath", BuildPath }
+            { "BuildPath", TeosEngine.BuildPath }
         }));
     }
 }

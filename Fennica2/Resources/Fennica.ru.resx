@@ -147,6 +147,15 @@
   <data name="previous" xml:space="preserve">
     <value>Назад</value>
   </data>
+  <data name="address">
+    <value>Адрес для проезда</value>
+  </data>
+  <data name="public-transport">
+    <value>Общественный транспорт</value>
+  </data>
+  <data name="twitter-thread">
+    <value>Оригинал Twitter-треда</value>
+  </data>
   <data name="published-on" xml:space="preserve">
     <value>Опубликовано</value>
   </data>

@@ -112,6 +112,16 @@ function formatPostDate(name: string): string {
  */
 function renderMapPopup(geo: Geo, post: PostDefinition, name: string, url: string): string {
     const image = geo.titleImage || post.titleImage;
+    
+    let links = `<b>${_('Read more', lang)}</b>: <a href=${url + (geo.anchor ? '#' + geo.anchor : '')}>${post.title}</a>`;
+    if (geo.links && geo.links.length) {
+        links = geo.links.map((link: { label?: string; path?: string; }) => {
+            const target = link.path || url + (geo.anchor ? '#' + geo.anchor : '');
+            return link.label
+                ? `<b><a href="${target}">${link.label}</a></b>`
+                : `<b>${_('Read more', lang)}</b>: <a href=${target}>${post.title}</a></b>`
+        }).join("<br/>");
+    }
 
     return `<div class="map-popup">
         <h4><a href=${url + (geo.anchor ? '#' + geo.anchor : '')}>
@@ -119,10 +129,10 @@ function renderMapPopup(geo: Geo, post: PostDefinition, name: string, url: strin
         </a></h4>
         ${geo.subtitle && `<div class="map-popup-subtitle">${geo.subtitle}</div>`}
         ${image && `<p><img src=${image} /></p>`}
-        ${geo.description && `<p>${geo.description}</p>`}
+        ${(geo.description || post.description) && `<p>${geo.description || post.description}</p>`}
         <p>
-            <b>${_('Read more', lang)}</b>: <a href=${url + (geo.anchor ? '#' + geo.anchor : '')}>${post.title}</a><br/>
-            <b>${_('Published on', lang)}</b>: ${formatPostDate(name)} 
+            ${links}<br>
+            <b>${_('Published on', lang)}</b>: ${formatPostDate(name)}
         </p>
     </div>`;
 }

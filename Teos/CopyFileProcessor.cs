@@ -11,8 +11,13 @@ public class CopyFileProcessor : IStaticProcessor
     private readonly string _inputDir;
     private readonly string _outputDir;
     private readonly string[] _excludeRegexps;
-    private string _contentPath = "";
-    private string _buildPath = "";
+
+    private ITeosEngine _teosEngine;
+    
+    public void SetTeosEngine(ITeosEngine teosEngine)
+    {
+        _teosEngine = teosEngine;
+    }
 
     /// <summary>
     /// CopyFileProcessor constructor.
@@ -25,17 +30,6 @@ public class CopyFileProcessor : IStaticProcessor
         _inputDir = inputDir;
         _outputDir = outputDir ?? inputDir;
         _excludeRegexps = excludeRegexps;
-    }
-
-    /// <summary>
-    /// Sets paths from engine configuration.
-    /// </summary>
-    /// <param name="contentPath">Absolute path to content base dir</param>
-    /// <param name="buildPath">Absolute path to output dir</param>
-    public void SetBasePaths(string contentPath, string buildPath)
-    {
-        _contentPath = contentPath;
-        _buildPath = buildPath;
     }
 
     /// <summary>
@@ -73,8 +67,8 @@ public class CopyFileProcessor : IStaticProcessor
         // check if mtime of original file is newer than the copy
         // (File.GetLastWriteTimeUtc() will return 1.1.1601 if the file does not exist)
         string outputPath = path.Replace(_inputDir, _outputDir);
-        return File.GetLastWriteTimeUtc(_contentPath + path) >
-               File.GetLastWriteTimeUtc(_buildPath + outputPath);
+        return File.GetLastWriteTimeUtc(_teosEngine.ContentPath + path) >
+               File.GetLastWriteTimeUtc(_teosEngine.BuildPath + outputPath);
     }
 
     /// <summary>
@@ -88,13 +82,13 @@ public class CopyFileProcessor : IStaticProcessor
         string outputPath = path.Replace(_inputDir, _outputDir);
             
         // create destination directory if not exists
-        Directory.CreateDirectory(Path.GetDirectoryName(_buildPath + outputPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(_teosEngine.BuildPath + outputPath)!);
 
         // async copy
-        using (var sourceStream = new FileStream(_contentPath + path, FileMode.Open, FileAccess.Read, FileShare.Read,
+        using (var sourceStream = new FileStream(_teosEngine.ContentPath + path, FileMode.Open, FileAccess.Read, FileShare.Read,
                    4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
         {
-            using (var destinationStream = new FileStream(_buildPath + outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+            using (var destinationStream = new FileStream(_teosEngine.BuildPath + outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
                        4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
                 await sourceStream.CopyToAsync(destinationStream);

@@ -29,6 +29,6 @@ public class HeadingIdFormatter : IContentFormatter
         }
 
         wrappedHtml = document.ToString(SaveOptions.DisableFormatting);
-        return Task.FromResult(wrappedHtml.Substring(6, wrappedHtml.Length - 14));
+        return Task.FromResult(wrappedHtml.Replace("<html>", "").Replace("</html>", ""));
     }
 }

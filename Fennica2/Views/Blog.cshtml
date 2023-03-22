@@ -1,4 +1,8 @@
 ﻿@model Blog
+@{
+    int miniCounter = 0;
+    bool firstPost = true;
+}
 
 <main class="blog-main">
     @if (ViewBag.Page == 1)
@@ -17,42 +21,82 @@
         {
             titleImage = titleImage1X;
         }
-        
-        <article class="post-list-entry">
-            @if (post.TitleImage.Length > 0)
+        // show <hr> between groups of mini and non-mini posts
+        // wrap every two mini posts into a div and keep counters for that
+        // rather awkward code but oh well
+        bool showHr = !firstPost && ((post.Mini && miniCounter == 0) || (!post.Mini && miniCounter > 0));
+        // 0th mini: close = false, open = true
+        // 1st mini: close = false, open = false
+        // 2nd mini: close = true, open = true
+        // 3st mini: close = false, open = false
+        // 4th mini: close = true, open = true
+        // non-mini: close = true, open = false
+        bool openMiniWrapper = miniCounter % 2 == 0 && post.Mini;
+        bool closeMiniWrapper = miniCounter > 0 && (!post.Mini || miniCounter % 2 == 0);
+        firstPost = false;
+        if (post.Mini)
+        {
+            miniCounter++;
+        }
+        else
+        {
+            miniCounter = 0;
+        }
+        <text>
+            @if (showHr)
             {
-                <a class="post-list-entry-titleimage" href="@post.CanonicalURL"><img src="@titleImage"/></a>
+                <hr/>
             }
-            else
+            @if (closeMiniWrapper)
             {
-                <div class="post-list-entry-notitleimage"></div>
+                @Html.Raw("</div>")
             }
-            <div class="post-list-entry-body">
-                <div class="post-list-entry-top">
-                    <div class="post-list-entry-title">
-                        <h2><a href="@post.CanonicalURL">@post.Title</a></h2>
-                        <h4><time>@post.GetFormattedPostDate()</time></h4>
-                    </div>
-                    @if (post.CoatsOfArms.Length > 0)
-                    {
-                        <div class="post-list-entry-coatsofarms">
-                            @foreach (var coa in post.CoatsOfArms)
-                            {
-                                <img src="@coa.Url" style="--width: @(coa.Size > 0 ? coa.Size : Fennica.CoatOfArmsSize)px" />
-                            }
-                        </div>
-                    }
-                </div>
-                @if (post.Description.Length > 0)
+            @if (openMiniWrapper)
+            {
+                @Html.Raw("<div class=\"post-mini-wrapper\">")
+            }
+            <article class="post-list-entry @(post.Mini ? "post-mini" : "post-normal")">
+                @if (post.TitleImage.Length > 0)
                 {
-                    <p class="post-list-entry-description">
-                        @Html.Raw(post.Description)
-                    </p>
+                    <text>
+                        <a class="post-list-entry-titleimage" href="@post.CanonicalURL"><img src="@titleImage"/></a>
+                        @Html.Raw("<div class=\"post-list-entry-body\">")
+                    </text>
                 }
-            </div>
-        </article>
+                else
+                {
+                    @:<div>
+                }
+                    <div class="post-list-entry-top">
+                        <div class="post-list-entry-title">
+                            <h2><a href="@post.CanonicalURL">@post.Title</a></h2>
+                            <h4><time>@post.GetFormattedPostDate()</time></h4>
+                        </div>
+                        @if (post.CoatsOfArms.Length > 0)
+                        {
+                            <div class="post-list-entry-coatsofarms">
+                                @foreach (var coa in post.CoatsOfArms)
+                                {
+                                    <img src="@coa.Url" style="--width: @((coa.Size > 0 ? coa.Size : Fennica.CoatOfArmsSize) / (post.Mini ? 2 : 1))px"/>
+                                }
+                            </div>
+                        }
+                    </div>
+                    @if (post.Description.Length > 0)
+                    {
+                        <p class="post-list-entry-description">
+                            @Html.Raw(post.Description)
+                        </p>
+                    }
+                @Html.Raw("</div>")
+            </article>
+        </text>
     }
-    
+    @if (miniCounter > 0)
+    {
+        @Html.Raw("</div>")
+    }
+
     @if (ViewBag.TotalPages > 1)
     {
         <nav class="navigation pagination" role="navigation">

@@ -7,7 +7,7 @@ namespace Teos;
 /// <summary>
 /// The central class of the static site generator.
 /// </summary>
-public class TeosEngine : IFormatHTML
+public class TeosEngine : ITeosEngine
 {
     //// Configuration
 
@@ -20,12 +20,14 @@ public class TeosEngine : IFormatHTML
     /// Where the content is scanned for.
     /// </summary>
     private readonly string _contentPath;
-
+    public string ContentPath => _contentPath;
+    
     /// <summary>
     /// Where the content is written out to.
     /// </summary>
     private readonly string _buildPath;
-
+    public string BuildPath => _buildPath;
+    
     /// <summary>
     /// Filter out all draft content.
     /// </summary>
@@ -58,12 +60,16 @@ public class TeosEngine : IFormatHTML
     /// Map of all static files to their processors
     /// </summary>
     private Dictionary<string, IStaticProcessor> _staticFiles = new();
+
+    public IDictionary<string, IStaticProcessor> StaticFiles => _staticFiles;
         
     /// <summary>
     /// Map of all dynamic content files to loaded object and controller.
     /// </summary>
     private IDictionary<string, (Content, IContentController)> _allContent =
         new Dictionary<string, (Content, IContentController)>();
+
+    public IDictionary<string, (Content, IContentController)> AllContent => _allContent;
 
     /// <summary>
     /// Map of URLs to content items.
@@ -100,7 +106,7 @@ public class TeosEngine : IFormatHTML
         _buildPath = buildPath.TrimEnd('/') + '/';
         _withDrafts = withDrafts;
     }
-
+    
     /// <summary>
     /// Adds a processor to the configuration.  Processors will try to match files in the order they
     /// were added with AddProcessor().
@@ -109,7 +115,7 @@ public class TeosEngine : IFormatHTML
     /// <returns>Self, for chaining</returns>
     public TeosEngine AddStaticProcessor(IStaticProcessor processor)
     {
-        processor.SetBasePaths(_contentPath, _buildPath);
+        processor.SetTeosEngine(this);
         _staticProcessors.Add(processor);
         return this;
     }
@@ -129,7 +135,8 @@ public class TeosEngine : IFormatHTML
         IContentController controller)
         where T : Content
     {
-        controller.SetParameters(_contentPath, _buildPath, _staticFiles, _allContent, this);
+        loader.SetTeosEngine(this);
+        controller.SetTeosEngine(this);
         _contentTypes.Add(pathRegexp, (loader, controller, typeof(T)));
         return this;
     }
@@ -141,7 +148,7 @@ public class TeosEngine : IFormatHTML
     /// <returns>Self, for chaining</returns>
     public TeosEngine AddHTMLFormatter(IContentFormatter formatter)
     {
-        formatter.SetParameters(_contentPath, _buildPath, _staticFiles, _allContent);
+        formatter.SetTeosEngine(this);
         _formatters.Add(formatter);
         return this;
     }
@@ -465,6 +472,9 @@ public class TeosEngine : IFormatHTML
     /// <param name="e"></param>
     private async void OnWatchChanged(object sender, FileSystemEventArgs e)
     {
+        // wait 0.2s below doing everything so that we do not end up trying to read a temporary file
+        // that is immediately deleted
+        await Task.Delay(200);
         if (!File.Exists(e.FullPath))
         {
             return;  // might no longer exist; in practice saving files tends to create temporary files
@@ -566,8 +576,16 @@ public class TeosEngine : IFormatHTML
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnWatchDeleted(object sender, FileSystemEventArgs e)
+    private async void OnWatchDeleted(object sender, FileSystemEventArgs e)
     {
+        // wait 0.2s below doing everything so that we do not end up trying to react to a temporary file
+        // that is immediately recreated
+        await Task.Delay(200);
+        if (File.Exists(e.FullPath))
+        {
+            return;  // actually still exists, whatever
+        }
+
         if (e.FullPath.Contains(".git") || e.FullPath.EndsWith("~"))
         {
             return;  // ignore git stuff, temporary backup files
@@ -698,5 +716,39 @@ public class TeosEngine : IFormatHTML
             html = await formatter.FormatHTML(html, path);
         }
         return html;
+    }
+
+    /// <summary>
+    /// Resolves relative path to "target" content or static file, from "source" file.  
+    /// </summary>
+    /// <param name="target">Target content or static file</param>
+    /// <param name="source">Source content file</param>
+    /// <returns></returns>
+    public string ResolvePath(string target, string source)
+    {
+        // only handle relative paths
+        if (target.StartsWith("."))
+        {
+            // directory name of the source file, if available.  Ensure also '/' directory separator
+            var basepath = Path.GetDirectoryName(source) == null ? "" : Path.GetDirectoryName(source)!.Replace('\\', '/');
+
+            // resolve and again ensure '/' directory separator
+            if (basepath.Length > 0)
+            {
+                // TODO: this is really ridiculous, is there no other way...
+                return Path.GetFullPath(Path.Combine(basepath, target))
+                    .Replace(Directory.GetCurrentDirectory(), "").Replace('\\', '/').Substring(1);
+            }
+
+            // we're already in the base dir
+            if (target.StartsWith("./"))
+            {
+                return target.Substring(2);
+            }
+            
+            throw new Exception("Could not resolve path " + target + ", base file already in root directory");
+        }
+
+        return target;
     }
 }

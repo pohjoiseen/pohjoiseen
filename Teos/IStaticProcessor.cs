@@ -6,7 +6,7 @@
 /// statically even then.  Output files are not rebuilt if they (all) exist and are not older than
 /// input files.
 /// </summary>
-public interface IStaticProcessor
+public interface IStaticProcessor : ITeosEngineAware
 {
     /// <summary>
     /// Can this processor in its current configuration handle a particular file?
@@ -14,13 +14,6 @@ public interface IStaticProcessor
     /// <param name="path">Relative filepath to check against</param>
     /// <returns>Yes/No</returns>
     public bool Match(string path);
-
-    /// <summary>
-    /// Sets paths from engine configuration.
-    /// </summary>
-    /// <param name="contentPath">Absolute path to content base dir</param>
-    /// <param name="buildPath">Absolute path to output dir</param>
-    public void SetBasePaths(string contentPath, string buildPath);
 
     /// <summary>
     /// Does the output for this processor for this file need to be regenerated?

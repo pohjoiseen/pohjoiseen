@@ -147,6 +147,15 @@
   <data name="previous" xml:space="preserve">
     <value>Previous</value>
   </data>
+  <data name="address">
+    <value>Driving address</value>
+  </data>
+  <data name="public-transport">
+    <value>Public transport access</value>
+  </data>
+  <data name="twitter-thread">
+    <value>Original Twitter thread</value>
+  </data>
   <data name="published-on" xml:space="preserve">
     <value>Published on</value>
   </data>

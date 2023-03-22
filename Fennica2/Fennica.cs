@@ -24,7 +24,9 @@ public class Fennica
 
     public static readonly int CoatOfArmsSize = 150;
 
-    public static readonly int PostsPerPage = 25;
+    public static readonly int PostsPerPage = 24;
 
     public static readonly string GAID = "UA-72859112-1";
+    
+    public static readonly string Twitter = "https://twitter.com/enotogorsk";
 }

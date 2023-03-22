@@ -14,5 +14,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Teos\Teos.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Content\k-hame\hameenlinna\hauho\i" />
+  </ItemGroup>
   
 </Project>
