@@ -1022,6 +1022,15 @@ nav.navigation {
 
 /* Mobile, Tablet */
 @media (max-width: 1023px) {
+    .post-list-entry {
+        flex-direction: column;
+        padding-top: 0;
+    }
+
+    .post-list-entry-titleimage {
+        width: 100%;
+    }
+    
     .post-list-entry-title h2 {
         font-size: 30px;
         line-height: 35px;
@@ -1033,6 +1042,43 @@ nav.navigation {
 
     .post-heading-coatsofarms img {
         width: calc(var(--width) / 1.5);
+    }
+
+    .post-list-entry-titleimage img {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .post-list-entry-title h2 {
+        font-size: 25px;
+        line-height: 30px;
+        margin: 0 0 3px 0;
+        padding-bottom: 3px;
+    }
+
+    .post-list-entry-body {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 10px;
+    }
+
+    .post-list-entry-description {
+        margin: 5px 0;
+    }
+
+    .post-list-entry {
+        position: relative;
+    }
+
+    .post-list-entry-coatsofarms {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+
+    .post-mini .post-list-entry-title h2 {
+        font-size: 16px;
+        line-height: 18px;
     }
 }
 
@@ -1053,44 +1099,13 @@ nav.navigation {
     .blog-main {
         padding: 0;
     }
-
-    .post-list-entry {
-        flex-direction: column;
-        padding-top: 0;
-    }
-
-    .post-list-entry-titleimage {
-        width: 100%;
-    }
-
-    .post-list-entry-titleimage img {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .post-list-entry-title h2 {
-        font-size: 25px;
-        line-height: 30px;
-        margin: 0 0 3px 0;
-        padding-bottom: 3px;
-    }
-
-    .post-list-entry-coatsofarms img {
-        width: calc(var(--width) / 3);
-    }
-
-    .post-list-entry-body {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 0 10px;
-    }
-
-    .post-list-entry-description {
-        margin: 5px 0;
-    }
-
+    
     .post-heading-coatsofarms img {
         width: calc(var(--width) / 2);
+    }
+    
+    .post-list-entry-coatsofarms img {
+        width: calc(var(--width) / 3);
     }
 }
 

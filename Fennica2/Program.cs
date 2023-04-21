@@ -2,9 +2,12 @@
  * Fennica2 entry point.
  * Usage: fennica2 serve|generate [--with-drafts] 
  */
+
+using System.Text;
 using Teos;
 using Fennica2;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging.Console;
 
 // Locate content and build directories
 // TODO: Make configurable?
@@ -27,10 +30,15 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 builder.Services.AddRazorTemplating();
 builder.Services.AddLogging(opt =>
 {
-    opt.AddSimpleConsole(c =>
-    {
-        c.TimestampFormat = "[HH:mm:ss.fffff] ";
-    });
+    opt
+        .AddConsole(c =>
+        {
+            c.LogToStandardErrorThreshold = LogLevel.Trace;
+        })
+        .AddSimpleConsole(c =>
+        {
+            c.TimestampFormat = "[HH:mm:ss.fffff] ";
+        });
 });
 var app = builder.Build();
 
@@ -56,6 +64,42 @@ var engine = new TeosEngine("Fennica", contentDir, buildDir, args.Contains("--wi
     .AddHTMLFormatter(new GalleryFormatter())
     .AddHTMLFormatter(new MapFormatter())
     .AddHTMLFormatter(new HeadingIdFormatter());
+
+if (args.Contains("dump-geo-texts"))
+{
+    if (args.Length != 2)
+    {
+        Console.WriteLine("Usage: fennica2 dump-geo-texts {language}");
+    }
+
+    string language = args[1];
+    await engine.Prepare();
+    app.Logger.LogInformation("Dumping titles and descriptions for all geo points in alphabetic order");
+    
+    var posts = (from p in engine.AllContent
+        where p.Value.Item1 is Post post
+              && post.Language == language
+              orderby p.Value.Item1.Name
+        select (Post)p.Value.Item1).ToList();
+    Console.WriteLine("<!DOCTYPE HTML><html><head><meta charset=\"utf-8\"></head><body>");
+    Console.OutputEncoding = Encoding.UTF8;
+    foreach (var post in posts)
+    {
+        if (post.Geo != null)
+        {
+            foreach (var geo in post.Geo)
+            {
+                Console.WriteLine("<h1>" + geo.Title + "</h1>");
+                Console.WriteLine("<p><i>" + geo.Subtitle + "</i></p>");
+                Console.WriteLine("<p>" + geo.Description + "</p>");
+                Console.WriteLine("<pre>" + post.Name + "</pre>");
+                Console.WriteLine("<hr>");
+            }
+        }
+    }
+    Console.WriteLine("</body></html>");
+    return 0;
+}
 
 // Serve mode
 if (args.Contains("serve"))

@@ -149,7 +149,7 @@ public class ImageProcessor : IStaticProcessor
             using (var sourceStream = new FileStream(_teosEngine.ContentPath + path, FileMode.Open, FileAccess.Read, FileShare.Read,
                        4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
-                using (var destinationStream = new FileStream(_teosEngine.BuildPath + outputPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                using (var destinationStream = new FileStream(_teosEngine.BuildPath + outputPath, FileMode.Create, FileAccess.Write, FileShare.None,
                            4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 {
                     await sourceStream.CopyToAsync(destinationStream);
