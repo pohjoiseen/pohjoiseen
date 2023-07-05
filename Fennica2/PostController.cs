@@ -39,16 +39,16 @@ public class PostController : FennicaController
 
         if (post.Geo != null)
         {
-            foreach (var geo in post.Geo)
+            post.Geo = await Task.WhenAll(post.Geo.Select(async geo =>
             {
                 if (geo.Description.Length > 0)
                 {
                     geo.Description = await TeosEngine.FormatHTML(geo.Description, post.Name);
                 }
 
-                if (geo.Links != null && geo.Links.Length > 0)
+                if (geo.Links != null) 
                 {
-                    foreach (var link in geo.Links)
+                    geo.Links = geo.Links.Select(link =>
                     {
                         if (link.Path != null)
                         {
@@ -56,9 +56,13 @@ public class PostController : FennicaController
                             link.Path = TeosEngine.AllContent[TeosEngine.ResolvePath(link.Path, post.Name)].Item1
                                 .CanonicalURL;
                         }
-                    }
+
+                        return link;
+                    }).ToArray();
                 }
-            }
+
+                return geo;
+            }));
         }
             
         // prepend title image manually if that is requested
@@ -83,7 +87,8 @@ public class PostController : FennicaController
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = { new DateOnlyJsonConverter() },
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                IncludeFields = true
             });
             return;
         }

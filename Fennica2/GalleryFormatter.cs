@@ -61,7 +61,7 @@ public class GalleryFormatter : IContentFormatter
                 }
                 output.Append("<div class=\"glider-image-wrap\">");
                 // note: no width on purpose
-                output.Append($"<img src=\"{image.Attribute("src")!.Value}\" srcset=\"{(image.Attribute("srcset") != null ? image.Attribute("srcset")!.Value : "")}\" />");
+                output.Append($"<img loading=\"lazy\" src=\"{image.Attribute("src")!.Value}\" srcset=\"{(image.Attribute("srcset") != null ? image.Attribute("srcset")!.Value : "")}\" />");
                 if (image.Attribute("alt") != null && image.Attribute("alt")!.Value.Length > 0)
                 {
                     output.Append("<p>" + image.Attribute("alt")!.Value + "</p>");

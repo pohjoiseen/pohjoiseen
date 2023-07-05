@@ -7,7 +7,6 @@ using System.Text;
 using Teos;
 using Fennica2;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging.Console;
 
 // Locate content and build directories
 // TODO: Make configurable?
@@ -43,7 +42,7 @@ builder.Services.AddLogging(opt =>
 var app = builder.Build();
 
 // Configure Teos engine
-var engine = new TeosEngine("Fennica", contentDir, buildDir, args.Contains("--with-drafts"))
+var engine = new FennicaEngine("Fennica", contentDir, buildDir, args.Contains("--with-drafts"))
     .SetLogger(app.Logger)
     .AddStaticProcessor(new CopyFileProcessor("static"))
     .AddStaticProcessor(new ImageProcessor(new()

@@ -11,5 +11,10 @@ public abstract class FennicaContent : Content
     /// Language of the content item, e. g. "en", "fi".
     /// </summary>
     public string Language { get; set; } = "";
+
+    public virtual FennicaContent Clone()
+    {
+        return (FennicaContent) MemberwiseClone();
+    }
 }
 

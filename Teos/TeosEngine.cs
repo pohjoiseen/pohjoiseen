@@ -15,6 +15,8 @@ public class TeosEngine : ITeosEngine
     /// Project/configuration name.
     /// </summary>
     private readonly string _projectName;
+
+    public string ProjectName => _projectName;
         
     /// <summary>
     /// Where the content is scanned for.
@@ -32,6 +34,7 @@ public class TeosEngine : ITeosEngine
     /// Filter out all draft content.
     /// </summary>
     private readonly bool _withDrafts;
+    public bool WithDrafts => _withDrafts;
 
     /// <summary>
     /// List of all processors defined.
@@ -53,6 +56,7 @@ public class TeosEngine : ITeosEngine
     /// Optional logger.
     /// </summary>
     private ILogger _logger;
+    protected ILogger Logger => _logger;
         
     //// Loaded state
         
@@ -82,7 +86,7 @@ public class TeosEngine : ITeosEngine
     /// <summary>
     /// Whether we are in the loading state.
     /// </summary>
-    private bool _loading;
+    protected bool IsLoading;
 
     /// <summary>
     /// FS watcher for reloading content.
@@ -392,12 +396,12 @@ public class TeosEngine : ITeosEngine
     /// </summary>
     /// <param name="force">Reprocess static files even when output file(s) already exist</param>
     /// <returns>Async task</returns>
-    public async Task Prepare(bool force = false)
+    public virtual async Task Prepare(bool force = false)
     {
         try
         {
             _logger?.LogInformation("{name} initializing, loading and preparing content for serving/generating...", _projectName);
-            _loading = true;
+            IsLoading = true;
             await LoadAll();
             await ProcessStatic(force);
             await BuildRoutes();
@@ -406,7 +410,7 @@ public class TeosEngine : ITeosEngine
         }
         finally
         {
-            _loading = false;
+            IsLoading = false;
         }
     }
 
@@ -419,7 +423,7 @@ public class TeosEngine : ITeosEngine
     public async Task<bool> TryRender(string url, HttpResponse response)
     {
         // Until loading is complete, show a stub page that reloads itself in a second 
-        if (_loading)
+        if (IsLoading)
         {
             response.ContentType = "text/html; charset=utf-8";
             await response.WriteAsync("<html><head><style>html { width: 100%; height: 100% } body { width: 100%; height: 100%; margin: 0; } " +

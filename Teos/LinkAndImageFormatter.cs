@@ -225,6 +225,9 @@ public class LinkAndImageFormatter : IContentFormatter
                 //    figure.Parent.ReplaceWith(figure);
                 // }
             }
+            
+            // always lazy load (FIXME: should be configurable, can't be bothered right now...)
+            image.SetAttributeValue("loading", "lazy");
 
             // wrap into <a>, if the image is no longer the original one and if this setting is set
             if (_linkOriginalImage && image.Attribute("src")!.Value != baseSrc)
@@ -235,6 +238,7 @@ public class LinkAndImageFormatter : IContentFormatter
                 link.Add(image);
             }
         }
+
         return document;
     }
     private string GenerateImageFilename(string path, string suffix)

@@ -28,5 +28,7 @@ public class Fennica
 
     public static readonly string GAID = "UA-72859112-1";
     
-    public static readonly string Twitter = "https://twitter.com/enotogorsk";
+    public static readonly string Twitter = "https://twitter.com/EncFennica";
+    
+    public static readonly string TwitterRu = "https://twitter.com/enotogorsk";
 }

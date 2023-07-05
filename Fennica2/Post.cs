@@ -12,20 +12,21 @@ public class Post : FennicaContent
     /// <summary>
     /// Helper class: Geo point definition to show on a map, one or more can be associated to a post.
     /// </summary>
-    public class GeoPoint
+    public struct GeoPoint
     {
-        public string Title { get; set; } = "";
-        public string Subtitle { get; set; } = "";
-        public string Description { get; set; } = "";
-        public string TitleImage { get; set; } = "";
-        public string Anchor { get; set; } = "";
-        public double Lat { get; set; }
-        public double Lng { get; set; }
-        public int Zoom { get; set; }
-        public string Icon { get; set; } = "";
-        public string[] Maps { get; set; } = new string[] { };
-
-        public Link[] Links { get; set; } = new Link[] { };
+        public GeoPoint() {}
+        
+        public string Title = "";
+        public string Subtitle = "";
+        public string Description = "";
+        public string TitleImage = "";
+        public string Anchor = "";
+        public double Lat = 0.0;
+        public double Lng = 0.0;
+        public int Zoom = 0;
+        public string Icon = "";
+        public string[] Maps = new string[] { };
+        public Link[] Links = new Link[] { };
     }
 
     /// <summary>
@@ -40,7 +41,7 @@ public class Post : FennicaContent
     /// <summary>
     /// Helper class: Link definition for GeoPoint
     /// </summary>
-    public class Link
+    public struct Link
     {
         public string Label { get; set; }
         public string Path { get; set; }
