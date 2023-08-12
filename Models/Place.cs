@@ -1,0 +1,39 @@
+﻿using System.Text.Json.Serialization;
+
+namespace KoTi.Models;
+
+public class Place
+{
+    public int Id { get; set; }
+    
+    public int AreaId { get; set; }
+    
+    [JsonIgnore]
+    public Area Area { get; set; }
+
+    public string Name { get; set; } = "";
+
+    public string Alias { get; set; } = "";
+
+    public string Category { get; set; } = "";
+    
+    public string Notes { get; set; } = "";
+
+    public string Links { get; set; } = "";
+
+    public string Directions { get; set; } = "";
+
+    public string PublicTransport { get; set; } = "";
+
+    public string Season { get; set; } = "";
+    
+    public ExploreStatus ExploreStatus { get; set; }
+    
+    public int Order { get; set; }
+    
+    public double Lat { get; set; }
+    
+    public double Lng { get; set; }
+    
+    public int Zoom { get; set; }
+}

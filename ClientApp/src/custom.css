@@ -1,0 +1,179 @@
+body {
+  min-width: 992px;
+  /* Windows (Edge at least) is missing country flags emojis, wtf is with that */
+  font-family: "Twemoji Country Flags", var(--bs-font-sans-serif);
+}
+
+/* Fit h3's into navbar */
+.navbar h3 {
+  margin: 0;
+  line-height: 37px;
+}
+.navbar h3 a {
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+
+/* Silly "logo" */
+
+.koti-title {
+  background-color: #64382C;
+  padding: 3px;
+  height: 38px !important;
+  align-self: center;
+}
+
+.koti-title a {
+  color: #fff !important;
+  border: 2px solid white;
+  padding: 0 2px;
+  height: 32px;
+  display: inline-block;
+}
+
+.koti-title span {
+  display: inline-block;
+  transform: translateY(-6px);
+}
+
+/* Editable textarea component */
+
+.editable-textarea {
+  max-height: 50vh;
+}
+/* Explore status component */
+
+.explorestatus {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-bottom: -2px;
+  border: 3px solid transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.explorestatus-red {
+  background-color: var(--bs-red);
+}
+
+.explorestatus-orange {
+  background-color: var(--bs-orange);
+}
+
+.explorestatus-yellow {
+  background-color: var(--bs-yellow);
+}
+
+.explorestatus-green {
+  background-color: var(--bs-green);
+}
+
+.explorestatus-selected {
+  border: 3px solid #000;
+}
+
+/* Place category component */
+
+.placecategory {
+  display: inline-block;
+  width: 32px;
+  height: 37px;
+  border: 3px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  box-sizing: content-box;
+  background-color: transparent;
+  background-repeat: no-repeat;
+}
+
+.placecategory-selected {
+  border: 3px solid #000;
+}
+
+.accordion-button .placecategory {
+  margin-bottom: -7px;
+}
+
+.placecategory-selector-item {
+  width: 120px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.placecategory-selector-item .placecategory {
+  vertical-align: middle;
+}
+
+/* Editable component */
+
+.editable .editable-edit {
+  display: none;
+}
+
+.editable:hover .editable-edit {
+  display: inline-block;
+}
+
+@media (hover: none) {
+  .editable .editable-edit {
+    display: inline-block;
+  } 
+}
+
+/* Map point picker component */
+
+.mappointpicker {
+  float: right;
+  margin-left: 10px;
+  width: 501px;
+}
+
+.mappointpicker .mappointpicker-map {
+  width: 501px;
+  height: 501px;
+}
+
+.mappointpicker .mappointpicker-controls {
+  position: absolute;
+  z-index: 400;
+  right: 10px;
+  top: 10px;
+}
+
+.mappointpicker .mappointpicker-controls button {
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 3px;
+}
+
+
+.mappointpicker .mappointpicker-controls button:disabled {
+  background: #ccc;
+  color: #aaa;
+  opacity: 1;
+}
+
+.mappointpicker .mappointpicker-hline {
+  position: absolute;
+  z-index: 400;
+  top: 250px;
+  left: 75px;
+  height: 1px;
+  width: 351px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.mappointpicker .mappointpicker-vline {
+  position: absolute;
+  z-index: 400;
+  left: 250px;
+  top: 75px;
+  width: 1px;
+  height: 351px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Since we use <div> as accordion button */
+.accordion-button {
+  cursor: pointer;
+}
