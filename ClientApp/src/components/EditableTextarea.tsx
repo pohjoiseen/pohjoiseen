@@ -16,6 +16,16 @@ interface EditableTextareaProps {
     validation?: RegisterOptions;
 }
 
+const nl2br = (value: string): string => {
+    return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;')
+        .replaceAll("\n", "<br>");
+}
+
 const EditableTextarea = ({ value, onChange, initialState, onStateChange, viewTag,
                             titleString, emptyValueString, inputClassName, validation }: EditableTextareaProps) => {
     const ViewTag = viewTag || 'p';
@@ -25,7 +35,7 @@ const EditableTextarea = ({ value, onChange, initialState, onStateChange, viewTa
             {(value || emptyValueString) && 
                 <ViewTag>
                     {titleString && <><b>{titleString}</b>:&nbsp;</>}
-                    {value ? value : <span className="text-muted">{emptyValueString}</span>}
+                    {value ? <span dangerouslySetInnerHTML={{ __html: nl2br(value) }} /> : <span className="text-muted">{emptyValueString}</span>}
                     {' '}
                     <Edit className="align-self-center" />
                 </ViewTag>}
@@ -58,7 +68,13 @@ const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, va
     const { ref, ...rest } = register('value', validation);
     useEffect(() => {
         inputRef.current?.focus();
+        autoSize();
     }, [])
+    
+    const autoSize = () => {
+        inputRef.current!.style.height = '5px';
+        inputRef.current!.style.height = inputRef.current!.scrollHeight + 15 + 'px';
+    }
 
     const onValid = (values: { value: string }) => {
         editableContext.onEndEdit();
@@ -74,10 +90,7 @@ const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, va
                 inputRef.current = e;
             }}
             onKeyUp={(e) => { if (e.key === 'Escape') editableContext.onEndEdit() }}
-            onInput={(e) => {
-                inputRef.current!.style.height = '5px';
-                inputRef.current!.style.height = inputRef.current!.scrollHeight + 15 + 'px';
-            }}
+            onInput={autoSize}
             {...rest}
         />
         <div className="mt-2">
