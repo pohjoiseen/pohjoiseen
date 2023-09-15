@@ -110,6 +110,15 @@ body {
 
 .editable .editable-edit {
   display: none;
+  padding: 0 0.2rem;
+  margin-top: -4px;
+}
+
+.editable .editable-edit.bigger {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin-top: 0;
+  margin-bottom: -2px;
 }
 
 .editable:hover .editable-edit {

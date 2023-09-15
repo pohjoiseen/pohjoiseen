@@ -47,6 +47,6 @@ export const Edit = ({ className }: { className?: string }) => {
         size="sm"
         color="outline-secondary"
         onClick={onStartEdit}>
-        <i className="bi-pencil-square" />
+        Edit...
     </Button>;
 };

@@ -22,7 +22,7 @@ const EditableInline = ({ value, onChange, onStateChange, initialState,
         className="d-flex align-items-start"
         viewUI={<>
             <ViewTag className={`me-2 ${viewClassName || ''}`}>{value}</ViewTag>
-            <Edit className="align-self-center" />
+            <Edit className="align-self-center bigger" />
         </>}
         editUI={<EditableInlineForm
             value={value}
