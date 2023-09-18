@@ -1,22 +1,22 @@
 ﻿import * as React from 'react';
 import { RegisterOptions, useForm } from 'react-hook-form';
-import { Edit, Editable, EditableContext } from './Editable';
-import { useContext, useEffect, useRef } from 'react';
+import { Edit, Editable, EditableContext, EditableHandle } from './Editable';
+import { Ref, useContext, useEffect, useRef } from 'react';
 import { Button } from 'reactstrap';
 
 interface EditableInlineProps {
     value: string;
     onChange: (value: string) => void;
     onStateChange?: (state: boolean) => void;
-    initialState?: boolean;
     viewTag?: keyof JSX.IntrinsicElements;
     viewClassName?: string;
     inputClassName?: string;
     validation?: RegisterOptions;
+    editableRef?: Ref<EditableHandle>;
 }
 
-const EditableInline = ({ value, onChange, onStateChange, initialState,
-                          viewTag, viewClassName, inputClassName, validation }: EditableInlineProps) => {
+const EditableInline = ({ value, onChange, onStateChange, viewTag, viewClassName, inputClassName,
+                            validation, editableRef }: EditableInlineProps) => {
     const ViewTag = viewTag || 'span';
     return <Editable
         className="d-flex align-items-start"
@@ -31,7 +31,7 @@ const EditableInline = ({ value, onChange, onStateChange, initialState,
             validation={validation}
         />}
         onStateChange={onStateChange}
-        initialState={initialState}
+        ref={editableRef}
     />;
 };
 

@@ -1,17 +1,17 @@
 ﻿import * as React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Edit, Editable, EditableContext } from './Editable';
-import { useContext, useEffect, useRef } from 'react';
+import { Edit, Editable, EditableContext, EditableHandle } from './Editable';
+import { Ref, useContext } from 'react';
 import { Button } from 'reactstrap';
 
 interface EditableLinksListProps {
     value: string;
     onChange: (value: string) => void;
     onStateChange?: (state: boolean) => void;
-    initialState?: boolean;
+    editableRef?: Ref<EditableHandle>;
 }
 
-const EditableLinksList = ({ value, onChange, onStateChange, initialState }: EditableLinksListProps) => {
+const EditableLinksList = ({ value, onChange, onStateChange, editableRef }: EditableLinksListProps) => {
     return <Editable
         viewUI={value
             ? <>
@@ -25,8 +25,8 @@ const EditableLinksList = ({ value, onChange, onStateChange, initialState }: Edi
             value={value}
             onSubmit={onChange}
         />}
-        initialState={initialState}
         onStateChange={onStateChange}
+        ref={editableRef}
     />;
 };
 

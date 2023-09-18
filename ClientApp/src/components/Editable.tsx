@@ -1,12 +1,11 @@
 ﻿import * as React from 'react';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, forwardRef, ReactNode, useContext, useImperativeHandle, useState } from 'react';
 import { Button } from 'reactstrap';
 
 interface EditableProps {
     className?: string;
     viewUI: ReactNode;
     editUI: ReactNode;
-    initialState?: boolean;
     onStateChange?: (state: boolean) => void;
 }
 
@@ -15,20 +14,32 @@ interface EditableContext {
     onEndEdit: () => void;
 }
 
+export interface EditableHandle {
+    startEditing: () => void;
+}
+
 export const EditableContext = createContext<EditableContext>({
     onStartEdit: () => { throw new Error('editableContext provider not set') },
     onEndEdit: () => { throw new Error('editableContext provider not set') }
 });
 
-export const Editable = ({ className, viewUI, editUI, initialState, onStateChange }: EditableProps) => {
-    const [isEditing, setEditing] = useState(initialState || false);
-    
+export const Editable = forwardRef<EditableHandle, EditableProps>(
+    ({ className, viewUI, editUI, onStateChange }: EditableProps, ref) => {
+        
+    const [isEditing, setEditing] = useState(false);
+
     const doSetEditing = (state: boolean) => {
         setEditing(state);
         if (onStateChange) {
             onStateChange(state);
         }
     }
+    
+    useImperativeHandle(ref, () => ({
+        startEditing() {
+            doSetEditing(true);
+        },
+    }), [doSetEditing]);
     
     return <div className={`editable ${className || ''}`}>
         <EditableContext.Provider value={{
@@ -38,7 +49,7 @@ export const Editable = ({ className, viewUI, editUI, initialState, onStateChang
             {isEditing ? editUI : viewUI}
         </EditableContext.Provider>
     </div>;
-};
+});
 
 export const Edit = ({ className }: { className?: string }) => {
     const { onStartEdit } = useContext(EditableContext);

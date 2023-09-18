@@ -1,19 +1,19 @@
 ﻿import * as React from 'react';
 import { RegisterOptions, useForm } from 'react-hook-form';
-import { Edit, Editable, EditableContext } from './Editable';
-import { useContext, useEffect, useRef } from 'react';
+import { Edit, Editable, EditableContext, EditableHandle } from './Editable';
+import { Ref, useContext, useEffect, useRef } from 'react';
 import { Button } from 'reactstrap';
 
 interface EditableTextareaProps {
     value: string;
     onChange: (value: string) => void;
     onStateChange?: (state: boolean) => void;
-    initialState?: boolean;
     viewTag?: keyof JSX.IntrinsicElements;
     titleString?: string;
     emptyValueString?: string;
     inputClassName?: string;
     validation?: RegisterOptions;
+    editableRef?: Ref<EditableHandle>;
 }
 
 const nl2br = (value: string): string => {
@@ -26,8 +26,8 @@ const nl2br = (value: string): string => {
         .replaceAll("\n", "<br>");
 }
 
-const EditableTextarea = ({ value, onChange, initialState, onStateChange, viewTag,
-                            titleString, emptyValueString, inputClassName, validation }: EditableTextareaProps) => {
+const EditableTextarea = ({ value, onChange, onStateChange, viewTag,
+                            titleString, emptyValueString, inputClassName, validation, editableRef }: EditableTextareaProps) => {
     const ViewTag = viewTag || 'p';
     return <Editable
         className="d-flex align-items-start"
@@ -47,8 +47,8 @@ const EditableTextarea = ({ value, onChange, initialState, onStateChange, viewTa
             titleString={titleString}
             validation={validation}
         />}
-        initialState={initialState}
         onStateChange={onStateChange}
+        ref={editableRef}
     />;
 };
 
@@ -61,7 +61,7 @@ interface EditableTextareaFormProps {
 }
 
 const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, validation }: EditableTextareaFormProps) => {
-    const { register, handleSubmit, watch,
+    const { register, handleSubmit,
         formState: { errors } } = useForm<{ value: string }>({ defaultValues: { value } });
     const editableContext = useContext(EditableContext);
     const inputRef = useRef<HTMLTextAreaElement | null>();

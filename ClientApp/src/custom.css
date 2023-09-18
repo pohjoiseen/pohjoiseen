@@ -186,3 +186,7 @@ body {
 .accordion-button {
   cursor: pointer;
 }
+
+.place-header.with-alias {
+  padding: 0.625rem 1.25rem;
+}
