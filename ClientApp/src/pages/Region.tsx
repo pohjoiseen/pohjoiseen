@@ -1,22 +1,23 @@
 ﻿import * as React from 'react';
-import { Alert, Button, Card, CardBody, CardTitle, Container, Spinner } from 'reactstrap';
+import { useState } from 'react';
+import { Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { errorMessage } from '../util';
-import ExploreStatusIndicator from '../components/ExploreStatusIndicator';
 import Area from '../model/Area';
 import ExploreStatus from '../model/ExploreStatus';
-import { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { confirmModal } from '../components/ModalContainer';
 import EditableInline from '../components/EditableInline';
 import { useAreasQuery, useCountriesQuery, useRegionsQuery } from '../data/queries';
 import {
-    useCreateAreaMutation,
+    useUpdateRegionMutation,
     useDeleteRegionMutation,
+    useCreateAreaMutation,
     useUpdateAreaMutation,
-    useUpdateRegionMutation
+    useReorderAreasMutation
 } from '../data/mutations';
 import CreateModal from '../components/CreateModal';
+import AreaCard from '../components/AreaCard';
 
 const RegionPage = () => {
     // country/region id from route
@@ -47,6 +48,7 @@ const RegionPage = () => {
     const deleteRegionMutation = useDeleteRegionMutation();
     const createAreaMutation = useCreateAreaMutation();
     const updateAreaMutation = useUpdateAreaMutation();
+    const reorderAreasMutation = useReorderAreasMutation();
     
     /// loading/error messages ///
     
@@ -77,6 +79,13 @@ const RegionPage = () => {
         }
     };
 
+    const doReorderAreas = (from: number, to: number) => {
+        const newAreas = [...areas.data];
+        newAreas.splice(from, 1);
+        newAreas.splice(to, 0, areas.data[from]);
+        reorderAreasMutation.mutate(newAreas);
+    };
+
     /// main UI ///
 
     return <div>
@@ -96,26 +105,19 @@ const RegionPage = () => {
         <Container>
             {createAreaMutation.isError && <Alert color="danger">Creating area: {errorMessage(createAreaMutation.error)}</Alert>}
             {updateAreaMutation.isError && <Alert color="danger">Updating area: {errorMessage(updateAreaMutation.error)}</Alert>}
+            {reorderAreasMutation.isError && <Alert color="danger">Reordering areas: {errorMessage(reorderAreasMutation.error)}</Alert>}
             {updateRegionMutation.isError && <Alert color="danger">Updating region: {errorMessage(updateRegionMutation.error)}</Alert>}
             {deleteRegionMutation.isError && <Alert color="danger">Deleting region: {errorMessage(deleteRegionMutation.error)}</Alert>}
             {!areas.data.length && <p className="text-muted">No areas defined for this region yet.</p>}
             <div className="d-flex flex-wrap">
-                {areas.data.map(a => <div key={a.id} className="w-25 pb-1 pe-1">
-                    <Card>
-                        <CardBody>
-                            <CardTitle tag="h5" className="d-flex align-items-start">
-                                <div className="flex-shrink-0">
-                                <ExploreStatusIndicator
-                                    status={a.exploreStatus}
-                                    onChange={(status) => updateAreaMutation.mutate({ ...a, exploreStatus: status })}
-                                />
-                                </div>
-                                <div>&nbsp;</div>
-                                <div><Link to={`/country/${countryId}/region/${regionId}/area/${a.id}`}>{a.name}</Link></div>
-                            </CardTitle>
-                        </CardBody>
-                    </Card>
-                </div>)}
+                {areas.data.map((a, index) => <AreaCard
+                    key={a.id}
+                    area={a} 
+                    regionId={regionId} 
+                    countryId={countryId}
+                    index={index}
+                    onReorder={doReorderAreas}
+                />)}
                 {isAddAreaModalOpen && <CreateModal
                     object={{
                         id: 0,

@@ -17,3 +17,16 @@ export const getRegionsForCountry: (id: number) => Promise<Region[]> = async (id
     }
     return await response.json();
 };
+
+export const reorderRegionsInCountry: (id: number, ids: number[]) => Promise<void> = async (id, ids) => {
+    const response = await fetch(`api/Countries/${id}/Regions/Order`, {
+        method: 'PUT',
+        body: JSON.stringify({ ids }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 204) {
+        await handleError(response);
+    }
+};

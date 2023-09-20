@@ -1,4 +1,7 @@
-﻿import * as React from 'react';
+﻿/**
+ * This is the "inside" view of a place, within an accordion item.  The entire accordion item is PlaceComponent. 
+ */
+import * as React from 'react';
 import Place from '../model/Place';
 import { Button } from 'reactstrap';
 import { useRef, useState } from 'react';

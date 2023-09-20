@@ -113,6 +113,27 @@ public class RegionsController : ControllerBase
             .OrderBy(a => a.Order)
             .ToListAsync();
     }
+
+    // PUT: api/Regions/{id}/Areas/Order
+    [HttpPut("{id}/Areas/Order")]
+    public async Task<IActionResult> ReorderAreas(int id, OrderDTO dto)
+    {
+        var areasById = await _context.Areas
+            .Where(a => a.RegionId == id)
+            .ToDictionaryAsync(a => a.Id, a => a);
+        for (int i = 0; i < dto.Ids.Length; i++)
+        {
+            if (!areasById.ContainsKey(dto.Ids[i]))
+            {
+                return BadRequest();
+            }
+
+            areasById[dto.Ids[i]].Order = i + 1;
+        }
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
     
     private bool RegionExists(int id)
     {

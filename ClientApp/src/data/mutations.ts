@@ -1,11 +1,30 @@
 ﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Region from '../model/Region';
-import { deleteRegion, postRegion, putRegion } from '../api/regions';
 import { QueryKeys } from './queries';
+import Region from '../model/Region';
 import Area from '../model/Area';
-import { deleteArea, postArea, putArea } from '../api/areas';
 import Place from '../model/Place';
+import { reorderRegionsInCountry } from '../api/countries';
+import { deleteRegion, postRegion, putRegion, reorderAreasInRegion } from '../api/regions';
+import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas';
 import { deletePlace, postPlace, putPlace } from '../api/places';
+
+export const useReorderRegionsMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (regions: Region[]) => {
+            if (!regions.length) {
+                return;
+            }
+            await reorderRegionsInCountry(regions[0].countryId, regions.map(r => r.id));
+            const regionsForCountryData: Region[] | undefined = queryClient.getQueryData([QueryKeys.REGIONS_FOR_COUNTRY, regions[0].countryId]);
+            if (regionsForCountryData) {
+                queryClient.setQueryData([QueryKeys.REGIONS_FOR_COUNTRY, regions[0].countryId], regions);
+            } else {
+                await queryClient.invalidateQueries([QueryKeys.REGIONS_FOR_COUNTRY, regions[0].countryId]);
+            }
+        }
+    });
+};
 
 export const useCreateRegionMutation = () => {
     const queryClient = useQueryClient();
@@ -103,6 +122,23 @@ export const useDeleteAreaMutation = () => {
     });
 };
 
+export const useReorderAreasMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (areas: Area[]) => {
+            if (!areas.length) {
+                return;
+            }
+            await reorderAreasInRegion(areas[0].regionId, areas.map(a => a.id));
+            const areasForRegionData: Area[] | undefined = queryClient.getQueryData([QueryKeys.AREAS_FOR_REGION, areas[0].regionId]);
+            if (areasForRegionData) {
+                queryClient.setQueryData([QueryKeys.AREAS_FOR_REGION, areas[0].regionId], areas);
+            } else {
+                await queryClient.invalidateQueries([QueryKeys.AREAS_FOR_REGION, areas[0].regionId]);
+            }
+        }
+    });
+};
 
 export const useCreatePlaceMutation = () => {
     const queryClient = useQueryClient();
@@ -145,6 +181,24 @@ export const useDeletePlaceMutation = () => {
                 queryClient.setQueryData([QueryKeys.PLACES_FOR_AREA, place.areaId], placesForAreaData.filter(p => p.id !== place.id));
             } else {
                 await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, place.areaId]);
+            }
+        }
+    });
+};
+
+export const useReorderPlacesMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (places: Place[]) => {
+            if (!places.length) {
+                return;
+            }
+            await reorderPlacesInArea(places[0].areaId, places.map(p => p.id));
+            const placesForAreaData: Place[] | undefined = queryClient.getQueryData([QueryKeys.PLACES_FOR_AREA, places[0].areaId]);
+            if (placesForAreaData) {
+                queryClient.setQueryData([QueryKeys.PLACES_FOR_AREA, places[0].areaId], places);
+            } else {
+                await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, places[0].areaId]);
             }
         }
     });

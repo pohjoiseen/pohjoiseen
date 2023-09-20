@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi;
+using KoTi.DTO;
 using KoTi.Models;
 
 namespace KoTi.Controllers;
@@ -36,5 +37,26 @@ public class CountriesController : ControllerBase
             .Where(r => r.CountryId == id)
             .OrderBy(r => r.Order)
             .ToListAsync();
+    }
+
+    // PUT: api/Countries/{id}/Regions/Order
+    [HttpPut("{id}/Regions/Order")]
+    public async Task<IActionResult> ReorderRegions(int id, OrderDTO dto)
+    {
+        var regionsById = await _context.Regions
+            .Where(r => r.CountryId == id)
+            .ToDictionaryAsync(r => r.Id, r => r);
+        for (int i = 0; i < dto.Ids.Length; i++)
+        {
+            if (!regionsById.ContainsKey(dto.Ids[i]))
+            {
+                return BadRequest();
+            }
+
+            regionsById[dto.Ids[i]].Order = i + 1;
+        }
+
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }

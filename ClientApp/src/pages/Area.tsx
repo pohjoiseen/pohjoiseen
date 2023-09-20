@@ -1,8 +1,7 @@
 ﻿import * as React from 'react';
-import { useRef, useState } from 'react';
-import { Accordion, AccordionBody, AccordionItem, Alert, Button, Container, Spinner } from 'reactstrap';
+import { useState } from 'react';
+import { Accordion, Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { UseMutationResult } from '@tanstack/react-query';
 import { errorMessage } from '../util';
 import { confirmModal } from '../components/ModalContainer';
 import { useAreasQuery, useCountriesQuery, usePlacesQuery, useRegionsQuery } from '../data/queries';
@@ -10,6 +9,7 @@ import {
     useCreatePlaceMutation,
     useDeleteAreaMutation,
     useDeletePlaceMutation,
+    useReorderPlacesMutation,
     useUpdateAreaMutation,
     useUpdatePlaceMutation
 } from '../data/mutations';
@@ -20,14 +20,10 @@ import EditableTextarea from '../components/EditableTextarea';
 import EditableLinksList from '../components/EditableLinksList';
 import CreateModal from '../components/CreateModal';
 import ExploreStatus from '../model/ExploreStatus';
-import Area from '../model/Area';
-import Country from '../model/Country';
 import Place from '../model/Place';
-import PlaceView from '../components/PlaceView';
 import { PlaceCategory } from '../model/PlaceCategory';
-import PlaceCategoryIndicator from '../components/PlaceCategoryIndicator';
 import MapPointPicker from '../components/MapPointPicker';
-import { EditableHandle } from '../components/Editable';
+import PlaceComponent from '../components/PlaceComponent';
 
 const AreaPage = () => {
     // country/region id from route
@@ -64,6 +60,7 @@ const AreaPage = () => {
     const createPlaceMutation = useCreatePlaceMutation();
     const updatePlaceMutation = useUpdatePlaceMutation();
     const deletePlaceMutation = useDeletePlaceMutation();
+    const reorderPlacesMutation = useReorderPlacesMutation();
     
     /// loading/error messages ///
 
@@ -102,6 +99,13 @@ const AreaPage = () => {
         }
     };
     
+    const reorderPlaces = (from: number, to: number) => {
+        const newPlaces = [...area.places];
+        newPlaces.splice(from, 1);
+        newPlaces.splice(to, 0, area.places[from]);
+        reorderPlacesMutation.mutate(newPlaces);
+    };
+    
     /// main UI ///
 
     return <div>
@@ -130,6 +134,7 @@ const AreaPage = () => {
             {createPlaceMutation.isError && <Alert color="danger">Creating place: {errorMessage(createPlaceMutation.error)}</Alert>}
             {updatePlaceMutation.isError && <Alert color="danger">Updating place: {errorMessage(updatePlaceMutation.error)}</Alert>}
             {deletePlaceMutation.isError && <Alert color="danger">Deleting place: {errorMessage(deletePlaceMutation.error)}</Alert>}
+            {reorderPlacesMutation.isError && <Alert color="danger">Reordering places: {errorMessage(reorderPlacesMutation.error)}</Alert>}
             <MapPointPicker
                 mapType={country.mapType}
                 lat={area.lat}
@@ -159,16 +164,17 @@ const AreaPage = () => {
                 <h6 className="mt-4">Places:</h6>
                 {/* toggle prop workaround due to missing typings, see https://github.com/reactstrap/reactstrap/issues/2165 */}
                 <Accordion open={placeIdOpen} {...{toggle: togglePlace}}>
-                    {area.places.map(p => <PlaceAccordionItem
+                    {area.places.map((p, i) => <PlaceComponent
                         key={p.id}    
                         country={country}
                         area={area}
                         place={p}
+                        index={i}
                         updatePlaceMutation={updatePlaceMutation}
                         deletePlaceMutation={deletePlaceMutation}
-                        placeIdOpen={placeIdOpen}
-                        togglePlace={togglePlace}
-                        setPlaceIdOpen={setPlaceIdOpen}
+                        isOpen={placeIdOpen === p.id.toString()}
+                        onSetIsOpen={(isOpen) => setPlaceIdOpen(isOpen ? p.id.toString() : '')}
+                        onReorder={reorderPlaces}
                     />)}
                 </Accordion>
             </>}
@@ -202,85 +208,6 @@ const AreaPage = () => {
             />}
         </Container>
     </div>;
-};
-
-interface PlaceAccordionItemProps {
-    country: Country;
-    area: Area;
-    place: Place;
-    updatePlaceMutation: UseMutationResult<void, unknown, Place>;
-    deletePlaceMutation: UseMutationResult<void, unknown, Place>;
-    placeIdOpen: string;
-    togglePlace: (id: string) => void;
-    setPlaceIdOpen: (id: string) => void;
-}
-const PlaceAccordionItem = ({ area, country, place, updatePlaceMutation, deletePlaceMutation,
-                                placeIdOpen, togglePlace, setPlaceIdOpen }: PlaceAccordionItemProps) => {
-    const aliasRef = useRef<EditableHandle>(null);
-    const [isAddingAlias, setAddingAlias] = useState(false);
-    
-    return <AccordionItem>
-        {/* do not use <AccordionHeader> because it does not allow us to intercept onClick */}
-        <div className="accordion-header">
-            <div
-                tabIndex={0}
-                className={`accordion-button place-header ${placeIdOpen === place.id.toString() ? '' : 'collapsed'} ${place.alias ? 'with-alias' : ''}`}
-                onClick={(e) => {
-                    // click on accordion header should toggle accordion item, but not if it's on
-                    // explore status or editable inline
-                    const target = e.target as HTMLElement;
-                    if (target && ((target.classList && target.classList.contains('accordion-button')) ||
-                        (target.tagName && target.tagName === 'H5'))) {
-                        togglePlace(place.id.toString());
-                    }
-                }}
-            >
-                <ExploreStatusIndicator
-                    status={place.exploreStatus}
-                    onChange={(status) => updatePlaceMutation.mutate({ ...place, exploreStatus: status })}
-                />
-                &nbsp;
-                <PlaceCategoryIndicator
-                    category={place.category}
-                    onChange={(category) => updatePlaceMutation.mutate({ ...place, category })}
-                />
-                &nbsp;
-                <div className="d-flex flex-column">
-                    <EditableInline
-                        value={place.name}
-                        viewTag="h5"
-                        viewClassName="m-0"
-                        onChange={(value) => updatePlaceMutation.mutate({ ...place, name: value })}
-                        validation={{ required: true }}
-                    />
-                    <EditableInline
-                        value={place.alias}
-                        viewClassName="fst-italic"
-                        editableRef={aliasRef}
-                        onStateChange={(state) => setAddingAlias(state)}
-                        onChange={(value) => updatePlaceMutation.mutate({ ...place, alias: value })}
-                    />
-                </div>
-            </div>
-        </div>
-        <AccordionBody accordionId={place.id.toString()}>
-            <PlaceView
-                place={place}
-                isVisible={place.id.toString() === placeIdOpen}
-                area={area}
-                country={country}
-                isAddingAlias={isAddingAlias}
-                onAddAlias={() => aliasRef.current!.startEditing()}
-                onChange={(place) => updatePlaceMutation.mutate(place)}
-                onDelete={async () => {
-                    if (await confirmModal('Really delete this place?')) {
-                        await deletePlaceMutation.mutateAsync(place);
-                        setPlaceIdOpen('');
-                    }
-                }}
-            />
-        </AccordionBody>
-    </AccordionItem>;
 };
 
 export default AreaPage;

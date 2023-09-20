@@ -182,9 +182,15 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+/* Place accordion stuff */
+
 /* Since we use <div> as accordion button */
 .accordion-button {
   cursor: pointer;
+}
+
+.is-dragging {
+  opacity: 0.8;
 }
 
 .place-header.with-alias {

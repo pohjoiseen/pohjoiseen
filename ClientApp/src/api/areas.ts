@@ -45,3 +45,16 @@ export const getPlacesForArea: (id: number) => Promise<Place[]> = async (id) => 
     }
     return await response.json();
 };
+
+export const reorderPlacesInArea: (id: number, ids: number[]) => Promise<void> = async (id, ids) => {
+    const response = await fetch(`api/Areas/${id}/Places/Order`, {
+        method: 'PUT',
+        body: JSON.stringify({ ids }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 204) {
+        await handleError(response);
+    }
+};

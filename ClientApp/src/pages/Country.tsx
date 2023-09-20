@@ -1,13 +1,14 @@
 ﻿import * as React from 'react';
 import { useState } from 'react';
-import { Alert, Button, Card, CardBody, CardTitle, Container, Spinner } from 'reactstrap';
-import { Link, useParams } from 'react-router-dom';
+import { Alert, Button, Container, Spinner } from 'reactstrap';
+import { useParams } from 'react-router-dom';
 import { errorMessage } from '../util';
 import CreateModal from '../components/CreateModal';
 import Region from '../model/Region';
 import NavBar from '../components/NavBar';
 import { useCountriesQuery, useRegionsQuery } from '../data/queries';
-import { useCreateRegionMutation } from '../data/mutations';
+import { useCreateRegionMutation, useReorderRegionsMutation } from '../data/mutations';
+import RegionCard from '../components/RegionCard';
 
 const Country = () => {
     const countryId = parseInt(useParams()['countryId']!);
@@ -20,6 +21,7 @@ const Country = () => {
     const country = countries.isSuccess ? countries.data.find(c => c.id === countryId) : null;
 
     const createRegionMutation = useCreateRegionMutation();
+    const reorderRegionsMutation = useReorderRegionsMutation();
     
     if (countries.isError) {
         return <Alert color="danger">Loading countries: {errorMessage(countries.error)}</Alert>;
@@ -33,6 +35,13 @@ const Country = () => {
     if (!country) {
         return <Alert color="warning">Country not found</Alert>;
     }
+    
+    const doReorderRegions = (from: number, to: number) => {
+        const newRegons = [...regions.data];
+        newRegons.splice(from, 1);
+        newRegons.splice(to, 0, regions.data[from]);
+        reorderRegionsMutation.mutate(newRegons);
+    };
 
     return <div>
         <NavBar>
@@ -41,15 +50,10 @@ const Country = () => {
         </NavBar>
         <Container>
             {createRegionMutation.isError && <Alert color="danger">Creating region: {errorMessage(createRegionMutation.error)}</Alert>}
+            {reorderRegionsMutation.isError && <Alert color="danger">Reordering regions: {errorMessage(reorderRegionsMutation.error)}</Alert>}
             {!regions.data.length && <p className="text-muted">No regions defined for this country yet.</p>}
             <div className="d-flex flex-wrap">
-                {regions.data.map(r => <div key={r.id} className="w-25 pb-1 pe-1">
-                    <Card>
-                        <CardBody>
-                            <CardTitle tag="h5"><Link to={`/country/${countryId}/region/${r.id}`}>{r.name}</Link></CardTitle>
-                        </CardBody>
-                    </Card>
-                </div>)}
+                {regions.data.map((r, index) => <RegionCard key={r.id} region={r} index={index} onReorder={doReorderRegions} />)}
             </div>
             {isAddRegionModalOpen && <CreateModal
                 object={{
