@@ -13,9 +13,26 @@ const Home = () => {
         <Container>
             <p>
                 Welcome to KoTi <i>(Kohteiden tietokanta, Finn. Place database)</i>!
-                This is Alexander Ulyanov's private database of places where he has and hasn't been.
-                Select a country from the list.
+                This is Alexander Ulyanov's private database of places where he has and hasn't been,
+                and pictures from them.
             </p>
+            <h3>Pictures</h3>
+            <div className="d-flex flex-wrap">
+                <div className="w-25 pb-1 pe-1">
+                    <Card>
+                        <CardBody>
+                            <CardTitle>
+                                <h2>
+                                    <i className="bi bi-upload" />
+                                    &nbsp;
+                                    <Link to="/pictures/upload">Upload</Link>
+                                </h2>
+                            </CardTitle>
+                        </CardBody>
+                    </Card>
+                </div>
+            </div>
+            <h3 className="mt-3">Countries</h3>
             {countries.isError && <Alert color="danger">{errorMessage(countries.error)}</Alert>}
             {countries.isLoading && <div><Spinner type="grow" size="sm"/> Loading...</div>}
             {countries.isSuccess && <div className="d-flex flex-wrap">
@@ -24,7 +41,7 @@ const Home = () => {
                         <CardBody>
                             <CardTitle>
                                 <h2>
-                                    {c.flagEmoji}
+                                {c.flagEmoji}
                                     &nbsp;
                                     <Link to={`/country/${c.id}`}>{c.name}</Link>
                                 </h2>
@@ -34,7 +51,8 @@ const Home = () => {
                 </div>)}
             </div>}
         </Container>
-    </div>;
+    </div>
+;
 };
 
 export default Home;

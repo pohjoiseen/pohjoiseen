@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Country from './pages/Country';
 import Region from './pages/Region';
 import Area from './pages/Area';
+import PicturesUpload from './pages/PicturesUpload';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,8 @@ const App = () => {
                         <Route path="/country/:countryId/region/:regionId" element={<Region />} />
                         <Route path="/country/:countryId/region/:regionId/area/new" element={<Area />} />
                         <Route path="/country/:countryId/region/:regionId/area/:areaId" element={<Area />} />
+                        
+                        <Route path="/pictures/upload" element={<PicturesUpload />} />
                     </Routes>
                 </ModalContainer>
             </QueryClientProvider>
