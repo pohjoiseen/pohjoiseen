@@ -2,18 +2,36 @@ import * as React from 'react';
 import { useState, useEffect, useCallback, useRef, FormEvent } from 'react';
 import { Alert, Button, Container } from 'reactstrap';
 import exifr from 'exifr';
-import { errorMessage } from '../util';
 import NavBar from '../components/NavBar';
-import Picture from '../model/Picture';
+import Picture, { PictureUploadResult } from '../model/Picture';
 import PicturesList, { PicturesViewMode } from '../components/PicturesList';
 import FileDropBox from '../components/FileDropBox';
+import { uploadPicture } from '../api/picturesUpload';
+
+const UPLOAD_IDLE = -1;
+const UPLOAD_ERROR = -2;
 
 const PicturesUpload = () => {
     const [viewMode, setViewMode] = useState(PicturesViewMode.THUMBNAILS);
+    // pictures list
     const [picturesForUpload, setPicturesForUpload] = useState<Picture[]>([]);
+    const setPictureForUpload = useCallback((index: number, picture: Picture) =>
+        setPicturesForUpload((pics) => {
+            const newPicturesForUpload = [...pics];
+            newPicturesForUpload[index] = picture;
+            return newPicturesForUpload;
+        }), []);
+    // picture that is currently being uploaded, or UPLOAD_IDLE/ERROR 
+    const [currentPictureIndex, setCurrentPictureIndex] = useState(UPLOAD_IDLE);
+    // ref snapshot of pictures list
+    const picturesForUploadRef = useRef<Picture[]>([]);
+    picturesForUploadRef.current = picturesForUpload;
+    // <input> for uploading
     const uploadInputRef = useRef<HTMLInputElement>(null);
+    // error message for uploading
+    const [uploadError, setUploadError] = useState(''); 
     
-    /// upload ///
+    /// enqueue for upload ///
     
     const addFile = useCallback(async (file: File) => {
         // only accept JPEGs for the time being
@@ -35,10 +53,14 @@ const PicturesUpload = () => {
         // retrieve EXIF and other metadata
         const meta = await exifr.parse(file);
 
+        // non-uploaded picture object
         const picture: Picture = {
             id: null,
+            blob: file,
             filename: file.name,
             url,
+            thumbnailUrl: url,
+            detailsUrl: url,
             uploadedAt: null,
             placeId: null,
             width,
@@ -53,8 +75,13 @@ const PicturesUpload = () => {
             lng: meta.longitude
         };
         
-        setPicturesForUpload(pics => [...pics, picture]);
-    }, [setPicturesForUpload]);
+        // add to picture list
+        setPicturesForUpload(pics => {
+            // start upload for this picture, but only if no other uploads active (nor there was an error)
+            setCurrentPictureIndex(idx => idx === UPLOAD_IDLE ? pics.length : idx);
+            return [...pics, picture]
+        });
+    }, [setPicturesForUpload, currentPictureIndex]);
     
     /// uploading pictures with a button ///
     
@@ -88,6 +115,80 @@ const PicturesUpload = () => {
         return () => document.removeEventListener('paste', onDocumentPaste);
     }, [addFile]);
     
+    /// actual upload, triggering on currentPictureIndex update ///
+    
+    useEffect(() => {
+        if (currentPictureIndex < 0) {
+            return;
+        }
+        
+        (async () => {
+            // references to pictures array, current picture, updating the current picture
+            // via functions as underlying ref can be changed during
+            const pictures = () => picturesForUploadRef.current;
+            const picture = () => picturesForUploadRef.current[currentPictureIndex];
+            const setPicture = (p: Picture) => setPictureForUpload(currentPictureIndex, p);
+            
+            // blob should always be non-null at this point but still
+            const blob = picture().blob;
+            if (blob) {
+                setUploadError('');
+                //console.log(`Uploading ${currentPictureIndex} (${picture().filename})`);
+                try {
+                    const result = await uploadPicture(blob, (percentage) => {
+                        // update visual percentage only for increments of 5%
+                        const roundedProgressOld = Math.round(picture().upload! / 5);
+                        const roundedProgressNew = Math.round(percentage / 5);
+                        if (roundedProgressOld !== roundedProgressNew) {
+                            setPicture({ ...picture(), upload: percentage });
+                        }
+                    });
+
+                    // intermediate phase: file uploaded to S3 (digital ocean) but not linked to database yet 
+                    URL.revokeObjectURL(picture().url);
+                    setPicture({
+                        ...picture(),
+                        url: result.pictureUrl,
+                        detailsUrl: result.detailsUrl,
+                        thumbnailUrl: result.thumbnailUrl,
+                        blob: undefined,
+                        upload: PictureUploadResult.UPLOADED
+                    });
+                    
+                    // TODO: store picture in database
+                    
+                    //console.log(`Successfully uploaded ${currentPictureIndex} (${picture().filename})`);
+                } catch (e) {
+                    console.error(e);
+                    setPicture({ ...picture(), upload: PictureUploadResult.FAILED });
+                    setUploadError('Uploading ' + picture().filename + ': ' + ((e as any).message || 'Unknown error'));
+                    //console.log(`Failed to upload ${currentPictureIndex} (${picture().filename})`);
+                    setCurrentPictureIndex(UPLOAD_ERROR);  // do not upload any more pictures (until explicitly requested)
+                    return;
+                }
+            }
+
+            // after upload is complete, look for any other picture that is not uploaded yet or failed,
+            // starting from the current one and looping from beginning; enqueue it as a next currentPictureIndex
+            for (let i = currentPictureIndex + 1; i !== currentPictureIndex; i++) {
+                if (i >= pictures().length) {
+                    i = 0;
+                    if (i === currentPictureIndex) {
+                        break;
+                    }
+                }
+
+                if (typeof pictures()[i].upload === 'undefined' || pictures()[i].upload === PictureUploadResult.FAILED) {
+                    //console.log(`Will next upload ${i} (${pictures()[i].filename})`);
+                    setCurrentPictureIndex(i);
+                    return;
+                }
+            }
+            setCurrentPictureIndex(UPLOAD_IDLE);  // uploaded everything possible
+            //console.log(`Nothing to upload`);
+        })();
+    }, [currentPictureIndex, setPictureForUpload, setUploadError]);
+    
     /// render ///
     
     return <div>
@@ -103,7 +204,12 @@ const PicturesUpload = () => {
             <input ref={uploadInputRef} type="file" hidden multiple onInput={onInputUpload} />
         </NavBar>
         <Container>
-            <PicturesList pictures={picturesForUpload} viewMode={viewMode} />
+            {uploadError.length > 0 && <Alert color="danger">{uploadError}<br/>Click the failed picture to retry</Alert>}
+            <PicturesList
+                pictures={picturesForUpload}
+                viewMode={viewMode}
+                onRetryUpload={(k) => setCurrentPictureIndex(k)}
+            />
             {!picturesForUpload.length && <h4 className="text-center">
                 Choose files to upload, drag or paste them here.
             </h4>}

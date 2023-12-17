@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi;
-using KoTi.DTO;
+using KoTi.RequestModels;
 using KoTi.Models;
 
 namespace KoTi.Controllers;

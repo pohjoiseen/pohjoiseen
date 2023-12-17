@@ -220,3 +220,30 @@ body {
   pointer-events: all;
   display: flex;
 }
+
+/* Picture list */
+
+.picture-upload-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(192, 192, 192, 0.5);
+  text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 10px white;
+  font-weight: bold;
+  font-size: 60px;
+}
+
+.picture-upload-overlay .btn {
+  text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 10px white;
+  font-weight: bold;
+  font-size: 60px;
+}
+
+.picture-upload-overlay .btn:focus {
+  box-shadow: none;
+}

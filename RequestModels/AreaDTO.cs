@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using KoTi.Models;
 
-namespace KoTi.DTO;
+namespace KoTi.RequestModels;
 
 public class AreaDTO
 {

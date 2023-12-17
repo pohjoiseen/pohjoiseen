@@ -32,7 +32,7 @@ const Home = () => {
                     </Card>
                 </div>
             </div>
-            <h3 className="mt-3">Countries</h3>
+            <h3 className="mt-3">Places</h3>
             {countries.isError && <Alert color="danger">{errorMessage(countries.error)}</Alert>}
             {countries.isLoading && <div><Spinner type="grow" size="sm"/> Loading...</div>}
             {countries.isSuccess && <div className="d-flex flex-wrap">

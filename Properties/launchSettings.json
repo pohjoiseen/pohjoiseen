@@ -15,7 +15,11 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
-        "KOTI__DBFILE": "koti.db"
+        "KOTI__DBFILE": "koti.db",
+        "KOTI__DO_ACCESS_KEY": "DO0042T6CJB4NF82FDYA",
+        "KOTI__DO_ENDPOINT": "https://ams3.digitaloceanspaces.com",
+        "KOTI__DO_BUCKET": "koti-dev",
+        "KOTI__DO_BASE_PUBLIC_URL": "https://koti-dev.ams3.cdn.digitaloceanspaces.com/"
       }
     },
     "KoTi real DB": {
@@ -25,16 +29,11 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
-        "KOTI__DBFILE": "C:\\Users\\ringtail\\koti.db"
-      }
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
-        "KOTI__DBFILE": "koti.db"
+        "KOTI__DBFILE": "C:\\Users\\ringtail\\koti.db",
+        "KOTI__DO_ACCESS_KEY": "DO0042T6CJB4NF82FDYA",
+        "KOTI__DO_ENDPOINT": "https://ams3.digitaloceanspaces.com",
+        "KOTI__DO_BUCKET": "koti-dev",
+        "KOTI__DO_BASE_PUBLIC_URL": "https://koti-dev.ams3.cdn.digitaloceanspaces.com/"
       }
     }
   }
