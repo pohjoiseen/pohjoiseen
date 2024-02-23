@@ -1,4 +1,5 @@
 export interface UploadResult {
+    hash: string;
     pictureUrl: string;
     thumbnailUrl: string;
     detailsUrl: string;
@@ -39,8 +40,10 @@ export const uploadPicture = async (picture: File, onProgress: (percentage: numb
         console.error(`${request.status} ${request.statusText}`, response);
         if (response && response.title) {
             throw new Error(response.title);
-        } else {
+        } else if (request.status) {
             throw new Error(`${request.status} ${request.statusText}`);
+        } else {
+            throw new Error('Network error');
         }
     }
     

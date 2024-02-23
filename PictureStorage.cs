@@ -16,9 +16,9 @@ public class PictureStorage
         PublicUrl = publicUrl;
     }
 
-    public async Task<string?> CheckPictureAlreadyUploadedAsync(string hash)
+    public async Task<string?> CheckPictureAlreadyUploadedAsync(string name)
     {
-        var objects = await _amazonS3.ListObjectsAsync(_bucketName, hash + '/');
+        var objects = await _amazonS3.ListObjectsAsync(_bucketName, name);
         if (objects.S3Objects.Count > 0)
         {
             var existingObject = objects.S3Objects[0];

@@ -36,4 +36,6 @@ public class Place
     public double Lng { get; set; }
     
     public int Zoom { get; set; }
+    
+    public IList<Picture> Pictures { get; set; }
 }

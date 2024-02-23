@@ -17,7 +17,7 @@ const PicturesList = ({ viewMode, pictures, onRetryUpload }: PicturesListProps) 
     return <div className="d-flex flex-wrap">
         {pictures.map((p, key) => <div key={p.id || 'idx' + key} className="me-2 mb-2 position-relative">
             <img height={PICTURE_SIZE_THUMBNAIL} src={p.url} />
-            {!p.id && <div className="picture-upload-overlay">
+            {(!p.id || p.upload === PictureUploadResult.DUPLICATE) && <div className="picture-upload-overlay">
                 {typeof p.upload === 'undefined' && <i className="bi bi-three-dots" />}
                 {typeof p.upload === 'number' && p.upload > 0 && Math.round(p.upload) + '%'}
                 {p.upload === PictureUploadResult.DUPLICATE && 'DUP'}

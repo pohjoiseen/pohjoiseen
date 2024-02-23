@@ -1,4 +1,4 @@
-﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from './queries';
 import Region from '../model/Region';
 import Area from '../model/Area';
@@ -7,6 +7,8 @@ import { reorderRegionsInCountry } from '../api/countries';
 import { deleteRegion, postRegion, putRegion, reorderAreasInRegion } from '../api/regions';
 import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas';
 import { deletePlace, postPlace, putPlace } from '../api/places';
+import Picture from '../model/Picture';
+import { postPicture, putPicture } from '../api/pictures';
 
 export const useReorderRegionsMutation = () => {
     const queryClient = useQueryClient();
@@ -200,6 +202,30 @@ export const useReorderPlacesMutation = () => {
             } else {
                 await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, places[0].areaId]);
             }
+        }
+    });
+};
+
+export const useCreatePictureMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (picture: Picture) => {
+            picture = await postPicture(picture);
+            // uploading a new picture invalidates all existing picture lists
+            await queryClient.invalidateQueries({ queryKey: [QueryKeys.PICTURES] });
+            return picture;
+        },
+    });
+};
+
+export const useUpdatePictureMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (picture: Picture) => {
+            await putPicture(picture.id!, picture);
+            queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
+            // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
+            // but we don't attempt to track that, in fact IMHO it would only lead to worse UX
         }
     });
 };

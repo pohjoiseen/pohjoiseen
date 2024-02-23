@@ -7,6 +7,7 @@ import Picture, { PictureUploadResult } from '../model/Picture';
 import PicturesList, { PicturesViewMode } from '../components/PicturesList';
 import FileDropBox from '../components/FileDropBox';
 import { uploadPicture } from '../api/picturesUpload';
+import { getPicture, postPicture } from '../api/pictures';
 
 const UPLOAD_IDLE = -1;
 const UPLOAD_ERROR = -2;
@@ -148,6 +149,7 @@ const PicturesUpload = () => {
                     URL.revokeObjectURL(picture().url);
                     setPicture({
                         ...picture(),
+                        hash: result.hash,
                         url: result.pictureUrl,
                         detailsUrl: result.detailsUrl,
                         thumbnailUrl: result.thumbnailUrl,
@@ -155,8 +157,29 @@ const PicturesUpload = () => {
                         upload: PictureUploadResult.UPLOADED
                     });
                     
-                    // TODO: store picture in database
-                    
+                    if (result.existingId) {
+                        // dup, just load existing picture instead
+                        setPicture({
+                            ...await getPicture(result.existingId),
+                            blob: undefined,
+                            upload: PictureUploadResult.DUPLICATE
+                        });
+                    } else {
+                        // store new picture in database
+                        const uploadedPicture = await postPicture({
+                            ...picture(),
+                            hash: result.hash,
+                            url: result.pictureUrl,
+                            detailsUrl: result.detailsUrl,
+                            thumbnailUrl: result.thumbnailUrl,
+                            uploadedAt: new Date()
+                        });
+                        setPicture({
+                            ...uploadedPicture,
+                            blob: undefined,
+                            upload: PictureUploadResult.UPLOADED
+                        });
+                    }
                     //console.log(`Successfully uploaded ${currentPictureIndex} (${picture().filename})`);
                 } catch (e) {
                     console.error(e);

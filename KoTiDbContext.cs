@@ -1,7 +1,5 @@
 using KoTi.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace KoTi;
 
@@ -14,6 +12,8 @@ public class KoTiDbContext : DbContext
     public DbSet<Area> Areas { get; set; }
     
     public DbSet<Place> Places { get; set; }
+    
+    public DbSet<Picture> Pictures { get; set; }
 
     public string DbPath { get; }
 

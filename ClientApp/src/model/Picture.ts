@@ -1,6 +1,7 @@
 ﻿interface Picture {
     id: number | null;
     filename: string;
+    hash?: string;
     url: string;
     thumbnailUrl: string;
     detailsUrl: string;
@@ -22,6 +23,7 @@
     lat: number | null;  // latitude from EXIF, if available
     lng: number | null;  // longitude from EXIF, if available
     
+    // Client-only fields
     blob?: File | undefined;  // used before the file is uploaded
     upload?: number | undefined;  // used during file upload, >0 = in progress, bytes uploaded; <0 = status
 }

@@ -1,6 +1,7 @@
 ﻿using KoTi.Models;
 using KoTi.ResponseModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
@@ -12,10 +13,12 @@ namespace KoTi.Controllers;
 public class PicturesUploadController : ControllerBase
 {
     private readonly PictureStorage _pictureStorage;
+    private readonly KoTiDbContext _context;
 
-    public PicturesUploadController(PictureStorage pictureStorage)
+    public PicturesUploadController(PictureStorage pictureStorage, KoTiDbContext context)
     {
         _pictureStorage = pictureStorage;
+        _context = context;
     }
     
     [HttpPost("{hash}/{filename}")]
@@ -24,14 +27,21 @@ public class PicturesUploadController : ControllerBase
         // read in image entirely before continuing
         MemoryStream input = new MemoryStream();
         await Request.Body.CopyToAsync(input);
+        string baseOutputName = $"{hash}/{filename}";
 
         // do not do anything if hash already exists
         // we wouldn't even have needed to wait until the rest of the upload, but that's basically necessary :(
-        string? existingKey = await _pictureStorage.CheckPictureAlreadyUploadedAsync(hash);
+        string? existingKey = await _pictureStorage.CheckPictureAlreadyUploadedAsync(baseOutputName);
         if (existingKey != null)
         {
+            var existing = await _context
+                .Pictures
+                .Where(p => p.Hash == hash).FirstOrDefaultAsync();
+            
             return new UploadResult
             {
+                ExistingId = existing?.Id,
+                Hash = hash,
                 PictureUrl = _pictureStorage.PublicUrl + existingKey,
                 ThumbnailUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.ThumbnailSuffix),
                 DetailsUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.DetailsSuffix)
@@ -45,9 +55,9 @@ public class PicturesUploadController : ControllerBase
             { Picture.DetailsSuffix, Picture.DetailsSize }
         };
 
-        string baseOutputName = $"{hash}/{filename}";
         var result = new UploadResult
         {
+            Hash = hash,
             PictureUrl = baseOutputName,
             ThumbnailUrl = baseOutputName,
             DetailsUrl = baseOutputName
