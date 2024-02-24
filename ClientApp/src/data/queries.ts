@@ -2,7 +2,8 @@
 import { getCountries, getRegionsForCountry } from '../api/countries';
 import { getAreasForRegion } from '../api/regions';
 import { getPlacesForArea } from '../api/areas';
-import { getPicture, getPictures } from '../api/pictures';
+import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
+import ListWithTotal from '../model/ListWithTotal';
 
 export enum QueryKeys {
     COUNTRIES = 'countries',
@@ -38,17 +39,20 @@ export const usePictureQuery = (id: number) => useQuery({
     queryFn: () => getPicture(id)
 });
 
-export const usePicturesAllQuery = () => {
+export const usePicturesQuery = (options: GetPicturesOptions) => {
     const queryClient = useQueryClient();
-    return useQuery({
-        queryKey: [QueryKeys.PICTURES],
+    return useQuery<ListWithTotal<number>>({
+        queryKey: [QueryKeys.PICTURES, options],
         queryFn: async () => {
-            const pictures = await getPictures();
+            const result = await getPictures(options);
             // store each picture as individual query
-            for (const p of pictures) {
+            for (const p of result.data) {
                 queryClient.setQueryData([QueryKeys.PICTURE, p.id], p);
             }
-            return pictures.map(p => p.id!);
+            return {
+                total: result.total,
+                data: result.data.map(p => p.id!)
+            };
         }
     });
 }

@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi;
-using KoTi.RequestModels;
 using KoTi.Models;
+using KoTi.RequestModels;
+using KoTi.ResponseModels;
 
 namespace KoTi.Controllers;
 
@@ -24,9 +25,29 @@ public class PicturesController : ControllerBase
     
     // GET: api/Pictures
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Picture>>> GetPictures()
+    public async Task<ActionResult<ListWithTotal<Picture>>> GetPictures(
+        [FromQuery] int limit,
+        [FromQuery] int offset)
     {
-        return await _context.Pictures.OrderBy(p => p.PhotographedAt).ToListAsync();
+        var query = _context.Pictures.AsQueryable();
+
+        query = query.OrderBy(p => p.PhotographedAt);
+
+        var queryPaginated = query;
+        if (offset > 0)
+        {
+            queryPaginated = queryPaginated.Skip(offset);
+        }
+        if (limit > 0)
+        {
+            queryPaginated = queryPaginated.Take(limit);
+        }
+
+        return new ListWithTotal<Picture>
+        {
+            Total = await query.CountAsync(),
+            Data = await queryPaginated.ToListAsync()
+        };
     }
 
     // GET: api/Pictures/5

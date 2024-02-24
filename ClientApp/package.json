@@ -1,6 +1,6 @@
 {
   "name": "koti",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@tanstack/react-query": "^4.32.0",
@@ -12,6 +12,7 @@
     "leaflet": "^1.9.4",
     "merge": "^2.1.1",
     "proj4leaflet": "^1.0.2",
+    "qs": "^6.11.2",
     "react": "^18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
@@ -23,19 +24,7 @@
     "react-scripts": "^5.0.1",
     "reactstrap": "^9.1.1",
     "rimraf": "^3.0.2",
-    "web-vitals": "^2.1.4",
-    "workbox-background-sync": "^6.5.3",
-    "workbox-broadcast-update": "^6.5.3",
-    "workbox-cacheable-response": "^6.5.3",
-    "workbox-core": "^6.5.3",
-    "workbox-expiration": "^6.5.3",
-    "workbox-google-analytics": "^6.5.3",
-    "workbox-navigation-preload": "^6.5.3",
-    "workbox-precaching": "^6.5.3",
-    "workbox-range-requests": "^6.5.3",
-    "workbox-routing": "^6.5.3",
-    "workbox-strategies": "^6.5.3",
-    "workbox-streams": "^6.5.3"
+    "web-vitals": "^2.1.4"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^4.32.0",

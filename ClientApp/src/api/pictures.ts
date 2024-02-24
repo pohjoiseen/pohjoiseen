@@ -1,5 +1,7 @@
-﻿import Picture from '../model/Picture';
+﻿import qs from 'qs';
+import Picture from '../model/Picture';
 import { handleError } from './common';
+import ListWithTotal from '../model/ListWithTotal';
 
 // normalize a picture received from server for frontend in particular by converting
 // date fields to actual Date objects
@@ -15,12 +17,26 @@ const toFrontend = (picture: any): Picture => {
     return picture as Picture;
 }
 
-export const getPictures = async (): Promise<Picture[]> => {
-    const response = await fetch('api/Pictures');
+export interface GetPicturesOptions {
+    limit?: number;
+    offset?: number;
+}
+
+export const getPictures = async (options: GetPicturesOptions): Promise<ListWithTotal<Picture>> => {
+    const params: { [key: string]: any } = {};
+    if (options.limit) {
+        params['limit'] = options.limit;
+    }
+    if (options.offset) {
+        params['offset'] = options.offset;
+    }
+    const response = await fetch('api/Pictures?' + qs.stringify(params));
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return (await response.json()).map(toFrontend);
+    const result = await response.json();
+    result.data = result.data.map(toFrontend);
+    return result;
 };
 
 export const getPicture = async (id: number): Promise<Picture> => {
