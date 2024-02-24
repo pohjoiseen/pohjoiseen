@@ -40,7 +40,7 @@ export const usePictureQuery = (id: number) => useQuery({
 
 export const usePicturesAllQuery = () => {
     const queryClient = useQueryClient();
-    useQuery({
+    return useQuery({
         queryKey: [QueryKeys.PICTURES],
         queryFn: async () => {
             const pictures = await getPictures();
@@ -48,7 +48,7 @@ export const usePicturesAllQuery = () => {
             for (const p of pictures) {
                 queryClient.setQueryData([QueryKeys.PICTURE, p.id], p);
             }
-            return pictures.map(p => p.id);
+            return pictures.map(p => p.id!);
         }
     });
 }

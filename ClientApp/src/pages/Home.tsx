@@ -19,17 +19,22 @@ const Home = () => {
             <h3>Pictures</h3>
             <div className="d-flex flex-wrap">
                 <div className="w-25 pb-1 pe-1">
-                    <Card>
-                        <CardBody>
-                            <CardTitle>
-                                <h2>
-                                    <i className="bi bi-upload" />
-                                    &nbsp;
-                                    <Link to="/pictures/upload">Upload</Link>
-                                </h2>
-                            </CardTitle>
-                        </CardBody>
-                    </Card>
+                    <Card><CardBody><CardTitle>
+                        <h2>
+                            <i className="bi bi-images"/>
+                            &nbsp;
+                            <Link to="/pictures">All pictures</Link>
+                        </h2>
+                    </CardTitle></CardBody></Card>
+                </div>
+                <div className="w-25 pb-1 pe-1">
+                    <Card><CardBody><CardTitle>
+                        <h2>
+                            <i className="bi bi-upload"/>
+                            &nbsp;
+                            <Link to="/pictures/upload">Upload</Link>
+                        </h2>
+                    </CardTitle></CardBody></Card>
                 </div>
             </div>
             <h3 className="mt-3">Places</h3>
@@ -37,7 +42,7 @@ const Home = () => {
             {countries.isLoading && <div><Spinner type="grow" size="sm"/> Loading...</div>}
             {countries.isSuccess && <div className="d-flex flex-wrap">
                 {countries.data.map(c => <div key={c.id} className="w-25 pb-1 pe-1">
-                    <Card>
+                <Card>
                         <CardBody>
                             <CardTitle>
                                 <h2>

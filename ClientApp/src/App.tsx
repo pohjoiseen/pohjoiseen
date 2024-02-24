@@ -10,8 +10,18 @@ import Country from './pages/Country';
 import Region from './pages/Region';
 import Area from './pages/Area';
 import PicturesUpload from './pages/PicturesUpload';
+import Pictures from './pages/Pictures';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            // This is basically a single-user application and we don't really have to worry
+            // about things getting stale from under our nose.  On the other hand we want to avoid
+            // especially all kinds of N+1 queries for pictures and such
+            staleTime: Infinity
+        }
+    }
+});
 
 const App = () => {
     return (
@@ -24,7 +34,8 @@ const App = () => {
                         <Route path="/country/:countryId/region/:regionId" element={<Region />} />
                         <Route path="/country/:countryId/region/:regionId/area/new" element={<Area />} />
                         <Route path="/country/:countryId/region/:regionId/area/:areaId" element={<Area />} />
-                        
+
+                        <Route path="/pictures" element={<Pictures />} />
                         <Route path="/pictures/upload" element={<PicturesUpload />} />
                     </Routes>
                 </ModalContainer>
