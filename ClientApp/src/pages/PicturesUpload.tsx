@@ -1,19 +1,22 @@
 import * as React from 'react';
-import { useState, useEffect, useCallback, useRef, FormEvent } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Container } from 'reactstrap';
 import exifr from 'exifr';
 import NavBar from '../components/NavBar';
 import Picture, { PictureUploadResult } from '../model/Picture';
-import PicturesList, { PicturesViewMode } from '../components/PicturesList';
+import PicturesList from '../components/PicturesList';
 import FileDropBox from '../components/FileDropBox';
 import { uploadPicture } from '../api/picturesUpload';
 import { getPicture, postPicture } from '../api/pictures';
+import { PicturesViewMode } from '../components/pictureViewCommon';
+import PictureFullscreen from '../components/PictureFullscreen';
 
 const UPLOAD_IDLE = -1;
 const UPLOAD_ERROR = -2;
 
 const PicturesUpload = () => {
     const [viewMode, setViewMode] = useState(PicturesViewMode.THUMBNAILS);
+    const [currentFullscreen, setCurrentFullscreen] = useState(-1);
     // pictures list
     const [picturesForUpload, setPicturesForUpload] = useState<Picture[]>([]);
     const setPictureForUpload = useCallback((index: number, picture: Picture) =>
@@ -104,10 +107,11 @@ const PicturesUpload = () => {
     
     useEffect(() => {
         const onDocumentPaste = async (e: ClipboardEvent) => {
-            const items = (e.clipboardData || (e as any).originalEvent.clipboardData).items;
-            for (const item of items) {
-                if (item.kind === 'file') {
-                    await addFile(item.getAsFile());
+            // need to convert all items to files first, otherwise items after first one seem to get lost
+            const files: (File | null)[] = [...(e.clipboardData || (e as any).originalEvent.clipboardData).items].map(i => i.getAsFile());
+            for (const file of files) {
+                if (file) {
+                    await addFile(file);
                 }
             }
         };
@@ -212,6 +216,29 @@ const PicturesUpload = () => {
         })();
     }, [currentPictureIndex, setPictureForUpload, setUploadError]);
     
+    /// keyboard ///
+
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                setCurrentFullscreen(-1)
+            }
+            if (e.key === 'ArrowLeft' && (e.target as any).tagName !== 'INPUT' && currentFullscreen > 0) {
+                e.preventDefault();
+                setCurrentFullscreen(currentFullscreen - 1);
+            }
+            if (e.key === 'ArrowRight' && (e.target as any).tagName !== 'INPUT' && currentFullscreen !== -1 &&
+                currentFullscreen < picturesForUpload.length - 1) {
+                e.preventDefault();
+                setCurrentFullscreen(currentFullscreen + 1);
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [currentFullscreen]);
+
+
     /// render ///
     
     return <div>
@@ -230,12 +257,18 @@ const PicturesUpload = () => {
             {uploadError.length > 0 && <Alert color="danger">{uploadError}<br/>Click the failed picture to retry</Alert>}
             <PicturesList
                 pictures={picturesForUpload}
+                currentIndex={currentFullscreen}
                 viewMode={viewMode}
+                onOpen={(k) => setCurrentFullscreen(k)}
                 onRetryUpload={(k) => setCurrentPictureIndex(k)}
             />
             {!picturesForUpload.length && <h4 className="text-center">
                 Choose files to upload, drag or paste them here.
             </h4>}
+            {currentFullscreen >= 0 && <PictureFullscreen
+                picture={picturesForUpload[currentFullscreen]}
+                onRetryUpload={() => setCurrentPictureIndex(currentFullscreen)}
+            />}
             <FileDropBox onDrop={onDropFiles} />
         </Container>
     </div>

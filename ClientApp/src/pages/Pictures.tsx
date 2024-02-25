@@ -1,70 +1,201 @@
 ﻿import * as React from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Alert, Container, Pagination, PaginationItem, PaginationLink, Spinner } from 'reactstrap';
 import { useSearchParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
-import PicturesList, { PicturesViewMode } from '../components/PicturesList';
-import { usePicturesQuery } from '../data/queries';
+import PicturesList from '../components/PicturesList';
+import { getPictureFromCache, usePictureQuery, usePicturesQuery } from '../data/queries';
 import { errorMessage } from '../util';
 import { GetPicturesOptions } from '../api/pictures';
-import { useCallback, useEffect } from 'react';
+import { PicturesViewMode } from '../components/pictureViewCommon';
+import PictureFullscreen from '../components/PictureFullscreen';
+import { useQueryClient } from '@tanstack/react-query';
 
-const THUMBNAILS_PAGE_SIZE = 100;
+const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
+    [PicturesViewMode.THUMBNAILS]: 10,
+    [PicturesViewMode.DETAILS]: 5,
+};
+
+const QUERY_PARAMS = {
+    PAGE: 'page',
+    VIEW_MODE: 'mode',
+    FULLSCREEN: 'fullscreen'
+}
 
 const Pictures = () => {
+    const queryClient = useQueryClient();
+    
     // view options from search params
     const [searchParams, setSearchParams] = useSearchParams();
-    const pageString = searchParams.get('page');
+    const pageString = searchParams.get(QUERY_PARAMS.PAGE);
     const page = (!pageString || isNaN(parseInt(pageString))) ? 0 : parseInt(pageString) - 1;
-    // fixed for now
-    const viewMode = PicturesViewMode.THUMBNAILS;
-    
+    const viewModeString = searchParams.get(QUERY_PARAMS.VIEW_MODE);
+    const viewMode: PicturesViewMode = viewModeString ? viewModeString as PicturesViewMode : PicturesViewMode.THUMBNAILS;
+    const fullscreenString = searchParams.get(QUERY_PARAMS.FULLSCREEN);
+    const currentFullscreen = (!fullscreenString || isNaN(parseInt(fullscreenString))) ? -1 : parseInt(fullscreenString);
+    const isFullscreen = currentFullscreen !== -1;
+    const preloadRef = useRef<HTMLImageElement[]>([]);
+
     // pictures list
-    const pageSize = THUMBNAILS_PAGE_SIZE;
+    const pageSize = PAGE_SIZES[viewMode];
+    const offset = page * pageSize;
     const pictureQueryOptions: GetPicturesOptions = {
         limit: pageSize,
-        offset: page * pageSize
+        offset
     };
     const picturesQuery = usePicturesQuery(pictureQueryOptions);
     
-    // pagination
+    /// pagination ///
+    
     const totalPictures = picturesQuery.data ? picturesQuery.data.total : 0;
     const totalPages = Math.ceil(totalPictures / pageSize);
-    const setPage = useCallback((page: number) => {
+    const setPage = useCallback((page: number, fullscreen?: number) => {
         setSearchParams((params) => {
             if (page) {
-                params.set('page', (page + 1).toString());
+                params.set(QUERY_PARAMS.PAGE, (page + 1).toString());
             } else {
-                params.delete('page');
+                params.delete(QUERY_PARAMS.PAGE);
+            }
+            if (fullscreen !== undefined && fullscreen >= 0) {
+                params.set(QUERY_PARAMS.FULLSCREEN, fullscreen.toString());
+            } else {
+                params.delete(QUERY_PARAMS.FULLSCREEN);
             }
             return params;
         });
-        window.scrollTo(0, 0);
-    }, []);
+        if (!isFullscreen) {
+            window.scrollTo(0, 0);
+        }
+    }, [isFullscreen]);
 
+    /// switching modes ///
+    
+    const getPageForOffset = useCallback((mode: PicturesViewMode, offset: number) => {
+        let page = Math.floor(offset / PAGE_SIZES[mode]);
+        if (page >= Math.ceil(totalPictures / PAGE_SIZES[mode])) {
+            page = Math.ceil(totalPictures / PAGE_SIZES[mode]) - 1;
+        }
+        return page;
+    }, [totalPictures]);
+
+    const setViewMode = useCallback((mode: PicturesViewMode) => {
+        const page = getPageForOffset(mode, offset);
+        setSearchParams((params) => {
+            params.set(QUERY_PARAMS.VIEW_MODE, mode);
+            params.delete(QUERY_PARAMS.FULLSCREEN);
+            if (page) {
+                params.set(QUERY_PARAMS.PAGE, (page + 1).toString());
+            } else {
+                params.delete(QUERY_PARAMS.PAGE);
+            }
+            return params;
+        });
+    }, [viewMode, offset, currentFullscreen, getPageForOffset]);
+
+    /// fullscreen mode ///
+    
+    const enterFullscreen = useCallback((index: number) => {
+        setSearchParams((params) => {
+            params.set(QUERY_PARAMS.FULLSCREEN, index.toString());
+            return params;
+        });
+        
+        if (picturesQuery.isFetching || !picturesQuery.data) {
+            return;
+        }
+        
+        // preload 5 pictures after and before the newly opened one.
+        // Save them in a ref so browser keeps a reference to them.
+        // Won't work when changing pages (where there would be an extra delay to load new pictures anyway)
+        // but let's keep it as is for now.  Use query cache directly, load only what's in there
+        const preloadImages: HTMLImageElement[] = [];
+        for (let i = 1; i <= 5; i++) {
+            let k = index + i;
+            if (k < picturesQuery.data.data.length) {
+                const picture = getPictureFromCache(queryClient, picturesQuery.data.data[k]);
+                if (picture) {
+                    const img = new Image();
+                    img.src = picture.url;
+                    preloadImages.push(img);
+                }
+            }
+            k = index - 1;
+            if (k > 0) {
+                const picture = getPictureFromCache(queryClient, picturesQuery.data.data[k]);
+                if (picture) {
+                    const img = new Image();
+                    img.src = picture.url;
+                    preloadImages.push(img);
+                }
+            }
+        }
+        preloadRef.current = preloadImages;
+    }, [picturesQuery]);
+    
+    const exitFullscreen = useCallback(() => {
+        setSearchParams((params) => {
+            params.delete(QUERY_PARAMS.FULLSCREEN);
+            return params;
+        });
+    }, []);
+    
+    // query would be actually executed only when we have an id
+    const fullscreenPictureId = picturesQuery.data && currentFullscreen >= 0 ? picturesQuery.data.data[currentFullscreen] : 0;
+    const fullscreenPictureQuery = usePictureQuery(fullscreenPictureId,
+        !(picturesQuery.data && currentFullscreen >= 0));
+    
     /// keyboard nav ///
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (e.ctrlKey && e.key === 'Home' && page > 0) {
-                e.preventDefault();
-                setPage(0);
+            // page navigation
+            if (!isFullscreen && e.ctrlKey) {
+                if (e.key === 'Home' && page > 0) {
+                    e.preventDefault();
+                    setPage(0);
+                }
+                if (e.key === 'ArrowLeft' && page > 0) {
+                    e.preventDefault();
+                    setPage(page - 1);
+                }
+                if (e.key === 'ArrowRight' && page < totalPages - 1) {
+                    e.preventDefault();
+                    setPage(page + 1);
+                }
+                if (e.key === 'End' && page < totalPages - 1) {
+                    e.preventDefault();
+                    setPage(totalPages - 1);
+                }
             }
-            if (e.ctrlKey && e.key === 'ArrowLeft' && page > 0) {
-                e.preventDefault();
-                setPage(page - 1);
-            }
-            if (e.ctrlKey && e.key === 'ArrowRight' && page < totalPages - 1) {
-                e.preventDefault();
-                setPage(page + 1);
-            }
-            if (e.ctrlKey && e.key === 'End' && page < totalPages - 1) {
-                e.preventDefault();
-                setPage(totalPages - 1);
+            
+            // fullscreen mode
+            if (isFullscreen) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    exitFullscreen();
+                }
+                // left/right keyboard nav
+                if (picturesQuery.data) {
+                    if (e.key === 'ArrowLeft' && (e.target as any).tagName !== 'INPUT') {
+                        if (currentFullscreen > 0) {
+                            enterFullscreen(currentFullscreen - 1);
+                        } else if (page > 0) {
+                            setPage(page - 1, pageSize - 1);
+                        }
+                    }
+                    if (e.key === 'ArrowRight' && (e.target as any).tagName !== 'INPUT') {
+                        if (currentFullscreen < picturesQuery.data.data.length - 1) {
+                            enterFullscreen(currentFullscreen + 1);
+                        } else if (page < totalPages - 1) {
+                            setPage(page + 1, 0);
+                        }
+                    }
+                }
             }
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [page, totalPages, setPage]);
+    }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery]);
     
     /// render ///
 
@@ -88,6 +219,8 @@ const Pictures = () => {
                 {picturesQuery.data.data.length && <PicturesList
                     pictures={picturesQuery.data.data}
                     viewMode={viewMode}
+                    currentIndex={currentFullscreen}
+                    onOpen={enterFullscreen}
                 />}
                 {!picturesQuery.data.data.length && <h4 className="text-center">
                     No pictures in the current view.
@@ -117,6 +250,11 @@ const Pictures = () => {
                         </PaginationLink>
                     </PaginationItem>
                 </Pagination>}
+                {isFullscreen && <PictureFullscreen
+                    picture={fullscreenPictureQuery.data}
+                    isError={fullscreenPictureQuery.isError}
+                    isLoading={fullscreenPictureQuery.isLoading}
+                />}
             </>}
         </Container>
     </div>

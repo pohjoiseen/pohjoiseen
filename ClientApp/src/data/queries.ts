@@ -1,9 +1,10 @@
-﻿import { useQuery, useQueryClient } from '@tanstack/react-query';
+﻿import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCountries, getRegionsForCountry } from '../api/countries';
 import { getAreasForRegion } from '../api/regions';
 import { getPlacesForArea } from '../api/areas';
 import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
 import ListWithTotal from '../model/ListWithTotal';
+import Picture from '../model/Picture';
 
 export enum QueryKeys {
     COUNTRIES = 'countries',
@@ -34,10 +35,16 @@ export const usePlacesQuery = (areaId: number) => useQuery({
     queryFn: () => getPlacesForArea(areaId),
 });
 
-export const usePictureQuery = (id: number) => useQuery({
+export const usePictureQuery = (id: number, disabled?: boolean) => useQuery({
     queryKey: [QueryKeys.PICTURE, id],
-    queryFn: () => getPicture(id)
+    queryFn: () => getPicture(id),
+    enabled: !disabled
 });
+
+export const getPictureFromCache = (queryClient: QueryClient, id: number) => {
+    const picture = queryClient.getQueryData([QueryKeys.PICTURE, id]);
+    return picture ? picture as Picture : null;
+};
 
 export const usePicturesQuery = (options: GetPicturesOptions) => {
     const queryClient = useQueryClient();
