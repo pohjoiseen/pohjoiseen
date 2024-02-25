@@ -62,4 +62,4 @@ export const usePicturesQuery = (options: GetPicturesOptions) => {
             };
         }
     });
-}
+};

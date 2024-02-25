@@ -1,19 +1,23 @@
 import * as React from 'react';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Button, Container } from 'reactstrap';
+import { Alert, Button, Container, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import exifr from 'exifr';
 import NavBar from '../components/NavBar';
 import Picture, { PictureUploadResult } from '../model/Picture';
 import PicturesList from '../components/PicturesList';
 import FileDropBox from '../components/FileDropBox';
 import { uploadPicture } from '../api/picturesUpload';
-import { getPicture, postPicture } from '../api/pictures';
+import { getPicture } from '../api/pictures';
 import { PicturesViewMode } from '../components/pictureViewCommon';
 import PictureFullscreen from '../components/PictureFullscreen';
+import { useCreatePictureMutation } from '../data/mutations';
 
 const UPLOAD_IDLE = -1;
 const UPLOAD_ERROR = -2;
 
+// TODO: UI-wise functionality is broadly similar to Pictures component, but implemented largely differently
+// (only in-memory state for everything, no queries and no view options via query parameters).
+// Could still be possible to deduplicate it partially... 
 const PicturesUpload = () => {
     const [viewMode, setViewMode] = useState(PicturesViewMode.THUMBNAILS);
     const [currentFullscreen, setCurrentFullscreen] = useState(-1);
@@ -34,6 +38,7 @@ const PicturesUpload = () => {
     const uploadInputRef = useRef<HTMLInputElement>(null);
     // error message for uploading
     const [uploadError, setUploadError] = useState(''); 
+    const createPictureMutation = useCreatePictureMutation();
     
     /// enqueue for upload ///
     
@@ -163,6 +168,9 @@ const PicturesUpload = () => {
                     
                     if (result.existingId) {
                         // dup, just load existing picture instead
+                        // TODO: 1) should not call API directly from component
+                        // TODO: 2) attempting to upload multiple duplicates of the same picture will
+                        // lead to duplicate keys at rendering
                         setPicture({
                             ...await getPicture(result.existingId),
                             blob: undefined,
@@ -170,7 +178,7 @@ const PicturesUpload = () => {
                         });
                     } else {
                         // store new picture in database
-                        const uploadedPicture = await postPicture({
+                        const uploadedPicture = await createPictureMutation.mutateAsync({
                             ...picture(),
                             hash: result.hash,
                             url: result.pictureUrl,
@@ -248,7 +256,14 @@ const PicturesUpload = () => {
                 &nbsp;&rsaquo;&nbsp;
                 Uploading
             </h3>
-            <Button color="primary" className="ms-auto" onClick={() => uploadInputRef.current?.click()}>
+            <UncontrolledDropdown className="ms-auto">
+                <DropdownToggle caret>View</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.THUMBNAILS)}>Thumbnails</DropdownItem>
+                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.DETAILS)}>Details</DropdownItem>
+                </DropdownMenu>
+            </UncontrolledDropdown>
+            <Button color="primary" className="ms-2" onClick={() => uploadInputRef.current?.click()}>
                 <i className="bi bi-upload"></i> Choose files...
             </Button>
             <input ref={uploadInputRef} type="file" hidden multiple onInput={onInputUpload} />

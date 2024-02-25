@@ -212,7 +212,7 @@ export const useCreatePictureMutation = () => {
         mutationFn: async (picture: Picture) => {
             picture = await postPicture(picture);
             // uploading a new picture invalidates all existing picture lists
-            await queryClient.invalidateQueries({ queryKey: [QueryKeys.PICTURES] });
+            queryClient.removeQueries({ queryKey: [QueryKeys.PICTURES] });
             return picture;
         },
     });

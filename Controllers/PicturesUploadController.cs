@@ -48,13 +48,6 @@ public class PicturesUploadController : ControllerBase
             };
         }
         
-        // upload thumbnail versions first
-        var sizes = new Dictionary<string, int>
-        {
-            { Picture.ThumbnailSuffix, Picture.ThumbnailSize },
-            { Picture.DetailsSuffix, Picture.DetailsSize }
-        };
-
         var result = new UploadResult
         {
             Hash = hash,
@@ -63,38 +56,44 @@ public class PicturesUploadController : ControllerBase
             DetailsUrl = baseOutputName
         };
 
+        // downscaled versions
         input.Seek(0, SeekOrigin.Begin);
         using (var inputImage = await Image.LoadAsync(input))
         {
-            foreach (var size in sizes)
+            // thumbnails
+            // always match height, resize width as important
+            // if height is no bigger than target size, do not do anything else, base filename will be used
+            int width = inputImage.Width, height = inputImage.Height;
+            if (height > Picture.ThumbnailSize * 2)
             {
-                string sizeSuffix = size.Key;
-                int targetSize = size.Value * 2;  // account for Retina
-
-                // always match height, resize width as important
-                // if height is no bigger than target size, do not do anything else, base filename will be used
-                int width = inputImage.Width, height = inputImage.Height;
-                if (height > targetSize)
+                double scale = Picture.ThumbnailSize * 2.0 / height;
+                MemoryStream output = new MemoryStream();
+                using (var resizedImage = inputImage.Clone(x => x.Resize((int) (width * scale), Picture.ThumbnailSize * 2)))
                 {
-                    double scale = targetSize * 1.0 / height;
-                    MemoryStream output = new MemoryStream();
-                    using (var resizedImage = inputImage.Clone(x => x.Resize((int) (width * scale), targetSize)))
-                    {
-                        await resizedImage.SaveAsync(output, new JpegEncoder());
-                    }
-
-                    string outputName = GetFilenameWithSuffix(baseOutputName, sizeSuffix);
-                    output.Seek(0, SeekOrigin.Begin);
-                    await _pictureStorage.UploadPictureAsync(outputName, output);
-                    if (sizeSuffix == Picture.DetailsSuffix)
-                    {
-                        result.DetailsUrl = outputName;
-                    }
-                    else if (sizeSuffix == Picture.ThumbnailSuffix)
-                    {
-                        result.ThumbnailUrl = outputName;
-                    }
+                    await resizedImage.SaveAsync(output, new JpegEncoder());
                 }
+
+                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.ThumbnailSuffix);
+                output.Seek(0, SeekOrigin.Begin);
+                await _pictureStorage.UploadPictureAsync(outputName, output);
+                result.ThumbnailUrl = outputName;
+            }
+            
+            // details
+            // same but match width
+            if (width > Picture.DetailsSize * 2)
+            {
+                double scale = Picture.DetailsSize * 2.0 / width;
+                MemoryStream output = new MemoryStream();
+                using (var resizedImage = inputImage.Clone(x => x.Resize(Picture.DetailsSize * 2, (int) (height * scale))))
+                {
+                    await resizedImage.SaveAsync(output, new JpegEncoder());
+                }
+
+                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.DetailsSuffix);
+                output.Seek(0, SeekOrigin.Begin);
+                await _pictureStorage.UploadPictureAsync(outputName, output);
+                result.DetailsUrl = outputName;
             }
         }
         

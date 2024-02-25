@@ -1,6 +1,17 @@
 ﻿import * as React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
-import { Alert, Container, Pagination, PaginationItem, PaginationLink, Spinner } from 'reactstrap';
+import {
+    Alert,
+    Container,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Pagination,
+    PaginationItem,
+    PaginationLink,
+    Spinner,
+    UncontrolledDropdown
+} from 'reactstrap';
 import { useSearchParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import PicturesList from '../components/PicturesList';
@@ -12,8 +23,8 @@ import PictureFullscreen from '../components/PictureFullscreen';
 import { useQueryClient } from '@tanstack/react-query';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
-    [PicturesViewMode.THUMBNAILS]: 10,
-    [PicturesViewMode.DETAILS]: 5,
+    [PicturesViewMode.THUMBNAILS]: 100,
+    [PicturesViewMode.DETAILS]: 25,
 };
 
 const QUERY_PARAMS = {
@@ -66,7 +77,7 @@ const Pictures = () => {
         if (!isFullscreen) {
             window.scrollTo(0, 0);
         }
-    }, [isFullscreen]);
+    }, [setSearchParams, isFullscreen]);
 
     /// switching modes ///
     
@@ -90,7 +101,7 @@ const Pictures = () => {
             }
             return params;
         });
-    }, [viewMode, offset, currentFullscreen, getPageForOffset]);
+    }, [setSearchParams, viewMode, offset, currentFullscreen, getPageForOffset]);
 
     /// fullscreen mode ///
     
@@ -130,14 +141,14 @@ const Pictures = () => {
             }
         }
         preloadRef.current = preloadImages;
-    }, [picturesQuery]);
+    }, [setSearchParams, picturesQuery]);
     
     const exitFullscreen = useCallback(() => {
         setSearchParams((params) => {
             params.delete(QUERY_PARAMS.FULLSCREEN);
             return params;
         });
-    }, []);
+    }, [setSearchParams]);
     
     // query would be actually executed only when we have an id
     const fullscreenPictureId = picturesQuery.data && currentFullscreen >= 0 ? picturesQuery.data.data[currentFullscreen] : 0;
@@ -204,11 +215,16 @@ const Pictures = () => {
             <h3>
                 <i className="bi bi-image"></i>
                 &nbsp;&rsaquo;&nbsp;
-                Pictures
-                &nbsp;&rsaquo;&nbsp;
-                All
+                All pictures
             </h3>
             {picturesQuery.data && <h3 className="ms-auto">{picturesQuery.data.total} picture(s)</h3>}
+            <UncontrolledDropdown className="ms-2">
+                <DropdownToggle caret>View</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.THUMBNAILS)}>Thumbnails</DropdownItem>
+                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.DETAILS)}>Details</DropdownItem>
+                </DropdownMenu>
+            </UncontrolledDropdown>
         </NavBar>
         <Container>
             {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}

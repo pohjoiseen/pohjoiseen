@@ -5,14 +5,15 @@ import ListWithTotal from '../model/ListWithTotal';
 
 // normalize a picture received from server for frontend in particular by converting
 // date fields to actual Date objects
-// TODO: adding a 'Z' here gives us correct time zones but is hacky, we don't
-// have to explicitly do that when posting pictures, but they end up stored without 'Z'
+// TODO: do we need 'Z' or not?
 const toFrontend = (picture: any): Picture => {
     if (picture.uploadedAt) {
-        picture.uploadedAt = new Date(picture.uploadedAt + 'Z');
+        picture.uploadedAt = new Date(picture.uploadedAt.endsWith('Z')
+            ? picture.uploadedAt : picture.uploadedAt + 'Z');
     }
     if (picture.photographedAt) {
-        picture.photographedAt = new Date(picture.photographedAt + 'Z');
+        picture.photographedAt = new Date(picture.photographedAt.endsWith('Z')
+            ? picture.photographedAt : picture.photographedAt + 'Z');
     }
     return picture as Picture;
 }

@@ -36,6 +36,6 @@ export enum PictureUploadResult {
 
 // Must match backend sizes, see Picture.cs
 export const PICTURE_SIZE_THUMBNAIL = 125;
-export const PICTURE_SIZE_DETAILS = 400;
+export const PICTURE_SIZE_DETAILS = 500;
 
 export default Picture;
