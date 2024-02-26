@@ -3,6 +3,7 @@ import { getCountries, getRegionsForCountry } from '../api/countries';
 import { getAreasForRegion } from '../api/regions';
 import { getPlacesForArea } from '../api/areas';
 import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
+import { search, SearchOptions } from '../api/search';
 import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
 
@@ -13,6 +14,7 @@ export enum QueryKeys {
     PLACES_FOR_AREA = 'placesForArea',
     PICTURE = 'picture', // actual pictures by id
     PICTURES = 'pictures', // various lists of ids
+    SEARCH = 'search',
 }
 
 export const useCountriesQuery = () => useQuery({
@@ -63,3 +65,13 @@ export const usePicturesQuery = (options: GetPicturesOptions) => {
         }
     });
 };
+
+export const useSearchQuery = (options: SearchOptions) => useQuery({
+    queryKey: [QueryKeys.SEARCH, options],
+    queryFn: async () => {
+        if (!options.q) {
+            return { total: 0, data: [] };
+        }
+        return await search(options)
+    }
+});

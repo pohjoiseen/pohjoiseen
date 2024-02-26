@@ -11,6 +11,7 @@ import Region from './pages/Region';
 import Area from './pages/Area';
 import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
+import Search from './pages/Search';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -37,6 +38,8 @@ const App = () => {
 
                         <Route path="/pictures" element={<Pictures />} />
                         <Route path="/pictures/upload" element={<PicturesUpload />} />
+                        
+                        <Route path="/search" element={<Search />} />
                     </Routes>
                 </ModalContainer>
             </QueryClientProvider>
