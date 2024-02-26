@@ -33,19 +33,22 @@ builder.Services.AddScoped<PictureStorage>(provider => new PictureStorage(
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// migrations
+if (args.Contains("migrate"))
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    var context = app.Services.CreateScope().ServiceProvider.GetService<KoTiDbContext>();
+    context!.Database.Migrate();
+    return;
 }
-else
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 

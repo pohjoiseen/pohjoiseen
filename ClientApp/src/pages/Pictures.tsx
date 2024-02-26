@@ -220,7 +220,7 @@ const Pictures = () => {
                 &nbsp;&rsaquo;&nbsp;
                 All pictures
             </h3>
-            {picturesQuery.data && <h3 className="ms-auto">{picturesQuery.data.total} picture(s)</h3>}
+            <h3 className="ms-auto">{picturesQuery.data && <>{picturesQuery.data.total} picture(s)</>}</h3>
             <UncontrolledDropdown className="ms-2">
                 <DropdownToggle caret>View</DropdownToggle>
                 <DropdownMenu>
@@ -236,7 +236,7 @@ const Pictures = () => {
                 <Spinner type="grow" /> Loading pictures...
             </h3>}
             {picturesQuery.isSuccess && <>
-                {picturesQuery.data.data.length && <PicturesList
+                {picturesQuery.data.data.length > 0 && <PicturesList
                     pictures={picturesQuery.data.data}
                     viewMode={viewMode}
                     currentIndex={currentFullscreen}
