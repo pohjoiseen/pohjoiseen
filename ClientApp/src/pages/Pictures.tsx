@@ -21,6 +21,7 @@ import { GetPicturesOptions } from '../api/pictures';
 import { PicturesViewMode } from '../components/pictureViewCommon';
 import PictureFullscreen from '../components/PictureFullscreen';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUpdatePictureMutation } from '../data/mutations';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -55,6 +56,8 @@ const Pictures = () => {
         offset
     };
     const picturesQuery = usePicturesQuery(pictureQueryOptions);
+    
+    const updatePictureMutation = useUpdatePictureMutation();
     
     /// pagination ///
     
@@ -228,6 +231,7 @@ const Pictures = () => {
         </NavBar>
         <Container>
             {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}
+            {updatePictureMutation.isError && <Alert color="danger" className="alert-fixed">Updating picture: {errorMessage(updatePictureMutation.error)}</Alert>}
             {picturesQuery.isLoading && !picturesQuery.isSuccess && <h3 className="text-center">
                 <Spinner type="grow" /> Loading pictures...
             </h3>}

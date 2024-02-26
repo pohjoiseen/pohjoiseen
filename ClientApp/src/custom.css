@@ -121,6 +121,10 @@ body.overlay #root {
 
 /* Editable component */
 
+.editable h1, .editable h2, .editable h3, .editable h4, .editable h5, .editable h6 {
+  margin: 0;
+}
+
 .editable .editable-edit {
   display: none;
   padding: 0 0.2rem;
@@ -285,4 +289,14 @@ body.overlay #root {
 
 .picture-upload-overlay .btn:focus {
   box-shadow: none;
+}
+
+/* Fixed-position alert */
+
+.alert-fixed {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  z-index: 100;
 }

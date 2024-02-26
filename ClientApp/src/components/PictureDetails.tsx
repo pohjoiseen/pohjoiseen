@@ -2,6 +2,9 @@
 import Picture, { PICTURE_SIZE_DETAILS } from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
+import EditableInline from './EditableInline';
+import { useUpdatePictureMutation } from '../data/mutations';
+import EditableTextarea from './EditableTextarea';
 
 interface PictureDetailsProps {
     picture?: Picture;
@@ -22,6 +25,8 @@ interface PictureDetailsProps {
  * @param isLoading  Display loading spinner
  */
 const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading }: PictureDetailsProps) => {
+    const updatePictureMutation = useUpdatePictureMutation();
+    
     return (
         <div className="d-flex flex-row mb-2">
             <div className="position-relative me-2">
@@ -31,6 +36,7 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading }: 
                     src={picture?.detailsUrl || dummyImageURL}
                     alt=""
                     title={picture?.title || ''}
+                    tabIndex={0}
                     onDoubleClick={onOpen}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -47,7 +53,30 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading }: 
                 />
             </div>
             {picture && <div>
-                <h5>{picture.filename}, {picture.photographedAt.toLocaleDateString()}</h5>
+                <EditableInline
+                    value={picture.title}
+                    placeholder={picture.filename}
+                    onChange={(value) => updatePictureMutation.mutate({ ...picture, title: value })}
+                    viewTag="h5"
+                    inputClassName="fs-5 p-0 lh-1"
+                />
+                <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString() : 'not yet')}>{picture.photographedAt.toLocaleDateString()}</h5>
+                <EditableTextarea
+                    value={picture.description}
+                    onChange={(value) => updatePictureMutation.mutate({ ...picture, description: value })}
+                    emptyValueString="No description yet."
+                />
+                <p className="small text-muted">
+                    <a target="_blank" href={picture.url}>{picture.filename}</a>
+                    &nbsp;&nbsp;&nbsp;
+                    {picture.width}x{picture.height}
+                    &nbsp;&nbsp;&nbsp;
+                    {Math.round(picture.size / 1024)} kB
+                    {(picture.camera || picture.lens) && <> 
+                        <br/>
+                        {picture.camera || ''} {picture.lens || ''}
+                    </>}
+                </p>
             </div>}
         </div>
     );

@@ -6,6 +6,7 @@ import { Button } from 'reactstrap';
 
 interface EditableInlineProps {
     value: string;
+    placeholder?: string;
     onChange: (value: string) => void;
     onStateChange?: (state: boolean) => void;
     viewTag?: keyof JSX.IntrinsicElements;
@@ -15,15 +16,16 @@ interface EditableInlineProps {
     editableRef?: Ref<EditableHandle>;
 }
 
-const EditableInline = ({ value, onChange, onStateChange, viewTag, viewClassName, inputClassName,
+const EditableInline = ({ value, placeholder, onChange, onStateChange, viewTag, viewClassName, inputClassName,
                             validation, editableRef }: EditableInlineProps) => {
-    const ViewTag = viewTag || 'span';
     return <Editable
         className="d-flex align-items-start"
-        viewUI={<>
-            <ViewTag className={`me-2 ${viewClassName || ''}`}>{value}</ViewTag>
-            <Edit className="align-self-center bigger" />
-        </>}
+        viewUI={<EditableInlineView
+            value={value}
+            viewTag={viewTag}
+            placeholder={placeholder}
+            viewClassName={viewClassName}
+        />}
         editUI={<EditableInlineForm
             value={value}
             onSubmit={onChange}
@@ -35,6 +37,28 @@ const EditableInline = ({ value, onChange, onStateChange, viewTag, viewClassName
     />;
 };
 
+interface EditableInlineViewProps {
+    value: string;
+    viewTag?: keyof JSX.IntrinsicElements;
+    placeholder?: string;
+    viewClassName?: string;
+}
+
+const EditableInlineView = ({ value, viewTag, placeholder, viewClassName }: EditableInlineViewProps) => {
+    const ViewTag = viewTag || 'span';
+    const editableContext = useContext(EditableContext);
+    return <>
+        <ViewTag
+            className={`me-2 ${viewClassName || ''}`}
+            tabIndex={0}
+            onFocus={() => editableContext.onStartEdit()}
+        >
+            {value ? value : <i className="text-muted">{placeholder}</i>}
+        </ViewTag>
+        <Edit className="align-self-center bigger" />
+    </>;
+};
+
 interface EditableInlineFormProps {
     value: string;
     onSubmit: (value: string) => void;
@@ -44,10 +68,15 @@ interface EditableInlineFormProps {
 
 const EditableInlineForm = ({ value, onSubmit, inputClassName, validation }: EditableInlineFormProps) => {
     const { register, handleSubmit,
-        formState: { errors } } = useForm<{ value: string }>({ defaultValues: { value } });
+        formState: { errors } } = useForm<{ value: string }>({ defaultValues: { value }, mode: 'onChange' });
     const editableContext = useContext(EditableContext);
     const inputRef = useRef<HTMLInputElement | null>();
-    const { ref, ...rest } = register('value', validation);
+    const { ref, ...rest } = register('value', {
+        ...validation,
+        onBlur: () => {
+            handleSubmit(onValid)();
+        }
+    });
     useEffect(() => {
         inputRef.current?.focus();
     }, [])
@@ -57,8 +86,10 @@ const EditableInlineForm = ({ value, onSubmit, inputClassName, validation }: Edi
         onSubmit(values.value);
     }
     
-    return <form onSubmit={handleSubmit(onValid)} className="d-flex">
+    return <form onSubmit={handleSubmit(onValid)}>
         <input
+            size={value.length + 3}
+            onInput={(e) => (e.target as HTMLInputElement).size = (e.target as HTMLInputElement).value.length + 3}
             className={`form-control ${errors.value && 'is-invalid'} ${inputClassName || ''}`}
             ref={(e) => {
               ref(e);
@@ -67,8 +98,6 @@ const EditableInlineForm = ({ value, onSubmit, inputClassName, validation }: Edi
             onKeyUp={(e) => { if (e.key === 'Escape') editableContext.onEndEdit() }}
             {...rest}
         />
-        <Button color="outline-secondary" size="sm" className="ms-1" onClick={handleSubmit(onValid)}><i className="bi-check-lg" /></Button>
-        <Button color="outline-secondary" size="sm" className="ms-1" onClick={editableContext.onEndEdit}><i className="bi-x-lg" /></Button>
     </form>;
 };
 

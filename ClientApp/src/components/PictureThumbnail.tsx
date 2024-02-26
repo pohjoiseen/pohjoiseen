@@ -23,13 +23,14 @@ interface PictureThumbnailProps {
  */
 const PictureThumbnail = ({ picture, onOpen, onRetryUpload, isError, isLoading }: PictureThumbnailProps) => {
     return (
-        <div className="me-2 mb-2 position-relative picture-thumbnail" tabIndex={0}>
+        <div className="me-2 mb-2 position-relative picture-thumbnail">
             <img
                 height={PICTURE_SIZE_THUMBNAIL}
                 width={picture ? Math.round(picture.width / (picture.height / PICTURE_SIZE_THUMBNAIL)) : undefined}
                 src={picture?.thumbnailUrl || dummyImageURL} 
                 alt="" 
                 title={picture?.title || ''}
+                tabIndex={0}
                 onDoubleClick={onOpen}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {

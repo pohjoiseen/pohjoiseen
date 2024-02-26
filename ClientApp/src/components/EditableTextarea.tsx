@@ -28,18 +28,14 @@ const nl2br = (value: string): string => {
 
 const EditableTextarea = ({ value, onChange, onStateChange, viewTag,
                             titleString, emptyValueString, inputClassName, validation, editableRef }: EditableTextareaProps) => {
-    const ViewTag = viewTag || 'p';
     return <Editable
         className="d-flex align-items-start"
-        viewUI={<>
-            {(value || emptyValueString) && 
-                <ViewTag>
-                    {titleString && <><b>{titleString}</b>:&nbsp;</>}
-                    {value ? <span dangerouslySetInnerHTML={{ __html: nl2br(value) }} /> : <span className="text-muted">{emptyValueString}</span>}
-                    {' '}
-                    <Edit className="align-self-center" />
-                </ViewTag>}
-        </>}
+        viewUI={<EditableTextareaView
+            value={value}
+            viewTag={viewTag}
+            emptyValueString={emptyValueString}
+            titleString={titleString}
+        />}
         editUI={<EditableTextareaForm
             value={value}
             onSubmit={onChange}
@@ -52,6 +48,30 @@ const EditableTextarea = ({ value, onChange, onStateChange, viewTag,
     />;
 };
 
+interface EditableTextareaViewProps {
+    value: string;
+    viewTag?: keyof JSX.IntrinsicElements;
+    emptyValueString?: string;
+    titleString?: string;
+}
+
+const EditableTextareaView = ({ value, viewTag, emptyValueString, titleString }: EditableTextareaViewProps) => {
+    const ViewTag = viewTag || 'p';
+    const editableContext = useContext(EditableContext);
+    return <>
+        {(value || emptyValueString) &&
+            <ViewTag
+                tabIndex={0}
+                 onFocus={() => editableContext.onStartEdit()}
+            >
+                {titleString && <><b>{titleString}</b>:&nbsp;</>}
+                {value ? <span dangerouslySetInnerHTML={{ __html: nl2br(value) }} /> : <span className="text-muted">{emptyValueString}</span>}
+                {' '}
+                <Edit className="align-self-center" />
+            </ViewTag>}
+    </>
+}
+
 interface EditableTextareaFormProps {
     value: string;
     onSubmit: (value: string) => void;
@@ -62,10 +82,15 @@ interface EditableTextareaFormProps {
 
 const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, validation }: EditableTextareaFormProps) => {
     const { register, handleSubmit,
-        formState: { errors } } = useForm<{ value: string }>({ defaultValues: { value } });
+        formState: { errors } } = useForm<{ value: string }>({ defaultValues: { value }, mode: 'onChange' });
     const editableContext = useContext(EditableContext);
     const inputRef = useRef<HTMLTextAreaElement | null>();
-    const { ref, ...rest } = register('value', validation);
+    const { ref, ...rest } = register('value', {
+        ...validation,
+        onBlur: () => {
+            handleSubmit(onValid)();
+        }               
+    });
     useEffect(() => {
         inputRef.current?.focus();
         autoSize();
@@ -93,10 +118,6 @@ const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, va
             onInput={autoSize}
             {...rest}
         />
-        <div className="mt-2">
-            <Button color="outline-secondary" size="sm" onClick={handleSubmit(onValid)}><i className="bi-check-lg" /></Button>
-            <Button color="outline-secondary" size="sm" className="ms-2" onClick={editableContext.onEndEdit}><i className="bi-x-lg" /></Button>
-        </div>
     </form>;
 };
 
