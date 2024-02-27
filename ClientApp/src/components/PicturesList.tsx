@@ -16,7 +16,7 @@ import PictureDetails from './PictureDetails';
 
 interface PicturesListProps {
     viewMode: PicturesViewMode;
-    pictures: Picture[] | number[];
+    pictures: (Picture | number)[];
     currentIndex: number;
     onOpen: (index: number) => void;
     onRetryUpload?: (index: number) => void;
@@ -93,6 +93,7 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload }: PicturesListPr
                     onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
                 />
                 : <PictureDetails
+                    isNotYetUploaded
                     picture={p}
                     onOpen={() => onOpen(key)}
                     onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}

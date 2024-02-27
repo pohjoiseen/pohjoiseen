@@ -148,6 +148,10 @@ body.overlay #root {
   } 
 }
 
+.editable-autocomplete .rbt {
+  flex-grow: 1;
+}
+
 /* Map point picker component */
 
 .mappointpicker {

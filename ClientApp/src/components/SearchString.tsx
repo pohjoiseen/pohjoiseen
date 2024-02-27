@@ -1,15 +1,12 @@
 ﻿import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { SEARCHABLE_TABLES } from '../api/search';
 
 interface SearchStringProps {
     initialValue?: string;
     initialTables?: string;
     onSearch: (value: string, tables: string) => void;
 }
-
-const TABLES = [
-    'Places', 'Areas', 'Regions', 'Countries', 'Pictures'
-];
 
 const SearchString = ({ initialValue, initialTables, onSearch }: SearchStringProps) => {
     const [value, setValue] = useState(initialValue || '');
@@ -48,7 +45,7 @@ const SearchString = ({ initialValue, initialTables, onSearch }: SearchStringPro
                 </button>
             </div>
             <div>
-                {TABLES.map(t => <label className="form-label me-3" key={t}>
+                {SEARCHABLE_TABLES.map(t => <label className="form-label me-3" key={t}>
                     <input
                         type="checkbox"
                         checked={tables.includes(t)}

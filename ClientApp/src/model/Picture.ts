@@ -8,6 +8,7 @@
     uploadedAt: Date | null;
     
     placeId: number | null;
+    placeName?: string | null;
     
     width: number;
     height: number;

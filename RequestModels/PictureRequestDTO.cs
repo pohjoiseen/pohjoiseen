@@ -3,7 +3,7 @@ using KoTi.Models;
 
 namespace KoTi.RequestModels;
 
-public class PictureDTO
+public class PictureRequestDTO
 {
     [Required] public string Filename { get; set; } = "";
     [Required] public string Hash { get; set; } = "";

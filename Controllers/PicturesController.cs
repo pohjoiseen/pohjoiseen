@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using KoTi;
 using KoTi.Models;
 using KoTi.RequestModels;
 using KoTi.ResponseModels;
@@ -25,11 +19,13 @@ public class PicturesController : ControllerBase
     
     // GET: api/Pictures
     [HttpGet]
-    public async Task<ActionResult<ListWithTotal<Picture>>> GetPictures(
+    public async Task<ActionResult<ListWithTotal<PictureResponseDTO>>> GetPictures(
         [FromQuery] int limit,
         [FromQuery] int offset)
     {
-        var query = _context.Pictures.AsQueryable();
+        var query = _context.Pictures
+            .Include(p => p.Place)
+            .AsQueryable();
 
         query = query.OrderBy(p => p.PhotographedAt);
 
@@ -43,29 +39,33 @@ public class PicturesController : ControllerBase
             queryPaginated = queryPaginated.Take(limit);
         }
 
-        return new ListWithTotal<Picture>
+        return new ListWithTotal<PictureResponseDTO>
         {
             Total = await query.CountAsync(),
-            Data = await queryPaginated.ToListAsync()
+            Data = (await queryPaginated.ToListAsync()).Select(PictureResponseDTO.FromModel)
         };
     }
 
     // GET: api/Pictures/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Picture>> GetPicture(int id)
+    public async Task<ActionResult<PictureResponseDTO>> GetPicture(int id)
     {
-        var picture = await _context.Pictures.FindAsync(id);
+        var picture = await _context.Pictures
+            .Include(p => p.Place)
+            .Where(p => p.Id == id)
+            .FirstOrDefaultAsync(); 
+            
         if (picture == null)
         {
             return NotFound();
         }
 
-        return picture;
+        return PictureResponseDTO.FromModel(picture);
     }
 
     // PUT: api/Pictures/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutPicture(int id, PictureDTO dto)
+    public async Task<IActionResult> PutPicture(int id, PictureRequestDTO dto)
     {
         var picture = await _context.Pictures.FindAsync(id);
         if (picture == null)
@@ -103,7 +103,7 @@ public class PicturesController : ControllerBase
 
     // POST: api/Pictures
     [HttpPost]
-    public async Task<ActionResult<Picture>> PostPicture(PictureDTO dto)
+    public async Task<ActionResult<PictureResponseDTO>> PostPicture(PictureRequestDTO dto)
     {
         if (!ModelState.IsValid)
         {

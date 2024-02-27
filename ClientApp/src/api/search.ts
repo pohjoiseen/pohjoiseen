@@ -2,11 +2,15 @@
 import ListWithTotal from '../model/ListWithTotal';
 import { handleError } from './common';
 
+export const SEARCHABLE_TABLES = [
+    'Places', 'Areas', 'Regions', 'Countries', 'Pictures'
+] as const;
+
 export interface SearchOptions {
     q: string;
-    tables: string;
-    limit: number;
-    offset: number;
+    tables?: string;
+    limit?: number;
+    offset?: number;
 }
 
 export interface SearchResult {

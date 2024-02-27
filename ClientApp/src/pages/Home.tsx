@@ -64,7 +64,7 @@ const Home = () => {
                 </div>)}
             </div>}
             <div className="mt-4 text-center text-muted small">
-                &copy; 2023-2024 Alexander Ulyanov.  Built on ASP.NET Core 8.0 + React + react-query + Bootstrap
+                &copy; 2023-2024 Alexander Ulyanov.  Built on ASP.NET Core 8.0 + React + TanStack Query + Bootstrap
             </div>
         </Container>
     </div>

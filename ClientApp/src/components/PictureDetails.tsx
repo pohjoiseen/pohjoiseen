@@ -5,6 +5,7 @@ import PictureOverlay from './PictureOverlay';
 import EditableInline from './EditableInline';
 import { useUpdatePictureMutation } from '../data/mutations';
 import EditableTextarea from './EditableTextarea';
+import { EditableSearchingAutocomplete } from './SearchingAutocomplete';
 
 interface PictureDetailsProps {
     picture?: Picture;
@@ -12,6 +13,7 @@ interface PictureDetailsProps {
     onRetryUpload: () => void;
     isError?: boolean;
     isLoading?: boolean;
+    isNotYetUploaded?: boolean;
 }
 
 /**
@@ -23,8 +25,9 @@ interface PictureDetailsProps {
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
  * @param isError  Display error icon
  * @param isLoading  Display loading spinner
+ * @param isNotYetUploaded  Show smaller set of read-only data
  */
-const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading }: PictureDetailsProps) => {
+const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
     const updatePictureMutation = useUpdatePictureMutation();
     
     return (
@@ -52,32 +55,60 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading }: 
                     onRetryUpload={onRetryUpload}
                 />
             </div>
-            {picture && <div>
-                <EditableInline
-                    value={picture.title}
-                    placeholder={picture.filename}
-                    onChange={(value) => updatePictureMutation.mutate({ ...picture, title: value })}
-                    viewTag="h5"
-                    inputClassName="fs-5 p-0 lh-1"
-                />
-                <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString() : 'not yet')}>{picture.photographedAt.toLocaleDateString()}</h5>
-                <EditableTextarea
-                    value={picture.description}
-                    onChange={(value) => updatePictureMutation.mutate({ ...picture, description: value })}
-                    emptyValueString="No description yet."
-                />
-                <p className="small text-muted">
-                    <a target="_blank" href={picture.url}>{picture.filename}</a>
-                    &nbsp;&nbsp;&nbsp;
-                    {picture.width}x{picture.height}
-                    &nbsp;&nbsp;&nbsp;
-                    {Math.round(picture.size / 1024)} kB
-                    {(picture.camera || picture.lens) && <> 
-                        <br/>
-                        {picture.camera || ''} {picture.lens || ''}
-                    </>}
-                </p>
-            </div>}
+            {picture && (isNotYetUploaded
+                ? <div className="flex-grow-1">
+                    <h5 className="mb-4">
+                        <i className="text-muted">{picture.filename}</i><br/>
+                        {picture.photographedAt.toLocaleDateString()}
+                    </h5>
+                    <p className="small text-muted">
+                        {picture.width}x{picture.height}
+                        &nbsp;&nbsp;&nbsp;
+                        {Math.round(picture.size / 1024)} kB
+                        {(picture.camera || picture.lens) && <>
+                            <br/>
+                            {picture.camera || ''} {picture.lens || ''}
+                        </>}
+                    </p>
+                </div>
+                : <div className="flex-grow-1">
+                    <EditableInline
+                        value={picture.title}
+                        placeholder={picture.filename}
+                        onChange={(value) => updatePictureMutation.mutate({ ...picture, title: value })}
+                        viewTag="h5"
+                        inputClassName="fs-5 p-0 lh-1"
+                    />
+                    <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString() : 'not yet')}>{picture.photographedAt.toLocaleDateString()}</h5>
+                    <EditableTextarea
+                        value={picture.description}
+                        onChange={(value) => updatePictureMutation.mutate({ ...picture, description: value })}
+                        emptyValueString="No description yet."
+                    />
+                    <div className="d-flex align-items-center mt-2 mb-2">
+                        <div className="me-1">Location:</div>
+                        <div className="flex-grow-1 fw-medium">
+                            <EditableSearchingAutocomplete
+                                id={picture.placeId}
+                                title={picture.placeName!}
+                                placeholder="Not set"
+                                table="Places"
+                                onSelect={(id, title) => updatePictureMutation.mutate({ ...picture, placeId: id, placeName: title })}
+                            />
+                        </div>
+                    </div>
+                    <p className="small text-muted">
+                        <a target="_blank" href={picture.url}>{picture.filename}</a>
+                        &nbsp;&nbsp;&nbsp;
+                        {picture.width}x{picture.height}
+                        &nbsp;&nbsp;&nbsp;
+                        {Math.round(picture.size / 1024)} kB
+                        {(picture.camera || picture.lens) && <> 
+                            <br/>
+                            {picture.camera || ''} {picture.lens || ''}
+                        </>}
+                    </p>
+                </div>)}
         </div>
     );
 };

@@ -173,6 +173,7 @@ const PicturesUpload = () => {
                         // lead to duplicate keys at rendering
                         setPicture({
                             ...await getPicture(result.existingId),
+                            id: null,
                             blob: undefined,
                             upload: PictureUploadResult.DUPLICATE
                         });
@@ -271,7 +272,7 @@ const PicturesUpload = () => {
         <Container>
             {uploadError.length > 0 && <Alert color="danger">{uploadError}<br/>Click the failed picture to retry</Alert>}
             <PicturesList
-                pictures={picturesForUpload}
+                pictures={picturesForUpload.map(p => p.id ? p.id : p)}
                 currentIndex={currentFullscreen}
                 viewMode={viewMode}
                 onOpen={(k) => setCurrentFullscreen(k)}
