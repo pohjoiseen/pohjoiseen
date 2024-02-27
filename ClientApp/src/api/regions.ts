@@ -2,6 +2,19 @@
 import Area from '../model/Area';
 import { handleError } from './common';
 
+export const getRegion = async (id: number): Promise<Region> => {
+    const response = await fetch(`api/Regions/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 200) {
+        await handleError(response);
+    }
+    return await response.json();
+};
+
 export const putRegion = async (id: number, region: Region) => {
     const response = await fetch(`api/Regions/${id}`, {
         method: 'PUT',

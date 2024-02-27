@@ -3,14 +3,20 @@ import Picture, { PICTURE_SIZE_DETAILS } from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
 import EditableInline from './EditableInline';
-import { useUpdatePictureMutation } from '../data/mutations';
+import { useCreatePlaceMutation, useUpdatePictureMutation } from '../data/mutations';
 import EditableTextarea from './EditableTextarea';
 import { EditableSearchingAutocomplete } from './SearchingAutocomplete';
+import { useCallback, useState } from 'react';
+import CreatePlaceModal from './CreatePlaceModal';
+import { PlaceCategory } from '../model/PlaceCategory';
+import ExploreStatus from '../model/ExploreStatus';
+import Place from '../model/Place';
 
 interface PictureDetailsProps {
     picture?: Picture;
     onOpen: () => void;
     onRetryUpload: () => void;
+    onEditPlace?: (placeId: number) => void;
     isError?: boolean;
     isLoading?: boolean;
     isNotYetUploaded?: boolean;
@@ -23,12 +29,41 @@ interface PictureDetailsProps {
  * @param picture  Picture, if loaded
  * @param onOpen  Double click/Enter handler for image
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
+ * @param onEditPlace  View/modify place button handler
  * @param isError  Display error icon
  * @param isLoading  Display loading spinner
  * @param isNotYetUploaded  Show smaller set of read-only data
  */
-const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
+const PictureDetails = ({ picture, onOpen, onRetryUpload, onEditPlace, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
     const updatePictureMutation = useUpdatePictureMutation();
+    const createPlaceMutation = useCreatePlaceMutation();
+    const [showCreatePlaceModal, setCreatePlaceModal] = useState('');
+    
+    const createPlace = useCallback(async (name: string, areaId: number) => {
+        setCreatePlaceModal('');
+        if (!picture) {
+            return;
+        }
+        const newPlace: Place = {
+            id: 0,
+            areaId,
+            name,
+            alias: '',
+            category: PlaceCategory.Default,
+            exploreStatus: ExploreStatus.None,
+            notes: '',
+            links: '',
+            directions: '',
+            season: '',
+            publicTransport: '',
+            order: 0,
+            lat: 0,
+            lng: 0,
+            zoom: 0,
+        };
+        const place = await createPlaceMutation.mutateAsync(newPlace);
+        await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
+    }, [picture, setCreatePlaceModal, createPlaceMutation, updatePictureMutation]);
     
     return (
         <div className="d-flex flex-row mb-2">
@@ -93,11 +128,19 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading, is
                                 title={picture.placeName!}
                                 placeholder="Not set"
                                 table="Places"
+                                addNewText="Add new place: "
+                                onAddNew={(title) => setCreatePlaceModal(title)}
                                 onSelect={(id, title) => updatePictureMutation.mutate({ ...picture, placeId: id, placeName: title })}
                             />
                         </div>
                     </div>
-                    <p className="small text-muted">
+                    {picture.placeId && onEditPlace && <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => onEditPlace(picture.placeId!)}
+                    >
+                        View/Modify place
+                    </button>}
+                    <p className="small text-muted mt-4">
                         <a target="_blank" href={picture.url}>{picture.filename}</a>
                         &nbsp;&nbsp;&nbsp;
                         {picture.width}x{picture.height}
@@ -109,6 +152,11 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, isError, isLoading, is
                         </>}
                     </p>
                 </div>)}
+            {showCreatePlaceModal && <CreatePlaceModal
+                defaultName={showCreatePlaceModal} 
+                onClose={() => setCreatePlaceModal('')} 
+                onSubmit={createPlace}
+            />}
         </div>
     );
 };

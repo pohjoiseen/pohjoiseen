@@ -2,6 +2,19 @@
 import Area from '../model/Area';
 import { handleError } from './common';
 
+export const getArea = async (id: number): Promise<Area> => {
+    const response = await fetch(`api/Areas/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 200) {
+        await handleError(response);
+    }
+    return await response.json();
+};
+
 export const putArea = async (id: number, area: Area) => {
     const response = await fetch(`api/Areas/${id}`, {
         method: 'PUT',

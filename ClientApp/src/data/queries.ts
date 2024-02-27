@@ -34,7 +34,12 @@ export const useAreasQuery = (regionId: number) => useQuery({
 
 export const usePlacesQuery = (areaId: number) => useQuery({
     queryKey: [QueryKeys.PLACES_FOR_AREA, areaId],
-    queryFn: () => getPlacesForArea(areaId),
+    queryFn: async () => {
+        if (!areaId) {
+            return [];
+        }
+        return await getPlacesForArea(areaId);
+    }
 });
 
 export const usePictureQuery = (id: number, disabled?: boolean) => useQuery({

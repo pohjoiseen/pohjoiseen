@@ -304,3 +304,10 @@ body.overlay #root {
   bottom: 0;
   z-index: 100;
 }
+
+/* Wider modal */
+
+.modal-wide {
+  width: 80vw;
+  max-width: 100%;
+}

@@ -7,12 +7,16 @@
 //   although normally should be already loaded at this point)
 // - list of actual pictures (for upload view, list exists only in memory)
 import * as React from 'react';
-import { Fragment } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import Picture from '../model/Picture';
 import { usePictureQuery } from '../data/queries';
 import { PicturesViewMode } from './pictureViewCommon';
 import PictureThumbnail from './PictureThumbnail';
 import PictureDetails from './PictureDetails';
+import { DomEvent } from 'leaflet';
+import on = DomEvent.on;
+import PlaceModal from './PlaceModal';
+import { useUpdatePictureMutation } from '../data/mutations';
 
 interface PicturesListProps {
     viewMode: PicturesViewMode;
@@ -26,6 +30,7 @@ interface PictureByIdProps {
     id: number;
     onOpen?: () => void;
     onRetryUpload: () => void;
+    onEditPlace?: (placeId: number) => void;
 }
 
 /**
@@ -71,8 +76,9 @@ const PicturesListThumbnails = ({ pictures, onOpen, onRetryUpload }: PicturesLis
  * @param id
  * @param onOpen  Double click/Enter handler for image
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
+ * @param onEditPlace  View/Modify place button handler
  */
-const PictureDetailsById = ({ id, onOpen, onRetryUpload }: PictureByIdProps) => {
+const PictureDetailsById = ({ id, onOpen, onRetryUpload, onEditPlace }: PictureByIdProps) => {
     const pictureQuery = usePictureQuery(id);
     return <PictureDetails
         picture={pictureQuery.data}
@@ -80,10 +86,13 @@ const PictureDetailsById = ({ id, onOpen, onRetryUpload }: PictureByIdProps) => 
         isLoading={pictureQuery.isLoading && !pictureQuery.isSuccess}
         onOpen={onOpen!}
         onRetryUpload={onRetryUpload}
+        onEditPlace={onEditPlace!}
     />;
 }
 
 const PicturesListDetails = ({ pictures, onOpen, onRetryUpload }: PicturesListProps) => {
+    const [editedPlaceId, setEditedPlaceId] = useState(0);
+    
     return <div>
         {pictures.map((p, key) => <Fragment key={typeof p === 'number' ? p : (p.id || 'idx' + key)}>
             {typeof p === 'number'
@@ -91,6 +100,7 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload }: PicturesListPr
                     id={p}
                     onOpen={() => onOpen(key)}
                     onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
+                    onEditPlace={(placeId) => setEditedPlaceId(placeId)}
                 />
                 : <PictureDetails
                     isNotYetUploaded
@@ -100,6 +110,15 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload }: PicturesListPr
                 />
             }
         </Fragment>)}
+        {!!editedPlaceId && <PlaceModal
+            id={editedPlaceId}
+            onSave={(placeName: string) => {
+                // TODO: should update place name in pictures, but that would be quite tricky.
+                // Just keep showing old name if place name was updated
+                setEditedPlaceId(0);
+            }}
+            onClose={() => setEditedPlaceId(0)}
+        />}
     </div>;
 };
 

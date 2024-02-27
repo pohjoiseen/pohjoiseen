@@ -10,10 +10,12 @@ interface SearchingAutocompleteProps {
     title: string | null;
     placeholder: string;
     table: typeof SEARCHABLE_TABLES[number];
+    addNewText?: string;
     onSelect: (id: number | null, title: string | null) => void;
+    onAddNew?: (title: string) => void;
 }
 
-export const SearchingAutocomplete = ({ id, title, placeholder, table, onSelect, inEditableContext }:
+export const SearchingAutocomplete = ({ id, title, placeholder, table, addNewText, onSelect, onAddNew, inEditableContext }:
                                           SearchingAutocompleteProps & { inEditableContext?: boolean }) => {
     const [searchString, setSearchString] = useState('');
     const searchQuery = useSearchQuery({
@@ -32,7 +34,11 @@ export const SearchingAutocomplete = ({ id, title, placeholder, table, onSelect,
     const shouldClose = useRef(false);
     const onChange = useCallback((selected: any) => {
         if (selected.length) {
-            onSelect(selected[0].tableId, selected[0].title);
+            if (selected[0].customOption && onAddNew) {
+                onAddNew(selected[0].title);
+            } else {
+                onSelect(selected[0].tableId, selected[0].title);
+            }
         } else {
             onSelect(null, null);
         }
@@ -59,6 +65,8 @@ export const SearchingAutocomplete = ({ id, title, placeholder, table, onSelect,
         placeholder={placeholder}
         options={searchQuery.data?.data || []}
         defaultSelected={id ? [{ tableName: table, tableId: id, title: title }] : []}
+        allowNew={!!onAddNew}
+        newSelectionPrefix={addNewText}
         labelKey="title"
         filterBy={() => true}
         renderMenuItemChildren={renderMenuItemChildren}
@@ -94,7 +102,7 @@ const EdiableSearchingView = ({ title, placeholder }: { title: string | null, pl
     </>;
 };
 
-export const EditableSearchingAutocomplete = ({ id, title, placeholder, table, onSelect }: SearchingAutocompleteProps) => {
+export const EditableSearchingAutocomplete = ({ id, title, placeholder, table, addNewText, onSelect, onAddNew }: SearchingAutocompleteProps) => {
     return <Editable
         className="d-flex align-items-end editable-autocomplete"
         viewUI={<EdiableSearchingView title={id ? title : null} placeholder={placeholder} />}
@@ -103,6 +111,8 @@ export const EditableSearchingAutocomplete = ({ id, title, placeholder, table, o
             title={title}
             placeholder={placeholder}
             table={table}
+            addNewText={addNewText}
+            onAddNew={onAddNew}
             onSelect={onSelect}
             inEditableContext
         />}

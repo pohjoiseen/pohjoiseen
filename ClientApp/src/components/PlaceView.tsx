@@ -19,7 +19,7 @@ interface PlaceProps {
     area: Area;
     isAddingAlias: boolean;
     onChange: (place: Place) => void;
-    onDelete: () => void;
+    onDelete?: () => void;
     onAddAlias: () => void;
 }
 
@@ -93,7 +93,7 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
                 <Button color="secondary" className="me-2" onClick={() => publicTransportRef.current!.startEditing()}><i className="bi-plus-lg" /> Public transport</Button>}
             {!place.season && !isAddingSeason &&
                 <Button color="secondary" className="me-2" onClick={() => seasonRef.current!.startEditing()}><i className="bi-plus-lg" /> Season</Button>}
-            <Button color="danger" className="ms-auto" onClick={onDelete}>Delete</Button>
+            {onDelete && <Button color="danger" className="ms-auto" onClick={onDelete}>Delete</Button>}
         </div>
     </>;
 }

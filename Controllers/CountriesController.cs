@@ -29,6 +29,19 @@ public class CountriesController : ControllerBase
         return await _context.Countries.OrderBy(c => c.Order).ToListAsync();
     }
 
+    // GET: api/Countries/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Country>> GetCountry(int id)
+    {
+        var country = await _context.Countries.FindAsync(id);
+        if (country == null)
+        {
+            return NotFound();
+        }
+
+        return country;
+    }
+
     // GET: api/Countries/{id}/Regions
     [HttpGet("{id}/Regions")]
     public async Task<ActionResult<IEnumerable<Region>>> GetRegionsForCountry(int id)

@@ -45,7 +45,7 @@ const ExploreStatusIndicator = ({ status, onChange }: ExploreStatusIndicatorProp
         <Popover
             target={idRef.current}
             placement="bottom"
-            trigger="focus"
+            trigger="legacy"
             isOpen={isPopoverOpen}
             toggle={() => setPopoverOpen(!isPopoverOpen)}
         >

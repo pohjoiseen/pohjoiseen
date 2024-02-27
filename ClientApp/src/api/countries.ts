@@ -10,6 +10,19 @@ export const getCountries: () => Promise<Country[]> = async () => {
     return await response.json();
 };
 
+export const getCountry = async (id: number): Promise<Country> => {
+    const response = await fetch(`api/Countries/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 200) {
+        await handleError(response);
+    }
+    return await response.json();
+};
+
 export const getRegionsForCountry: (id: number) => Promise<Region[]> = async (id) => {
     const response = await fetch(`api/Countries/${id}/Regions`);
     if (!response.ok || response.status !== 200) {
