@@ -35,6 +35,7 @@ const CreateModal = <T extends Creatable>({ object, title, onClose, onSubmit }: 
                     <Label>Name</Label>
                     <input
                         className="form-control"
+                        autoComplete="off"
                         ref={(e) => {
                             ref(e);
                             inputRef.current = e;

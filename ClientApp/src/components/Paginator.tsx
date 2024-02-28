@@ -13,8 +13,10 @@ const Paginator = ({ page, setPage, totalPages, disableKeyboardNav }: PaginatorP
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
+            const targetElem = e.target as HTMLElement;
             // page navigation
-            if (!disableKeyboardNav && e.ctrlKey) {
+            if (!disableKeyboardNav && e.ctrlKey &&
+                targetElem.tagName !== 'INPUT' && targetElem.tagName !== 'TEXTAREA') {
                 if (e.key === 'Home' && page > 0) {
                     e.preventDefault();
                     setPage(0);

@@ -62,6 +62,7 @@ const EditableLinksListForm = ({ value, onSubmit }: EditableLinksListFormProps) 
             <div className="col-8">
                 <input
                     className="form-control"
+                    autoComplete="off"
                     onKeyUp={(e) => { if (e.key === 'Escape') editableContext.onEndEdit() }}
                     {...register(`links.${i}.value` as const)}
                 />

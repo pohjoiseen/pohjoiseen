@@ -91,6 +91,7 @@ const EditableInlineForm = ({ value, onSubmit, inputClassName, validation }: Edi
             size={value.length + 3}
             onInput={(e) => (e.target as HTMLInputElement).size = (e.target as HTMLInputElement).value.length + 3}
             className={`form-control ${errors.value && 'is-invalid'} ${inputClassName || ''}`}
+            autoComplete="off"
             ref={(e) => {
               ref(e);
               inputRef.current = e;

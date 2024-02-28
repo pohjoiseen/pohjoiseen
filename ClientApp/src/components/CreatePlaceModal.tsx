@@ -41,6 +41,7 @@ const CreatePlaceModal = ({ defaultName, onClose, onSubmit }: CreatePlaceModalPr
                     <Label>Name</Label>
                     <input
                         className="form-control"
+                        autoComplete="off"
                         ref={(e) => {
                             inputRef(e);
                             inputElemRef.current = e;
