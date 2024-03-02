@@ -86,7 +86,7 @@ namespace KoTi.Controllers
             dto.ToModel(place);
             if (place.Order == 0)
             {
-                place.Order = await _context.Places.Where(p => p.AreaId == place.AreaId).CountAsync();
+                place.Order = await _context.Places.Where(p => p.AreaId == place.AreaId).CountAsync() + 1;
             }
 
             _context.Places.Add(place);

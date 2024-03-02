@@ -31,7 +31,7 @@ public class SearchController : ControllerBase
     {
         var query = _context.Database
             .SqlQuery<SearchResult>(
-                $"SELECT TableName, TableId, Title, snippet(Search, 3, '<b>', '</b>', '...', 25) AS Text, bm25(Search) AS Rank FROM Search({q})");
+                $"SELECT TableName, TableId, Title, snippet(Search, 3, '<b>', '</b>', '...', 25) AS Text, bm25(Search, 1.0, 1.0, 3.0) AS Rank FROM Search({q})");
 
         if (tables != null)
         {

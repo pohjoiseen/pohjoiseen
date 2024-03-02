@@ -100,7 +100,7 @@ const PlaceModal = ({ id, onSave, onClose }: PlaceModalProps) => {
                 {!place && 'Edit place'}
             </ModalHeader>
             <ModalBody>
-                {isLoading && <h3 className="text-center"><Spinner type="grow" size="sm"/> Loading...</h3>}
+                {(isLoading || placesForArea.isLoading) && <h3 className="text-center"><Spinner type="grow" size="sm"/> Loading...</h3>}
                 {loadingError && <Alert color="danger">Loading data for places: {loadingError}</Alert>}
                 {placesForArea.isError &&
                     <Alert color="danger">Loading places: {errorMessage(placesForArea.error)}</Alert>}
@@ -115,7 +115,7 @@ const PlaceModal = ({ id, onSave, onClose }: PlaceModalProps) => {
                     onAddAlias={() => aliasRef.current!.startEditing()}
                     onChange={(place) => updatePlaceMutation.mutate(place)}
                 />}
-                {!place && !isLoading && !loadingError && <Alert color="danger">Place not found</Alert>}
+                {!place && !isLoading && !placesForArea.isLoading && !loadingError && <Alert color="danger">Place not found</Alert>}
             </ModalBody>
             <ModalFooter>
                 <Button color="primary" onClick={doClose}>Close</Button>
