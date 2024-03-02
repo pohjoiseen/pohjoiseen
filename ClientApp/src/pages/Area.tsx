@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion, Alert, Button, Container, Spinner } from 'reactstrap';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../util';
 import { confirmModal } from '../components/ModalContainer';
 import { useAreasQuery, useCountriesQuery, usePlacesQuery, useRegionsQuery } from '../data/queries';
@@ -33,12 +33,30 @@ const AreaPage = () => {
     const areaId = parseInt(routeParams['areaId']!);
     
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     
     /// UI state ///
 
-    const [placeIdOpen, setPlaceIdOpen] = useState<string>('');
     const [isAddPlaceModalOpen, setAddPlaceModalOpen] = useState(false);
-
+    const filter = searchParams.get('filter') || '';
+    const setFilter = useCallback((filter: string) => setSearchParams(params => {
+        if (filter) {
+            params.set('filter', filter);
+        } else {
+            params.delete('filter');
+        }
+        return params;
+    }, { replace: true }), [setSearchParams]);
+    const placeIdOpen = searchParams.get('place') || '';
+    const setPlaceIdOpen = useCallback((placeIdOpen: string) => setSearchParams(params => {
+        if (placeIdOpen) {
+            params.set('place', placeIdOpen);
+        } else {
+            params.delete('place');
+        }
+        return params;
+    }, { replace: true }), [setSearchParams]);
+    
     /// queries ///
 
     // current country from list of all countries
@@ -61,7 +79,20 @@ const AreaPage = () => {
     const updatePlaceMutation = useUpdatePlaceMutation();
     const deletePlaceMutation = useDeletePlaceMutation();
     const reorderPlacesMutation = useReorderPlacesMutation();
-    
+
+    /// scroll filter into view if first opened with a filter ///
+
+    const placesFilterInputRef = useRef<HTMLInputElement>(null);
+    const [alreadyScrolled, setAlreadyScrolled] = useState(false);
+    useEffect(() => {
+        if (!filter || alreadyScrolled) {
+            return;
+        }
+        if (places.data) {
+            placesFilterInputRef.current?.scrollIntoView();
+        }
+    }, [setAlreadyScrolled, filter, places]);
+
     /// loading/error messages ///
 
     // do not show anything unless all loaded
@@ -161,10 +192,22 @@ const AreaPage = () => {
             />
             <div className="clearfix" />
             {area.places.length > 0 && <>
-                <h6 className="mt-4">Places:</h6>
+                <label className="mt-4 mb-2 fs-6 fw-bold d-flex align-items-center">
+                    Places:
+                    <input
+                        type="text"
+                        className="form-control ms-2"
+                        value={filter}
+                        onChange={e => setFilter(e.target.value)}
+                        placeholder="Filter..."
+                        ref={placesFilterInputRef}
+                    />
+                </label>
                 {/* toggle prop workaround due to missing typings, see https://github.com/reactstrap/reactstrap/issues/2165 */}
                 <Accordion open={placeIdOpen} {...{toggle: togglePlace}}>
-                    {area.places.map((p, i) => <PlaceComponent
+                    {area.places
+                        .filter(p => filter ? p.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()) : true)
+                        .map((p, i) => <PlaceComponent
                         key={p.id}    
                         country={country}
                         area={area}
@@ -174,11 +217,12 @@ const AreaPage = () => {
                         deletePlaceMutation={deletePlaceMutation}
                         isOpen={placeIdOpen === p.id.toString()}
                         onSetIsOpen={(isOpen) => setPlaceIdOpen(isOpen ? p.id.toString() : '')}
+                        allowDnD={!filter}
                         onReorder={reorderPlaces}
                     />)}
                 </Accordion>
             </>}
-            {area.places.length === 0 && <p className="text-muted mt-4">No places defined.</p>}
+            {area.places.length === 0 && <p className="text-muted mt-4">{filter ? 'No matching places.' : 'No places defined.'}</p>}
             <div className="mt-2 mb-2">
                 <Button color="primary" onClick={() => setAddPlaceModalOpen(true)}>Add place...</Button>
             </div>

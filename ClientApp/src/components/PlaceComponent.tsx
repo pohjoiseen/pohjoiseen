@@ -23,6 +23,7 @@ interface PlaceComponentProps {
     area: Area;
     place: Place;
     index: number;
+    allowDnD: boolean;
     isOpen: boolean;
     onSetIsOpen: (isOpen: boolean) => void;
     onReorder: (from: number, to: number) => void;
@@ -35,7 +36,7 @@ interface PlaceDnDItem {
     index: number;
 }
 
-const PlaceComponent = ({ area, country, place, index, isOpen, onSetIsOpen, onReorder,
+const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIsOpen, onReorder,
                           updatePlaceMutation, deletePlaceMutation }: PlaceComponentProps) => {
     const ref = useRef<HTMLElement>(null);
     const aliasRef = useRef<EditableHandle>(null);
@@ -96,13 +97,10 @@ const PlaceComponent = ({ area, country, place, index, isOpen, onSetIsOpen, onRe
            
            // Scroll viewport if close to edge
            const scrollArea = 200;
-           console.log(`Window height = ${window.innerHeight}, offset Y = ${monitor.getClientOffset()!.y}, scroll Y = ${window.scrollY}`);
            if (window.innerHeight > scrollArea * 3) {
                if (monitor.getClientOffset()!.y < scrollArea) {
-                   console.log('Scroll -');
                    window.setTimeout(() => window.scrollBy(0, -scrollArea), 0);
                } else if (monitor.getClientOffset()!.y > window.innerHeight - scrollArea) {
-                   console.log('Scroll +');
                    window.setTimeout(() => window.scrollBy(0, scrollArea), 0);
                }
            }
@@ -117,7 +115,9 @@ const PlaceComponent = ({ area, country, place, index, isOpen, onSetIsOpen, onRe
         })
     });
     
-    drag(drop(ref));
+    if (allowDnD) {
+        drag(drop(ref));
+    }
     
     /// render ///
     

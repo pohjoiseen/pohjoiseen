@@ -77,9 +77,8 @@ public class SearchController : ControllerBase
                 {
                     return NotFound();
                 }
-
-                // TODO: make it possible to scroll to the exact place
-                return $"/country/{place.Area.Region.CountryId}/region/{place.Area.RegionId}/area/{place.AreaId}";
+                
+                return $"/country/{place.Area.Region.CountryId}/region/{place.Area.RegionId}/area/{place.AreaId}?place={place.Id}&filter={Uri.EscapeDataString(place.Name)}";
             }
             
             case "Areas":

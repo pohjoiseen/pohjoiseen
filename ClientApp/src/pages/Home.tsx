@@ -23,7 +23,7 @@ const Home = () => {
                 This is Alexander Ulyanov's private database of places where he has and hasn't been,
                 and pictures from them.
             </p>
-            <SearchString onSearch={search} />
+            <SearchString onSearch={search} initialTables="Places,Areas,Regions,Countries" />
             <h3>Browse pictures:</h3>
             <div className="d-flex flex-wrap">
                 <div className="w-25 pb-1 pe-1">
