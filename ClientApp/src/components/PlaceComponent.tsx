@@ -93,12 +93,25 @@ const PlaceComponent = ({ area, country, place, index, isOpen, onSetIsOpen, onRe
            // but it's good here for the sake of performance
            // to avoid expensive index searches.
            item.index = hoverIndex;
+           
+           // Scroll viewport if close to edge
+           const scrollArea = 200;
+           console.log(`Window height = ${window.innerHeight}, offset Y = ${monitor.getClientOffset()!.y}, scroll Y = ${window.scrollY}`);
+           if (window.innerHeight > scrollArea * 3) {
+               if (monitor.getClientOffset()!.y < scrollArea) {
+                   console.log('Scroll -');
+                   window.setTimeout(() => window.scrollBy(0, -scrollArea), 0);
+               } else if (monitor.getClientOffset()!.y > window.innerHeight - scrollArea) {
+                   console.log('Scroll +');
+                   window.setTimeout(() => window.scrollBy(0, scrollArea), 0);
+               }
+           }
        } 
     });
     
     const [{ isDragging }, drag] = useDrag({
         type: DnDTypes.PLACE,
-        item: () => ({ id: place.id, index }),
+        item: () => ({ id: place.id, index, name: place.name }),
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })

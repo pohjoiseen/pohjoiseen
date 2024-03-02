@@ -1,4 +1,5 @@
 ﻿import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
+import debounce from 'lodash/debounce';
 import { QueryKeys } from './queries';
 import Region from '../model/Region';
 import Area from '../model/Area';
@@ -188,6 +189,8 @@ export const useDeletePlaceMutation = () => {
     });
 };
 
+const reoderPlacesInAreaDebounced = debounce(reorderPlacesInArea, 500);
+
 export const useReorderPlacesMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -195,13 +198,11 @@ export const useReorderPlacesMutation = () => {
             if (!places.length) {
                 return;
             }
-            await reorderPlacesInArea(places[0].areaId, places.map(p => p.id));
             const placesForAreaData: Place[] | undefined = queryClient.getQueryData([QueryKeys.PLACES_FOR_AREA, places[0].areaId]);
             if (placesForAreaData) {
                 queryClient.setQueryData([QueryKeys.PLACES_FOR_AREA, places[0].areaId], places);
-            } else {
-                await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, places[0].areaId]);
             }
+            await reoderPlacesInAreaDebounced(places[0].areaId, places.map(p => p.id));
         }
     });
 };

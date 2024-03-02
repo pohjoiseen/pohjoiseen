@@ -28,6 +28,7 @@ export enum PlaceCategory {
     Motorway = 'motorway',
     Mountain = 'mountain',
     Museum = 'museum',
+    Park = 'park',
     Petroglyphs = 'petroglyphs',
     Prison = 'prison',
     Road = 'road',
@@ -35,14 +36,15 @@ export enum PlaceCategory {
     SmallCity = 'smallcity',
     School = 'school',
     Station = 'station',
-    Stop = 'stop',
+    Store = 'store',
     Theater = 'theater',
     TouristVillage = 'touristvillage',
     Trail = 'trail',
     Tree = 'tree',
     University = 'university',
     War = 'war',
-    Waterfall = 'waterfall'
+    Waterfall = 'waterfall',
+    Stop = 'stop',
 }
 
 export const PLACE_CATEGORY_DESCRIPTIONS: {[category in PlaceCategory]: string} = {
@@ -52,7 +54,7 @@ export const PLACE_CATEGORY_DESCRIPTIONS: {[category in PlaceCategory]: string} 
     [PlaceCategory.Cave]: 'Cave, tunnel',
     [PlaceCategory.Cemetery]: 'Cemetery',
     [PlaceCategory.City]: 'City (not legally, but settlement which would commonly be considered as city-like)',
-    [PlaceCategory.CityPart]: 'City subdivision, unless effectively a separate village',
+    [PlaceCategory.CityPart]: 'City subdivision, unless completely suburban or rural in character',
     [PlaceCategory.CitySquare]: 'Square',
     [PlaceCategory.Bridge]: 'Bridge',
     [PlaceCategory.Building]: 'Notable building not covered by other categories',
@@ -74,6 +76,7 @@ export const PLACE_CATEGORY_DESCRIPTIONS: {[category in PlaceCategory]: string} 
     [PlaceCategory.Motorway]: 'Motorway or motorway-quality road',
     [PlaceCategory.Mountain]: 'Mountain or other prominence, massif',
     [PlaceCategory.Museum]: 'Museum, unless covered by more specific categories',
+    [PlaceCategory.Park]: 'Urban park',
     [PlaceCategory.Petroglyphs]: 'Rock paintings or drawings',
     [PlaceCategory.Prison]: 'Prison',
     [PlaceCategory.River]: 'Water body, any kind',
@@ -81,12 +84,13 @@ export const PLACE_CATEGORY_DESCRIPTIONS: {[category in PlaceCategory]: string} 
     [PlaceCategory.School]: 'School, other education institution up to secondary school',
     [PlaceCategory.SmallCity]: 'Village (not legally, but settlement which would NOT be normally considered city-like)',
     [PlaceCategory.Station]: 'Railway station',
-    [PlaceCategory.Stop]: 'Something intentionally NOT explored',
+    [PlaceCategory.Store]: 'Store of any kind or shopping center',
     [PlaceCategory.Theater]: 'Theater',
     [PlaceCategory.Tree]: 'Minor protected nature area or other nature sight not covered by other categories',
     [PlaceCategory.TouristVillage]: 'Camping, hotel, minor settlement that is specifically meant for tourists',
     [PlaceCategory.Trail]: 'Hiking trail, if it makes sense to describe one separately from nature sights',
     [PlaceCategory.University]: 'University, research facility, other higher or professional education institution',
     [PlaceCategory.War]: 'Historical battlefields, other war monuments and historical military areas',
-    [PlaceCategory.Waterfall]: 'Waterfall or significant rapids'
+    [PlaceCategory.Waterfall]: 'Waterfall or significant rapids',
+    [PlaceCategory.Stop]: 'Something intentionally NOT explored',
 };
