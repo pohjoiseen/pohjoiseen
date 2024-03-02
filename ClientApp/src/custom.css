@@ -104,6 +104,14 @@ body.overlay #root {
   border: 3px solid #000;
 }
 
+.placecategory-popover .popover {
+  max-width: 100%;
+}
+
+.placecategory-content {
+  width: 480px;
+}
+
 .accordion-button .placecategory {
   margin-bottom: -7px;
 }

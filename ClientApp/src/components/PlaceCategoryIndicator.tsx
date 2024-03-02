@@ -35,9 +35,10 @@ const PlaceCategoryIndicator = ({ category, onChange }: PlaceCategoryIndicatorPr
             placement="bottom"
             isOpen={isPopoverOpen}
             toggle={() => setPopoverOpen(!isPopoverOpen)}
+            className="placecategory-popover"
         >
             <PopoverBody>
-                <div className="d-flex flex-wrap flex-row">
+                <div className="d-flex flex-wrap flex-row placecategory-content">
                     {isPopoverOpen && Object.entries(PLACE_CATEGORY_DESCRIPTIONS).map(([c, desc]) =>
                         <div key={c} className="placecategory-selector-item">
                             <button
