@@ -37,5 +37,7 @@ public class Place
     
     public int Zoom { get; set; }
     
+    public bool IsPrivate { get; set; }
+    
     public IList<Picture> Pictures { get; set; }
 }

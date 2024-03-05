@@ -72,6 +72,7 @@ const PicturesUpload = () => {
             detailsUrl: url,
             uploadedAt: null,
             placeId: null,
+            setId: null,
             width,
             height,
             size: file.size,
@@ -90,7 +91,7 @@ const PicturesUpload = () => {
             setCurrentPictureIndex(idx => idx === UPLOAD_IDLE ? pics.length : idx);
             return [...pics, picture]
         });
-    }, [setPicturesForUpload, currentPictureIndex]);
+    }, [setPicturesForUpload]);
     
     /// uploading pictures with a button ///
     
@@ -223,7 +224,7 @@ const PicturesUpload = () => {
             setCurrentPictureIndex(UPLOAD_IDLE);  // uploaded everything possible
             //console.log(`Nothing to upload`);
         })();
-    }, [currentPictureIndex, setPictureForUpload, setUploadError]);
+    }, [currentPictureIndex, setPictureForUpload, setUploadError, createPictureMutation]);
     
     /// keyboard ///
 
@@ -245,8 +246,9 @@ const PicturesUpload = () => {
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [currentFullscreen]);
+    }, [currentFullscreen, picturesForUpload.length]);
 
+    const [selection, setSelection] = useState<boolean[]>([]);
 
     /// render ///
     
@@ -273,9 +275,11 @@ const PicturesUpload = () => {
             {uploadError.length > 0 && <Alert color="danger">{uploadError}<br/>Click the failed picture to retry</Alert>}
             <PicturesList
                 pictures={picturesForUpload.map(p => p.id ? p.id : p)}
+                selection={selection}
                 currentIndex={currentFullscreen}
                 viewMode={viewMode}
                 onOpen={(k) => setCurrentFullscreen(k)}
+                onSetSelection={setSelection}
                 onRetryUpload={(k) => setCurrentPictureIndex(k)}
             />
             {!picturesForUpload.length && <h4 className="text-center">

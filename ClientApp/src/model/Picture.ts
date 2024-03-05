@@ -10,6 +10,9 @@
     placeId: number | null;
     placeName?: string | null;
     
+    setId: number | null;
+    setName?: number | null;
+    
     width: number;
     height: number;
     size: number;

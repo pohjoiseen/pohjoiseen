@@ -19,12 +19,16 @@ const toFrontend = (picture: any): Picture => {
 }
 
 export interface GetPicturesOptions {
+    setId?: number;
     limit?: number;
     offset?: number;
 }
 
 export const getPictures = async (options: GetPicturesOptions): Promise<ListWithTotal<Picture>> => {
     const params: { [key: string]: any } = {};
+    if (typeof options.setId !== 'undefined') {
+        params['setId'] = options.setId;
+    }
     if (options.limit) {
         params['limit'] = options.limit;
     }

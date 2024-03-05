@@ -3,8 +3,17 @@ import ListWithTotal from '../model/ListWithTotal';
 import { handleError } from './common';
 
 export const SEARCHABLE_TABLES = [
-    'Places', 'Areas', 'Regions', 'Countries', 'Pictures'
+    'Places', 'Areas', 'Regions', 'Countries', 'Pictures', 'PictureSets'
 ] as const;
+
+export enum SEARCHABLE_TABLES_NAMES {
+    'Places' = 'Places',
+    'Areas' = 'Areas',
+    'Regions' = 'Regions',
+    'Countries' = 'Countries',
+    'Pictures' = 'Pictures',
+    'PictureSets' = 'Folders'
+}
 
 export interface SearchOptions {
     q: string;
@@ -14,7 +23,7 @@ export interface SearchOptions {
 }
 
 export interface SearchResult {
-    tableName: string;
+    tableName: typeof SEARCHABLE_TABLES[number];
     tableId: number;
     title: string;
     text: string;

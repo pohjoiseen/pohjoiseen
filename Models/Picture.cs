@@ -36,4 +36,10 @@ public class Picture
     public string? Lens { get; set; }
     public double? Lat { get; set; }
     public double? Lng { get; set; }
+    
+    public bool IsPrivate { get; set; }
+    
+    public int? SetId { get; set; }
+    [JsonIgnore]
+    public PictureSet? Set { get; set; }
 }

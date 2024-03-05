@@ -7,7 +7,7 @@ import { errorMessage } from '../util';
 import SearchString from '../components/SearchString';
 import { useSearchQuery } from '../data/queries';
 import Paginator from '../components/Paginator';
-import { getUrl } from '../api/search';
+import { getUrl, SEARCHABLE_TABLES_NAMES } from '../api/search';
 
 const PAGE_SIZE = 25;
 
@@ -70,7 +70,7 @@ const Search = () => {
                     {searchQuery.data.data.map((result, key) => <li key={key} className="mb-2">
                         <a href="javascript:void(0)" onClick={() => navigateToResult(result.tableName, result.tableId)}>
                             <b>{result.title}</b>
-                        </a> <i className="text-muted">({result.tableName.toLowerCase()})</i>
+                        </a> <i className="text-muted">({SEARCHABLE_TABLES_NAMES[result.tableName].toLowerCase()})</i>
                         <br/>
                         <span className="small" dangerouslySetInnerHTML={{ __html: result.text }} />
                     </li>)}

@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { SEARCHABLE_TABLES } from '../api/search';
+import { SEARCHABLE_TABLES, SEARCHABLE_TABLES_NAMES } from '../api/search';
 
 interface SearchStringProps {
     initialValue?: string;
@@ -61,7 +61,7 @@ const SearchString = ({ initialValue, initialTables, onSearch }: SearchStringPro
                                 onSearch(value, newTables.join(','));
                             }
                         }}
-                    />&nbsp;{t}
+                    />&nbsp;{SEARCHABLE_TABLES_NAMES[t]}
                 </label>)}
             </div>
         </div>

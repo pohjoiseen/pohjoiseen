@@ -22,6 +22,8 @@ public class PictureRequestDTO
     public string? Lens { get; set; }
     public double? Lat { get; set; }
     public double? Lng { get; set; }
+    [Required] public bool IsPrivate { get; set; }
+    public int SetId { get; set; }
 
     public void ToModel(Picture picture)
     {
@@ -42,5 +44,7 @@ public class PictureRequestDTO
         picture.Lens = Lens;
         picture.Lat = Lat;
         picture.Lng = Lng;
+        picture.IsPrivate = IsPrivate;
+        picture.SetId = SetId;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using KoTi.Models;
 
 namespace KoTi.RequestModels;
@@ -36,6 +37,8 @@ public class PlaceDTO
     public double Lng { get; set; }
     
     public int Zoom { get; set; }
+    
+    public bool IsPrivate { get; set; }
 
     public void ToModel(Place place)
     {
@@ -53,5 +56,6 @@ public class PlaceDTO
         place.Lat = Lat;
         place.Lng = Lng;
         place.Zoom = Zoom;
+        place.IsPrivate = IsPrivate;
     }
 }

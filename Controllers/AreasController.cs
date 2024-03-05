@@ -117,7 +117,7 @@ public class AreasController : ControllerBase
 
     // PUT: api/Areas/{id}/Places/Order
     [HttpPut("{id}/Places/Order")]
-    public async Task<IActionResult> ReorderPlaces(int id, OrderDTO dto)
+    public async Task<IActionResult> ReorderPlaces(int id, IdsDTO dto)
     {
         var placesById = await _context.Places
             .Where(p => p.AreaId == id)

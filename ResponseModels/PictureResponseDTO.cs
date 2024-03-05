@@ -23,6 +23,9 @@ public class PictureResponseDTO
     public string? Lens { get; set; }
     public double? Lat { get; set; }
     public double? Lng { get; set; }
+    public bool IsPrivate { get; set; }
+    public int? SetId { get; set; }
+    public string? SetName { get; set; }
 
     public static PictureResponseDTO FromModel(Picture picture)
     {
@@ -46,7 +49,10 @@ public class PictureResponseDTO
             Camera = picture.Camera,
             Lens = picture.Lens,
             Lat = picture.Lat,
-            Lng = picture.Lng
+            Lng = picture.Lng,
+            IsPrivate = picture.IsPrivate,
+            SetId = picture.SetId,
+            SetName = picture.Set?.Name,
         };
         return dto;
     }

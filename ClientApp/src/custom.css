@@ -17,6 +17,16 @@ body.overlay #root {
   overflow-y: scroll;
 }
 
+/* Sticky headers */
+
+header {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+}
+
 /* Fit h3's into navbar */
 .navbar h3 {
   margin: 0;
@@ -285,11 +295,18 @@ body.overlay #root {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(192, 192, 192, 0.5);
   text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 10px white;
   font-weight: bold;
   font-size: 60px;
   pointer-events: none;
+}
+
+.picture-upload-overlay.selected {
+  box-shadow: rgba(0, 0, 0, 0.9) 0 0 3px 3px;
+}
+
+.picture-upload-overlay.shaded {
+  background: rgba(192, 192, 192, 0.5);
 }
 
 .picture-upload-overlay .btn {

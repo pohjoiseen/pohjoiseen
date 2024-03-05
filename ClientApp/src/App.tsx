@@ -36,7 +36,8 @@ const App = () => {
                         <Route path="/country/:countryId/region/:regionId/area/new" element={<Area />} />
                         <Route path="/country/:countryId/region/:regionId/area/:areaId" element={<Area />} />
 
-                        <Route path="/pictures" element={<Pictures />} />
+                        <Route path="/pictures/all" element={<Pictures sets={false} />} />
+                        <Route path="/pictures/folders" element={<Pictures sets={true} />} />
                         <Route path="/pictures/upload" element={<PicturesUpload />} />
                         
                         <Route path="/search" element={<Search />} />

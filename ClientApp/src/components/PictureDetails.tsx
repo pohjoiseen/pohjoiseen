@@ -14,9 +14,11 @@ import Place from '../model/Place';
 
 interface PictureDetailsProps {
     picture?: Picture;
+    isSelected: boolean;
     onOpen: () => void;
     onRetryUpload: () => void;
     onEditPlace?: (placeId: number) => void;
+    onClick: (isCtrl: boolean, isShift: boolean) => void;
     isError?: boolean;
     isLoading?: boolean;
     isNotYetUploaded?: boolean;
@@ -27,14 +29,16 @@ interface PictureDetailsProps {
  * prepared for upload (id not defined), or not be loaded at all yet (picture not defined).
  *
  * @param picture  Picture, if loaded
+ * @param isSelected  Display selection frame
  * @param onOpen  Double click/Enter handler for image
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
  * @param onEditPlace  View/modify place button handler
+ * @param onClick  Click/Selection handler for image
  * @param isError  Display error icon
  * @param isLoading  Display loading spinner
  * @param isNotYetUploaded  Show smaller set of read-only data
  */
-const PictureDetails = ({ picture, onOpen, onRetryUpload, onEditPlace, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
+const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlace, onClick, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
     const updatePictureMutation = useUpdatePictureMutation();
     const createPlaceMutation = useCreatePlaceMutation();
     const [showCreatePlaceModal, setCreatePlaceModal] = useState('');
@@ -75,6 +79,10 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, onEditPlace, isError, 
                     alt=""
                     title={picture?.title || ''}
                     tabIndex={0}
+                    onClick={(e) => {
+                        onClick(e.ctrlKey, e.shiftKey);
+                        e.stopPropagation();
+                    }}
                     onDoubleClick={onOpen}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -84,6 +92,7 @@ const PictureDetails = ({ picture, onOpen, onRetryUpload, onEditPlace, isError, 
                 />
                 <PictureOverlay
                     id={picture?.id || null}
+                    isSelected={isSelected}
                     upload={picture?.upload || null}
                     isError={!!isError}
                     isLoading={!!isLoading}

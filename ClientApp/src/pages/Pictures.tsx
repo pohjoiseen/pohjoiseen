@@ -1,28 +1,32 @@
 ﻿import * as React from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
     Alert,
     Container,
     DropdownItem,
     DropdownMenu,
     DropdownToggle,
-    Pagination,
-    PaginationItem,
-    PaginationLink,
     Spinner,
     UncontrolledDropdown
 } from 'reactstrap';
 import { useSearchParams } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import PicturesList from '../components/PicturesList';
-import { getPictureFromCache, usePictureQuery, usePicturesQuery } from '../data/queries';
+import { getPictureFromCache, usePictureQuery, usePictureSetQuery, usePicturesQuery } from '../data/queries';
 import { errorMessage } from '../util';
 import { GetPicturesOptions } from '../api/pictures';
 import { PicturesViewMode } from '../components/pictureViewCommon';
 import PictureFullscreen from '../components/PictureFullscreen';
 import { useQueryClient } from '@tanstack/react-query';
-import { useUpdatePictureMutation } from '../data/mutations';
+import {
+    useCreatePictureSetMutation, useMovePicturesToPictureSetMutation,
+    useUpdatePictureMutation
+} from '../data/mutations';
 import Paginator from '../components/Paginator';
+import CreateModal from '../components/CreateModal';
+import PictureSet from '../model/PictureSet';
+import PictureSetList from '../components/PictureSetList';
+import MoveToPictureSetModal from '../components/MoveToPictureSetModal';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -32,10 +36,11 @@ const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
 const QUERY_PARAMS = {
     PAGE: 'page',
     VIEW_MODE: 'mode',
-    FULLSCREEN: 'fullscreen'
+    FULLSCREEN: 'fullscreen',
+    SET_ID: 'folderId'
 }
 
-const Pictures = () => {
+const Pictures = ({ sets }: { sets: boolean }) => {
     const queryClient = useQueryClient();
     
     // view options from search params
@@ -48,6 +53,8 @@ const Pictures = () => {
     const currentFullscreen = (!fullscreenString || isNaN(parseInt(fullscreenString))) ? -1 : parseInt(fullscreenString);
     const isFullscreen = currentFullscreen !== -1;
     const preloadRef = useRef<HTMLImageElement[]>([]);
+    const setIdString = searchParams.get(QUERY_PARAMS.SET_ID);
+    const setId = sets ? (setIdString ? parseInt(setIdString) : 0) : null;
 
     // pictures list
     const pageSize = PAGE_SIZES[viewMode];
@@ -56,6 +63,10 @@ const Pictures = () => {
         limit: pageSize,
         offset
     };
+    if (typeof setId === 'number') {
+        pictureQueryOptions.setId = setId;
+    }
+    const pictureSetQuery = usePictureSetQuery(setId);
     const picturesQuery = usePicturesQuery(pictureQueryOptions);
     
     const updatePictureMutation = useUpdatePictureMutation();
@@ -78,6 +89,7 @@ const Pictures = () => {
             }
             return params;
         });
+        setSelection([]);
         if (!isFullscreen) {
             window.scrollTo(0, 0);
         }
@@ -105,7 +117,8 @@ const Pictures = () => {
             }
             return params;
         });
-    }, [setSearchParams, viewMode, offset, currentFullscreen, getPageForOffset]);
+        setSelection([]);
+    }, [setSearchParams, offset, getPageForOffset]);
 
     /// fullscreen mode ///
     
@@ -145,7 +158,7 @@ const Pictures = () => {
             }
         }
         preloadRef.current = preloadImages;
-    }, [setSearchParams, picturesQuery]);
+    }, [setSearchParams, picturesQuery, queryClient]);
     
     const exitFullscreen = useCallback(() => {
         setSearchParams((params) => {
@@ -190,18 +203,54 @@ const Pictures = () => {
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery]);
+    }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery, currentFullscreen, enterFullscreen, pageSize]);
+    
+    /// picture sets ///
+    
+    const [isAddPictureSetModalOpen, setAddPictureSetModalOpen] = useState(false);
+    const [isMovePictureToPictureSetModalOpen, setMovePictureToPictureSetModalOpen] = useState(false);
+    const createPictureSetMutation = useCreatePictureSetMutation();
+    const moveToPictureSetMutation = useMovePicturesToPictureSetMutation();
+    const movePicturesToPictureSet = (pictureSetId: number | null) => moveToPictureSetMutation.mutate({
+        id: pictureSetId, 
+        pictureIds: picturesQuery.data ? picturesQuery.data.data.filter((id, k) => selection[k]) : [] 
+    });
     
     /// render ///
+    
+    let title: ReactNode;
+    if (!sets) {
+        title = 'All pictures';
+    } else if (pictureSetQuery.isLoading) {
+        title = <><Spinner type="grow" size="sm"/> Loading...</>;
+    } else if (pictureSetQuery.isError) {
+        title = 'Failed to load folder';
+    } else {
+        title = 'Pictures by folder';
+    }
+    
+    /// selection ///
+    
+    const [selection, setSelection] = useState<boolean[]>([]);
+    const numSelected = selection.filter(s => s).length;
 
     return <div>
         <NavBar>
             <h3>
-                <i className="bi bi-image"></i>
+            <i className="bi bi-image"></i>
                 &nbsp;&rsaquo;&nbsp;
-                All pictures
+                {title}
             </h3>
             <h3 className="ms-auto">{picturesQuery.data && <>{picturesQuery.data.total} picture(s)</>}</h3>
+            {sets && pictureSetQuery.data && <button className="btn btn-primary ms-2"
+                onClick={() => setAddPictureSetModalOpen(true)}
+            ><i className="bi-plus-lg" /> Create folder...</button>}
+            {numSelected > 0 && sets && <UncontrolledDropdown className="ms-2">
+                <DropdownToggle caret>{numSelected} selected</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem onClick={() => setMovePictureToPictureSetModalOpen(true)}>Move to folder...</DropdownItem>
+                </DropdownMenu>
+            </UncontrolledDropdown>}
             <UncontrolledDropdown className="ms-2">
                 <DropdownToggle caret>View</DropdownToggle>
                 <DropdownMenu>
@@ -210,18 +259,22 @@ const Pictures = () => {
                 </DropdownMenu>
             </UncontrolledDropdown>
         </NavBar>
-        <Container>
+        <Container onClick={() => setSelection([])}>
             {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}
+            {createPictureSetMutation.isError && <Alert color="danger">Creating folder: {errorMessage(createPictureSetMutation.error)}</Alert>}
             {updatePictureMutation.isError && <Alert color="danger" className="alert-fixed">Updating picture: {errorMessage(updatePictureMutation.error)}</Alert>}
+            {sets && pictureSetQuery.data && <PictureSetList pictureSet={pictureSetQuery.data} />}
             {picturesQuery.isLoading && !picturesQuery.isSuccess && <h3 className="text-center">
                 <Spinner type="grow" /> Loading pictures...
             </h3>}
             {picturesQuery.isSuccess && <>
                 {picturesQuery.data.data.length > 0 && <PicturesList
                     pictures={picturesQuery.data.data}
+                    selection={selection}
                     viewMode={viewMode}
                     currentIndex={currentFullscreen}
                     onOpen={enterFullscreen}
+                    onSetSelection={setSelection}
                 />}
                 {!picturesQuery.data.data.length && <h4 className="text-center">
                     No pictures in the current view.
@@ -233,6 +286,21 @@ const Pictures = () => {
                     isLoading={fullscreenPictureQuery.isLoading}
                 />}
             </>}
+            {isAddPictureSetModalOpen && <CreateModal
+                object={{
+                    id: 0,
+                    parentId: setId || null,
+                    name: '',
+                    isPrivate: false
+                } as PictureSet}
+                title="Create folder"
+                onClose={() => setAddPictureSetModalOpen(false)}
+                onSubmit={(pictureSet)  => createPictureSetMutation.mutate(pictureSet)}
+            />}
+            {isMovePictureToPictureSetModalOpen && <MoveToPictureSetModal
+                onClose={() => setMovePictureToPictureSetModalOpen(false)}
+                onSubmit={movePicturesToPictureSet}
+            />}
         </Container>
     </div>
 };

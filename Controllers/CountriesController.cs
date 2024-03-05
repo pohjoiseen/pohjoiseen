@@ -54,7 +54,7 @@ public class CountriesController : ControllerBase
 
     // PUT: api/Countries/{id}/Regions/Order
     [HttpPut("{id}/Regions/Order")]
-    public async Task<IActionResult> ReorderRegions(int id, OrderDTO dto)
+    public async Task<IActionResult> ReorderRegions(int id, IdsDTO dto)
     {
         var regionsById = await _context.Regions
             .Where(r => r.CountryId == id)

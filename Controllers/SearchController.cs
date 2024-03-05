@@ -64,7 +64,7 @@ public class SearchController : ControllerBase
         {
             case "Pictures":
                 // TODO: open in fullscreen properly
-                return "/pictures";
+                return "/pictures/all";
 
             case "Places":
             {
@@ -108,6 +108,9 @@ public class SearchController : ControllerBase
 
             case "Countries":
                 return $"/country/{tableId}";
+
+            case "PictureSets":
+                return $"/pictures/folders/?folderId={tableId}";
 
             default:
                 throw new Exception("Unknown table name: " + tableName);

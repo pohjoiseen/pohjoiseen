@@ -10,6 +10,8 @@ import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas
 import { deletePlace, postPlace, putPlace } from '../api/places';
 import Picture from '../model/Picture';
 import { postPicture, putPicture } from '../api/pictures';
+import PictureSet from '../model/PictureSet';
+import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 
 export const useReorderRegionsMutation = () => {
     const queryClient = useQueryClient();
@@ -227,6 +229,55 @@ export const useUpdatePictureMutation = () => {
             queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
             // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
             // but we don't attempt to track that, in fact IMHO it would only lead to worse UX
+        }
+    });
+};
+
+export const useCreatePictureSetMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (pictureSet: PictureSet) => {
+            pictureSet = await postPictureSet(pictureSet);
+            queryClient.setQueryData([QueryKeys.SETS, pictureSet.id], pictureSet);
+            await queryClient.invalidateQueries([QueryKeys.SETS, pictureSet.parentId || 0]);
+            return pictureSet;
+        },
+    })
+};
+
+
+export const useUpdatePictureSetMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (pictureSet: PictureSet) => {
+            await putPictureSet(pictureSet.id, pictureSet);
+            queryClient.setQueryData([QueryKeys.SETS, pictureSet.id], pictureSet);
+            await queryClient.invalidateQueries([QueryKeys.SETS, pictureSet.parentId || 0]);
+        }
+    });
+};
+
+export const useDeletePictureSetMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (pictureSet: PictureSet) => {
+            await deletePictureSet(pictureSet.id);
+            await queryClient.invalidateQueries([QueryKeys.SETS, pictureSet.parentId || 0]);
+        }
+    });
+};
+
+export const useMovePicturesToPictureSetMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, pictureIds }: { id: number | null, pictureIds: number[] }) => {
+            if (!pictureIds.length) {
+                return;
+            }
+            await movePicturesToPictureSet(id, pictureIds);
+            // rare operation, just invalidate everything
+            await queryClient.invalidateQueries([QueryKeys.SETS]);
+            await queryClient.invalidateQueries([QueryKeys.PICTURES]);
         }
     });
 };

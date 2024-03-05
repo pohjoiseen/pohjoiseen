@@ -21,13 +21,26 @@ public class PicturesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ListWithTotal<PictureResponseDTO>>> GetPictures(
         [FromQuery] int limit,
-        [FromQuery] int offset)
+        [FromQuery] int offset,
+        [FromQuery] int? setId)
     {
         var query = _context.Pictures
             .Include(p => p.Place)
+            .Include(p => p.Set)
             .AsQueryable();
 
         query = query.OrderBy(p => p.PhotographedAt);
+        if (setId != null)
+        {
+            if (setId > 0)
+            {
+                query = query.Where(p => p.SetId == setId);
+            }
+            else
+            {
+                query = query.Where(p => p.SetId == null);
+            }
+        }
 
         var queryPaginated = query;
         if (offset > 0)
@@ -52,6 +65,7 @@ public class PicturesController : ControllerBase
     {
         var picture = await _context.Pictures
             .Include(p => p.Place)
+            .Include(p => p.Set)
             .Where(p => p.Id == id)
             .FirstOrDefaultAsync(); 
             

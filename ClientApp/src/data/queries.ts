@@ -6,6 +6,8 @@ import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
 import { search, SearchOptions } from '../api/search';
 import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
+import PictureSet from '../model/PictureSet';
+import { getPictureSet, getPictureSets } from '../api/pictureSets';
 
 export enum QueryKeys {
     COUNTRIES = 'countries',
@@ -14,6 +16,7 @@ export enum QueryKeys {
     PLACES_FOR_AREA = 'placesForArea',
     PICTURE = 'picture', // actual pictures by id
     PICTURES = 'pictures', // various lists of ids
+    SETS = 'sets',
     SEARCH = 'search',
 }
 
@@ -70,6 +73,32 @@ export const usePicturesQuery = (options: GetPicturesOptions) => {
         }
     });
 };
+
+export const usePictureSetQuery = (id: number | null) => useQuery({
+    queryKey: [QueryKeys.SETS, id],
+    queryFn: async (): Promise<PictureSet> => {
+        // handle three cases: dummy set (for all pictures mode), fake "top-level" set and regular set
+        if (typeof id !== 'number') {
+            return { 
+                id: 0,
+                name: '',
+                isPrivate: false,
+                parentId: null,
+                children: [],
+            };
+        } 
+        if (!id) {
+            return {
+                id: 0,
+                name: '<Root>',
+                isPrivate: false,
+                parentId: null,
+                children: await getPictureSets()
+            };
+        }
+        return await getPictureSet(id);
+    }
+});
 
 export const useSearchQuery = (options: SearchOptions) => useQuery({
     queryKey: [QueryKeys.SEARCH, options],
