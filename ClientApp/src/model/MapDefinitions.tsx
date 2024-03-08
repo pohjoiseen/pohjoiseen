@@ -24,12 +24,21 @@ const getCRStm35 = () => {
     return new L.Proj.CRS(crsName, projDef, crsOpts);
 };
 
-export const MAP_CRS: {[mapType in MapType]: L.Proj.CRS | L.CRS | undefined} = {
-    [MapType.DefaultOSM]: L.CRS.EPSG3857,
-    [MapType.Finland]: getCRStm35()
-};
-
-export const MAP_SOURCE: {[mapType in MapType]: string} = {
-    [MapType.DefaultOSM]: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    [MapType.Finland]: 'https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/maastokartta/default/ETRS-TM35FIN/{z}/{y}/{x}.png?api-key=27e77bfc-266a-4406-afe0-f7e827c11be3'
-};
+export const MAP_DEFINITIONS: {
+    [mapType in MapType]: {
+        source: string,
+        crs: L.Proj.CRS | L.CRS,
+        maxZoom: number
+    }
+} = {
+    [MapType.DefaultOSM]: {
+        source: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        crs: L.CRS.EPSG3857,
+        maxZoom: 16
+    },
+    [MapType.Finland]: {
+        source: 'https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/maastokartta/default/ETRS-TM35FIN/{z}/{y}/{x}.png?api-key=27e77bfc-266a-4406-afe0-f7e827c11be3',
+        crs: getCRStm35(),
+        maxZoom: 13
+    },
+}

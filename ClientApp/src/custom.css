@@ -176,6 +176,8 @@ header {
   float: right;
   margin-left: 10px;
   width: 501px;
+  position: relative;
+  z-index: 0;
 }
 
 .mappointpicker .mappointpicker-map {

@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { MAP_CRS, MAP_SOURCE, MapType } from '../model/MapDefinitions';
+import { MAP_DEFINITIONS, MapType } from '../model/MapDefinitions';
 import { Button } from 'reactstrap';
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { useEffect, useState } from 'react';
@@ -45,11 +45,11 @@ const MapPointPicker = (props: MapPointPickerProps) => {
             className="mappointpicker-map"
             center={[lat, lng]}
             zoom={zoom}
-            maxZoom={13}
-            crs={MAP_CRS[mapType]}
+            maxZoom={MAP_DEFINITIONS[mapType].maxZoom}
+            crs={MAP_DEFINITIONS[mapType].crs}
         >
             <TileLayer
-                url={MAP_SOURCE[mapType]}
+                url={MAP_DEFINITIONS[mapType].source}
                 attribution="Maps are hosted externally and copyrighted by their creators"
                 detectRetina={true}
             />
