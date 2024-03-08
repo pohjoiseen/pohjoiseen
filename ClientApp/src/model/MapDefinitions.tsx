@@ -24,8 +24,8 @@ const getCRStm35 = () => {
     return new L.Proj.CRS(crsName, projDef, crsOpts);
 };
 
-export const MAP_CRS: {[mapType in MapType]: L.Proj.CRS | undefined} = {
-    [MapType.DefaultOSM]: undefined,
+export const MAP_CRS: {[mapType in MapType]: L.Proj.CRS | L.CRS | undefined} = {
+    [MapType.DefaultOSM]: L.CRS.EPSG3857,
     [MapType.Finland]: getCRStm35()
 };
 
