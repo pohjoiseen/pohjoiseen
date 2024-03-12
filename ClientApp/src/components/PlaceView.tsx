@@ -3,14 +3,19 @@
  */
 import * as React from 'react';
 import Place from '../model/Place';
-import { Button, FormGroup, Label } from 'reactstrap';
+import { Alert, Button, FormGroup, Label } from 'reactstrap';
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EditableHandle } from './Editable';
 import EditableTextarea from './EditableTextarea';
 import EditableLinksList from './EditableLinksList';
 import MapPointPicker from './MapPointPicker';
 import Country from '../model/Country';
 import Area from '../model/Area';
+import { PICTURE_PREVIEW_NUMBER, usePicturesByPlaceQuery } from '../data/queries';
+import { errorMessage } from '../util';
+import PicturesList from './PicturesList';
+import { PicturesViewMode } from './pictureViewCommon';
 
 interface PlaceProps {
     place: Place;
@@ -24,6 +29,7 @@ interface PlaceProps {
 }
 
 const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, onDelete, onAddAlias }: PlaceProps) => {
+    const pictures = usePicturesByPlaceQuery(place.id, isVisible);
     const [isAddingNotes, setIsAddingNotes] = useState(false);
     const [isAddingLinks, setIsAddingLinks] = useState(false);
     const [isAddingDirections, setIsAddingDirections] = useState(false);
@@ -34,8 +40,25 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
     const directionsRef = useRef<EditableHandle>(null);
     const publicTransportRef = useRef<EditableHandle>(null);
     const seasonRef = useRef<EditableHandle>(null);
+    const navigate = useNavigate();
 
     return <>
+        {pictures.isError &&
+            <Alert color="danger">Loading pictures: {errorMessage(pictures.error)}</Alert>}
+        {pictures && pictures.data && <div className="mb-2">
+            {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
+                      onSetSelection (click) does the same thing as onOpen (double click) */}
+            <PicturesList
+                noWrap
+                showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
+                viewMode={PicturesViewMode.THUMBNAILS}
+                pictures={pictures.data}
+                currentIndex={-1}
+                selection={[]}
+                onOpen={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
+                onSetSelection={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
+            />
+        </div>}
         {isVisible && <MapPointPicker
             mapType={country.mapType}
             lat={place.lat}

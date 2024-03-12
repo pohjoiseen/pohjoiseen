@@ -138,6 +138,9 @@ const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIs
                     }
                 }}
             >
+                {place.thumbnailUrl 
+                    ? <img src={place.thumbnailUrl} className="place-mini-thumbnail me-2" />
+                    : <div className="place-mini-thumbnail empty me-2" />}
                 <ExploreStatusIndicator
                     status={place.exploreStatus}
                     onChange={(status) => updatePlaceMutation.mutate({ ...place, exploreStatus: status })}
@@ -165,8 +168,9 @@ const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIs
                     />
                 </div>
                 {place.isPrivate && <i className="bi bi-shield-lock" />}
+                <div className="flex-grow-1" />
                 <Rating
-                    className="flex-grow-1 justify-content-end me-3"    
+                    className="me-3"    
                     value={place.rating}
                     onChange={(value) => updatePlaceMutation.mutate({ ...place, rating: value })} 
                 />

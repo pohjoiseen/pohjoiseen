@@ -15,6 +15,15 @@ export enum SEARCHABLE_TABLES_NAMES {
     'PictureSets' = 'Folders'
 }
 
+export enum SEARCHABLE_TABLES_NAMES_SINGULAR {
+    'Places' = 'Place',
+    'Areas' = 'Area',
+    'Regions' = 'Region',
+    'Countries' = 'Country',
+    'Pictures' = 'Picture',
+    'PictureSets' = 'Folder'
+}
+
 export interface SearchOptions {
     q: string;
     tables?: string;

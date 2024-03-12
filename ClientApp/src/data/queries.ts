@@ -2,7 +2,7 @@
 import { getCountries, getRegionsForCountry } from '../api/countries';
 import { getAreasForRegion } from '../api/regions';
 import { getPlacesForArea } from '../api/areas';
-import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
+import { getPicture, getPictures, getPicturesForArea, getPicturesForPlace, GetPicturesOptions } from '../api/pictures';
 import { search, SearchOptions } from '../api/search';
 import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
@@ -16,9 +16,13 @@ export enum QueryKeys {
     PLACES_FOR_AREA = 'placesForArea',
     PICTURE = 'picture', // actual pictures by id
     PICTURES = 'pictures', // various lists of ids
+    PICTURES_FOR_PLACE = 'picturesForPlace',
+    PICTURES_FOR_AREA = 'picturesForArea',
     SETS = 'sets',
     SEARCH = 'search',
 }
+
+export const PICTURE_PREVIEW_NUMBER = 10;
 
 export const useCountriesQuery = () => useQuery({
     queryKey: [QueryKeys.COUNTRIES],
@@ -70,6 +74,37 @@ export const usePicturesQuery = (options: GetPicturesOptions) => {
                 total: result.total,
                 data: result.data.map(p => p.id!)
             };
+        }
+    });
+};
+
+export const usePicturesByPlaceQuery = (placeId: number, isEnabled: boolean) => {
+    const queryClient = useQueryClient();
+    return useQuery<number[]>({
+        queryKey: [QueryKeys.PICTURES_FOR_PLACE, placeId],
+        queryFn: async () => {
+            const result = await getPicturesForPlace(placeId, PICTURE_PREVIEW_NUMBER + 1);
+            // store each picture as individual query
+            for (const p of result) {
+                queryClient.setQueryData([QueryKeys.PICTURE, p.id], p);
+            }
+            return result.map(p => p.id!);
+        },
+        enabled: isEnabled
+    });
+};
+
+export const usePicturesByAreaQuery = (areaId: number) => {
+    const queryClient = useQueryClient();
+    return useQuery<number[]>({
+        queryKey: [QueryKeys.PICTURES_FOR_AREA, areaId],
+        queryFn: async () => {
+            const result = await getPicturesForArea(areaId, PICTURE_PREVIEW_NUMBER + 1);
+            // store each picture as individual query
+            for (const p of result) {
+                queryClient.setQueryData([QueryKeys.PICTURE, p.id], p);
+            }
+            return result.map(p => p.id!);
         }
     });
 };

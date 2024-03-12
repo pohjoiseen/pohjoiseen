@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi;
+using KoTi.Migrations;
 using KoTi.RequestModels;
 using KoTi.Models;
+using KoTi.ResponseModels;
 
 namespace KoTi.Controllers;
 
@@ -107,12 +109,23 @@ public class AreasController : ControllerBase
     
     // GET: api/Areas/{id}/Places
     [HttpGet("{id}/Places")]
-    public async Task<ActionResult<IEnumerable<Place>>> GetPlacesForArea(int id)
+    public async Task<ActionResult<IEnumerable<PlaceResponseDTO>>> GetPlacesForArea(int id)
     {
-        return await _context.Places
-            .Where(p => p.AreaId == id)
-            .OrderBy(p => p.Order)
+        // TODO: this is repeated in PlacesController.GetPlace()
+        var list = await _context.Places
+            .GroupJoin(_context.Pictures, p => p.Id, pi => pi.PlaceId, (p, pictures) =>
+                new {
+                    place = p,
+                    thumbnailUrl = pictures
+                        .OrderByDescending(pi => pi.Rating)
+                        .ThenByDescending(pi => pi.PhotographedAt)
+                        .Select(pi => pi.ThumbnailUrl)
+                        .FirstOrDefault()
+                })
+            .Where(p => p.place.AreaId == id)
+            .OrderBy(p => p.place.Order)
             .ToListAsync();
+        return Ok(list.Select(p => PlaceResponseDTO.FromModel(p.place, p.thumbnailUrl)));
     }
 
     // PUT: api/Areas/{id}/Places/Order

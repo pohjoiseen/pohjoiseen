@@ -22,7 +22,9 @@ public class PicturesController : ControllerBase
     public async Task<ActionResult<ListWithTotal<PictureResponseDTO>>> GetPictures(
         [FromQuery] int limit,
         [FromQuery] int offset,
-        [FromQuery] int? setId)
+        [FromQuery] int? setId,
+        [FromQuery] int? placeId,
+        [FromQuery] int? areaId)
     {
         var query = _context.Pictures
             .Include(p => p.Place)
@@ -42,6 +44,16 @@ public class PicturesController : ControllerBase
             }
         }
 
+        if (placeId != null)
+        {
+            query = query.Where(p => p.PlaceId == placeId);
+        }
+
+        if (areaId != null)
+        {
+            query = query.Where(p => p.Place != null && p.Place.AreaId == areaId);
+        }
+
         var queryPaginated = query;
         if (offset > 0)
         {
@@ -57,6 +69,36 @@ public class PicturesController : ControllerBase
             Total = await query.CountAsync(),
             Data = (await queryPaginated.ToListAsync()).Select(PictureResponseDTO.FromModel)
         };
+    }
+    
+    // GET: api/Pictures/ForPlace/5
+    [HttpGet("ForPlace/{placeId}")]
+    public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForPlace(int placeId, [FromQuery] int limit)
+    {
+        var pictures = await _context.Pictures
+            .Include(p => p.Place)
+            .Include(p => p.Set)
+            .Where(p => p.PlaceId == placeId)
+            .OrderByDescending(p => p.Rating)
+            .ThenByDescending(p => p.PhotographedAt)
+            .Take(limit > 0 ? limit : 25)
+            .ToListAsync();
+        return Ok(pictures.Select(PictureResponseDTO.FromModel));
+    }
+    
+    // GET: api/Pictures/ForeArea/5
+    [HttpGet("ForArea/{areaId}")]
+    public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForArea(int areaId, [FromQuery] int limit)
+    {
+        var pictures = await _context.Pictures
+            .Include(p => p.Place)
+            .Include(p => p.Set)
+            .Where(p => p.Place != null && p.Place.AreaId == areaId)
+            .OrderByDescending(p => p.Rating)
+            .ThenByDescending(p => p.PhotographedAt)
+            .Take(limit > 0 ? limit : 25)
+            .ToListAsync();
+        return Ok(pictures.Select(PictureResponseDTO.FromModel));
     }
 
     // GET: api/Pictures/5

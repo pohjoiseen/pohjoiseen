@@ -19,6 +19,7 @@ interface Place {
     zoom: number;
     isPrivate: boolean;
     rating: number;
+    thumbnailUrl?: string;
 }
 
 export default Place;

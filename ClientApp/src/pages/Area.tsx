@@ -4,7 +4,14 @@ import { Accordion, Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../util';
 import { confirmModal } from '../components/ModalContainer';
-import { useAreasQuery, useCountriesQuery, usePlacesQuery, useRegionsQuery } from '../data/queries';
+import {
+    PICTURE_PREVIEW_NUMBER,
+    useAreasQuery,
+    useCountriesQuery,
+    usePicturesByAreaQuery,
+    usePlacesQuery,
+    useRegionsQuery
+} from '../data/queries';
 import {
     useCreatePlaceMutation,
     useDeleteAreaMutation,
@@ -24,6 +31,8 @@ import Place from '../model/Place';
 import { PlaceCategory } from '../model/PlaceCategory';
 import MapPointPicker from '../components/MapPointPicker';
 import PlaceComponent from '../components/PlaceComponent';
+import PicturesList from '../components/PicturesList';
+import { PicturesViewMode } from '../components/pictureViewCommon';
 
 const AreaPage = () => {
     // country/region id from route
@@ -70,6 +79,8 @@ const AreaPage = () => {
     const area = areas.isSuccess ? areas.data.find(a => a.id === areaId) : null;
     // places for area
     const places = usePlacesQuery(areaId);
+    // picture for area
+    const pictures = usePicturesByAreaQuery(areaId);
 
     /// mutations ///
 
@@ -96,7 +107,7 @@ const AreaPage = () => {
     /// loading/error messages ///
 
     // do not show anything unless all loaded
-    if (countries.isLoading || regions.isLoading || areas.isLoading || places.isLoading) {
+    if (countries.isLoading || regions.isLoading || areas.isLoading || places.isLoading || pictures.isLoading) {
         return <NavBar><h3><Spinner type="grow" size="sm" /> Loading...</h3></NavBar>;
     }
     if (countries.isError) {
@@ -110,6 +121,9 @@ const AreaPage = () => {
     }
     if (places.isError) {
         return <Alert color="danger">Loading places: {errorMessage(places.error)}</Alert>;
+    }
+    if (pictures.isError) {
+        return <Alert color="danger">Loading pictures: {errorMessage(pictures.error)}</Alert>;
     }
     // loaded successfully but country/region not found
     if (!country || !region || !area || region.countryId !== countryId || area.regionId !== regionId) {
@@ -166,6 +180,20 @@ const AreaPage = () => {
             {updatePlaceMutation.isError && <Alert color="danger">Updating place: {errorMessage(updatePlaceMutation.error)}</Alert>}
             {deletePlaceMutation.isError && <Alert color="danger">Deleting place: {errorMessage(deletePlaceMutation.error)}</Alert>}
             {reorderPlacesMutation.isError && <Alert color="danger">Reordering places: {errorMessage(reorderPlacesMutation.error)}</Alert>}
+            {pictures.data.length > 0 && <div className="mb-2">
+                {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
+                    onSetSelection (click) does the same thing as onOpen (double click) */}
+                <PicturesList 
+                    noWrap
+                    showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
+                    viewMode={PicturesViewMode.THUMBNAILS}
+                    pictures={pictures.data} 
+                    currentIndex={-1}
+                    selection={[]} 
+                    onOpen={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
+                    onSetSelection={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
+                />
+            </div>}
             <MapPointPicker
                 mapType={country.mapType}
                 lat={area.lat}

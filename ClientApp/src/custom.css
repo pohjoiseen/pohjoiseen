@@ -344,3 +344,19 @@ header {
 .is-private {
   opacity: 0.66;
 }
+
+/* Place thumbnail in accordion view */
+
+.place-mini-thumbnail {
+  width: 68px;
+  height: 68px;
+  margin-top: -17px;
+  margin-bottom: -17px;
+  margin-left: -20px;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.place-mini-thumbnail.empty {
+  background: #eee;
+}

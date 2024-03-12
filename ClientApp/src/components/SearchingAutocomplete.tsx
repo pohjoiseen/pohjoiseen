@@ -69,6 +69,7 @@ export const SearchingAutocomplete = ({ id, title, placeholder, table, addNewTex
         newSelectionPrefix={addNewText}
         labelKey="title"
         filterBy={() => true}
+        clearButton
         renderMenuItemChildren={renderMenuItemChildren}
         onKeyDown={(e) => {
             if (e.key === 'Escape' && inEditableContext) {

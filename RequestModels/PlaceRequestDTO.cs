@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 using KoTi.Models;
 
 namespace KoTi.RequestModels;
 
-public class PlaceDTO
+public class PlaceRequestDTO
 {
     [Required] public string Name { get; set; } = "";
 

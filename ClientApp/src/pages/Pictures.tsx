@@ -27,6 +27,8 @@ import CreateModal from '../components/CreateModal';
 import PictureSet from '../model/PictureSet';
 import PictureSetList from '../components/PictureSetList';
 import MoveToPictureSetModal from '../components/MoveToPictureSetModal';
+import { SEARCHABLE_TABLES } from '../api/search';
+import PictureFilters from '../components/PictureFilters';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -37,7 +39,10 @@ const QUERY_PARAMS = {
     PAGE: 'page',
     VIEW_MODE: 'mode',
     FULLSCREEN: 'fullscreen',
-    SET_ID: 'folderId'
+    SET_ID: 'folderId',
+    OBJECT_TABLE: 'objectTable',
+    OBJECT_ID: 'objectId',
+    OBJECT_NAME: 'objectName'
 }
 
 const Pictures = ({ sets }: { sets: boolean }) => {
@@ -55,12 +60,34 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const preloadRef = useRef<HTMLImageElement[]>([]);
     const setIdString = searchParams.get(QUERY_PARAMS.SET_ID);
     const setId = sets ? (setIdString ? parseInt(setIdString) : 0) : null;
-
+    const objectTableString = searchParams.get(QUERY_PARAMS.OBJECT_TABLE) || '';
+    const objectTable: typeof SEARCHABLE_TABLES[number] = objectTableString ? objectTableString as typeof SEARCHABLE_TABLES[number] : 'Areas';
+    const objectIdString = searchParams.get(QUERY_PARAMS.OBJECT_ID);
+    const objectId = objectIdString ? parseInt(objectIdString) : null;
+    const objectName = searchParams.get(QUERY_PARAMS.OBJECT_NAME);
+    
+    const setObjectFilter = useCallback((table: string, id: number | null, name: string | null) => {
+        setSearchParams((params) => {
+            if (id) {
+                params.set(QUERY_PARAMS.OBJECT_TABLE, table);
+                params.set(QUERY_PARAMS.OBJECT_ID, id.toString());
+                params.set(QUERY_PARAMS.OBJECT_NAME, name || '')
+            } else {
+                params.set(QUERY_PARAMS.OBJECT_TABLE, table);
+                params.delete(QUERY_PARAMS.OBJECT_ID);
+                params.delete(QUERY_PARAMS.OBJECT_NAME);
+            }
+            return params;
+        });
+    }, [setSearchParams]);
+    
     // pictures list
     const pageSize = PAGE_SIZES[viewMode];
     const offset = page * pageSize;
     const pictureQueryOptions: GetPicturesOptions = {
         limit: pageSize,
+        placeId: objectTable === 'Places' && objectId ? objectId : undefined,
+        areaId: objectTable === 'Areas' && objectId ? objectId : undefined,
         offset
     };
     if (typeof setId === 'number') {
@@ -264,6 +291,12 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             {createPictureSetMutation.isError && <Alert color="danger">Creating folder: {errorMessage(createPictureSetMutation.error)}</Alert>}
             {updatePictureMutation.isError && <Alert color="danger" className="alert-fixed">Updating picture: {errorMessage(updatePictureMutation.error)}</Alert>}
             {sets && pictureSetQuery.data && <PictureSetList pictureSet={pictureSetQuery.data} />}
+            {!sets && <PictureFilters 
+                objectTable={objectTable}
+                objectId={objectId}
+                objectName={objectName} 
+                onSetObject={setObjectFilter}
+            />}
             {picturesQuery.isLoading && !picturesQuery.isSuccess && <h3 className="text-center">
                 <Spinner type="grow" /> Loading pictures...
             </h3>}

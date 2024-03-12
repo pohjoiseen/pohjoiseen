@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using KoTi;
 using KoTi.RequestModels;
 using KoTi.Models;
+using KoTi.ResponseModels;
 
 namespace KoTi.Controllers
 {
@@ -24,20 +25,32 @@ namespace KoTi.Controllers
         
         // GET: api/Places/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Place>> GetPlace(int id)
+        public async Task<ActionResult<PlaceResponseDTO>> GetPlace(int id)
         {
-            var place = await _context.Places.FindAsync(id);
-            if (place == null)
+            // TODO: this is repeated in AreasController.GetPlacesForArea()
+            var result  = await _context.Places
+                .GroupJoin(_context.Pictures, p => p.Id, pi => pi.PlaceId, (p, pictures) =>
+                    new {
+                        place = p,
+                        thumbnailUrl = pictures
+                            .OrderByDescending(pi => pi.Rating)
+                            .ThenByDescending(pi => pi.PhotographedAt)
+                            .Select(pi => pi.ThumbnailUrl)
+                            .FirstOrDefault()
+                    })
+                .Where(p => p.place.Id == id)
+                .FirstOrDefaultAsync();
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return place;
+            return PlaceResponseDTO.FromModel(result.place, result.thumbnailUrl);
         }
 
         // PUT: api/Places/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlace(int id, PlaceDTO dto)
+        public async Task<IActionResult> PutPlace(int id, PlaceRequestDTO requestDto)
         {
             var place = await _context.Places.FindAsync(id);
             if (place == null)
@@ -50,7 +63,7 @@ namespace KoTi.Controllers
                 return BadRequest(ModelState);
             }
 
-            dto.ToModel(place);
+            requestDto.ToModel(place);
             
             _context.Entry(place).State = EntityState.Modified;
 
@@ -75,7 +88,7 @@ namespace KoTi.Controllers
 
         // POST: api/Places
         [HttpPost]
-        public async Task<ActionResult<Place>> PostPlace(PlaceDTO dto)
+        public async Task<ActionResult<Place>> PostPlace(PlaceRequestDTO requestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +96,7 @@ namespace KoTi.Controllers
             }
 
             var place = new Place();
-            dto.ToModel(place);
+            requestDto.ToModel(place);
             if (place.Order == 0)
             {
                 place.Order = await _context.Places.Where(p => p.AreaId == place.AreaId).CountAsync() + 1;

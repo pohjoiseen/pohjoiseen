@@ -8,9 +8,9 @@
 // - list of actual pictures (for upload view, list exists only in memory)
 import * as React from 'react';
 import { Fragment, useRef, useState } from 'react';
-import Picture from '../model/Picture';
+import Picture, { PICTURE_SIZE_THUMBNAIL } from '../model/Picture';
 import { usePictureQuery } from '../data/queries';
-import { PicturesViewMode } from './pictureViewCommon';
+import { dummyImageURL, PicturesViewMode } from './pictureViewCommon';
 import PictureThumbnail from './PictureThumbnail';
 import PictureDetails from './PictureDetails';
 import { DomEvent } from 'leaflet';
@@ -20,6 +20,8 @@ import { useUpdatePictureMutation } from '../data/mutations';
 
 interface PicturesListProps {
     viewMode: PicturesViewMode;
+    noWrap?: boolean;  // currently only for thumbnails
+    showMore?: boolean;  // currently only for thumbnails
     pictures: (Picture | number)[];
     currentIndex: number;
     selection: boolean[];
@@ -82,10 +84,10 @@ const PictureThumbnailById = ({ id, isSelected, onOpen, onClick, onRetryUpload }
     />;
 }
 
-const PicturesListThumbnails = ({ pictures, onOpen, onRetryUpload, selection, onSetSelection }: PicturesListProps) => {
+const PicturesListThumbnails = ({ pictures, noWrap, showMore, onOpen, onRetryUpload, selection, onSetSelection }: PicturesListProps) => {
     const lastIndex = useRef(0);
 
-    return <div className="d-flex flex-wrap">
+    return <div className={noWrap ? "d-flex overflow-x-auto" : "d-flex flex-wrap"}>
         {pictures.map((p, key) => <Fragment key={typeof p === 'number' ? p : (p.id || 'idx' + key)}>
             {typeof p === 'number'
                 ? <PictureThumbnailById
@@ -110,6 +112,12 @@ const PicturesListThumbnails = ({ pictures, onOpen, onRetryUpload, selection, on
                 />
             }
         </Fragment>)}
+        {showMore && <div className="me-2 mb-2 position-relative picture-thumbnail" onClick={() => onOpen(-1)}>
+            <img src={dummyImageURL} height={PICTURE_SIZE_THUMBNAIL} width={PICTURE_SIZE_THUMBNAIL * 3 / 2} alt="" />
+            <div className="picture-upload-overlay shaded">
+                <i className="bi bi-three-dots" />
+            </div>
+        </div>}
     </div>;
 };
 

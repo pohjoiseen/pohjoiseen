@@ -20,6 +20,8 @@ const toFrontend = (picture: any): Picture => {
 
 export interface GetPicturesOptions {
     setId?: number;
+    placeId?: number;
+    areaId?: number;
     limit?: number;
     offset?: number;
 }
@@ -28,6 +30,12 @@ export const getPictures = async (options: GetPicturesOptions): Promise<ListWith
     const params: { [key: string]: any } = {};
     if (typeof options.setId !== 'undefined') {
         params['setId'] = options.setId;
+    }
+    if (options.placeId) {
+        params['placeId'] = options.placeId;
+    }
+    if (options.areaId) {
+        params['areaId'] = options.areaId;
     }
     if (options.limit) {
         params['limit'] = options.limit;
@@ -51,6 +59,24 @@ export const getPicture = async (id: number): Promise<Picture> => {
     }
     return toFrontend(await response.json());
 }
+
+export const getPicturesForPlace = async (placeId: number, limit?: number): Promise<Picture[]> => {
+    const response = await fetch('api/Pictures/ForPlace/' + placeId + '?limit=' + (limit || 0));
+    if (!response.ok || response.status !== 200) {
+        await handleError(response);
+    }
+    const result = await response.json();
+    return result.map(toFrontend);
+};
+
+export const getPicturesForArea = async (areaId: number, limit?: number): Promise<Picture[]> => {
+    const response = await fetch('api/Pictures/ForArea/' + areaId + '?limit=' + (limit || 0));
+    if (!response.ok || response.status !== 200) {
+        await handleError(response);
+    }
+    const result = await response.json();
+    return result.map(toFrontend);
+};
 
 export const putPicture = async (id: number, picture: Picture) => {
     const response = await fetch(`api/Pictures/${id}`, {
