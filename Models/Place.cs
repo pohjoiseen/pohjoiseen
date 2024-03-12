@@ -1,7 +1,12 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Models;
 
+[Index(nameof(Category))]
+[Index(nameof(ExploreStatus))]
+[Index(nameof(IsPrivate))]
+[Index(nameof(Rating))]
 public class Place
 {
     public int Id { get; set; }
@@ -38,6 +43,8 @@ public class Place
     public int Zoom { get; set; }
     
     public bool IsPrivate { get; set; }
+    
+    public int Rating { get; set; }
     
     public IList<Picture> Pictures { get; set; }
 }

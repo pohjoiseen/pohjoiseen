@@ -82,7 +82,9 @@ const PicturesUpload = () => {
             camera: meta.Model,
             lens: meta.LensModel ? meta.LensModel.replace(meta.Model + ' ', '') : null,
             lat: meta.latitude,
-            lng: meta.longitude
+            lng: meta.longitude,
+            isPrivate: false,
+            rating: 0
         };
         
         // add to picture list

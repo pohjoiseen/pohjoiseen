@@ -38,7 +38,12 @@ public class PlaceDTO
     
     public int Zoom { get; set; }
     
+    [Required]
     public bool IsPrivate { get; set; }
+    
+    [Required]
+    public int Rating { get; set; }
+    
 
     public void ToModel(Place place)
     {
@@ -57,5 +62,6 @@ public class PlaceDTO
         place.Lng = Lng;
         place.Zoom = Zoom;
         place.IsPrivate = IsPrivate;
+        place.Rating = Rating;
     }
 }

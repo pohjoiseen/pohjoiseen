@@ -22,9 +22,8 @@ const PictureSetList = ({ pictureSet }: PictureSetListProps) => {
         try {
             setUpdateModalOpen(false);
             await updatePictureSetMutation.mutateAsync(pictureSet);
-        }
-        catch (e)
-        {
+        } catch (e) {
+            // no need to catch, error flag will be set by mutation
         }
     };
     
@@ -63,7 +62,7 @@ const PictureSetList = ({ pictureSet }: PictureSetListProps) => {
                 </Card>
             </div>}
             {pictureSet.children && pictureSet.children.map(ps => <div className="w-25 pb-1 pe-1" key={ps.id}>
-                <Card>
+                <Card className={ps.isPrivate ? 'is-private' : ''}>
                     <CardBody>
                         <CardTitle tag="h5" className="m-0">
                             <i className="bi bi-folder"/>{' '}

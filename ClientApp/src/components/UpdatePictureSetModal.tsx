@@ -48,7 +48,7 @@ const UpdatePictureSetModal = ({ pictureSet, onClose, onSubmit }: UpdatePictureS
                             id="picture-set-is-private"
                             {...isPrivate}
                         />
-                        <Label htmlFor="picture-set-is-private" check>Private</Label>
+                        <Label htmlFor="picture-set-is-private" check>Private/Draft</Label>
                     </FormGroup>
                 </form>
             </ModalBody>

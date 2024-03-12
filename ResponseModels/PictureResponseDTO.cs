@@ -24,6 +24,7 @@ public class PictureResponseDTO
     public double? Lat { get; set; }
     public double? Lng { get; set; }
     public bool IsPrivate { get; set; }
+    public int Rating { get; set; }
     public int? SetId { get; set; }
     public string? SetName { get; set; }
 
@@ -51,6 +52,7 @@ public class PictureResponseDTO
             Lat = picture.Lat,
             Lng = picture.Lng,
             IsPrivate = picture.IsPrivate,
+            Rating = picture.Rating,
             SetId = picture.SetId,
             SetName = picture.Set?.Name,
         };

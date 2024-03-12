@@ -3,7 +3,7 @@
  */
 import * as React from 'react';
 import Place from '../model/Place';
-import { Button } from 'reactstrap';
+import { Button, FormGroup, Label } from 'reactstrap';
 import { useRef, useState } from 'react';
 import { EditableHandle } from './Editable';
 import EditableTextarea from './EditableTextarea';
@@ -80,7 +80,7 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
             onStateChange={(state) => setIsAddingSeason(state)}
         />
         <div className="clearfix">&nbsp;</div>
-        <div className="mt-4 d-flex">
+        <div className="mt-4 d-flex align-items-center">
             {!place.alias && !isAddingAlias &&
                 <Button color="secondary" className="me-2" onClick={onAddAlias}><i className="bi-plus-lg" /> Alias</Button>}
             {!place.notes && !isAddingNotes  &&
@@ -93,6 +93,16 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
                 <Button color="secondary" className="me-2" onClick={() => publicTransportRef.current!.startEditing()}><i className="bi-plus-lg" /> Public transport</Button>}
             {!place.season && !isAddingSeason &&
                 <Button color="secondary" className="me-2" onClick={() => seasonRef.current!.startEditing()}><i className="bi-plus-lg" /> Season</Button>}
+            <FormGroup check inline className="m-0">
+                <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id={`place-is-private-${place.id}`}
+                    checked={place.isPrivate}
+                    onChange={(e) => onChange({ ...place, isPrivate: e.target.checked })}
+                />
+                <Label htmlFor={`place-is-private-${place.id}`} check>Private/Draft</Label>
+            </FormGroup>
             {onDelete && <Button color="danger" className="ms-auto" onClick={onDelete}>Delete</Button>}
         </div>
     </>;

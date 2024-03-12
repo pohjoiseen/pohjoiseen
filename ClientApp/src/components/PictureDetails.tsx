@@ -11,6 +11,8 @@ import CreatePlaceModal from './CreatePlaceModal';
 import { PlaceCategory } from '../model/PlaceCategory';
 import ExploreStatus from '../model/ExploreStatus';
 import Place from '../model/Place';
+import Rating from './Rating';
+import { FormGroup, Label } from 'reactstrap';
 
 interface PictureDetailsProps {
     picture?: Picture;
@@ -64,6 +66,8 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
             lat: 0,
             lng: 0,
             zoom: 0,
+            isPrivate: false,
+            rating: 0
         };
         const place = await createPlaceMutation.mutateAsync(newPlace);
         await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
@@ -103,7 +107,8 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                 ? <div className="flex-grow-1">
                     <h5 className="mb-4">
                         <i className="text-muted">{picture.filename}</i><br/>
-                        {picture.photographedAt.toLocaleDateString()}
+                        {/* TODO: locale should probably not be hardcoded */}
+                        {picture.photographedAt.toLocaleDateString('fi')}<br/>
                     </h5>
                     <p className="small text-muted">
                         {picture.width}x{picture.height}
@@ -115,7 +120,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         </>}
                     </p>
                 </div>
-                : <div className="flex-grow-1">
+                : <div className={`flex-grow-1 ${picture.isPrivate ? 'is-private' : ''}`}>
                     <EditableInline
                         value={picture.title}
                         placeholder={picture.filename}
@@ -123,7 +128,21 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         viewTag="h5"
                         inputClassName="fs-5 p-0 lh-1"
                     />
-                    <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString() : 'not yet')}>{picture.photographedAt.toLocaleDateString()}</h5>
+                    {/* TODO: locale should probably not be hardcoded */}
+                    <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString('fi') : 'not yet')}>{picture.photographedAt.toLocaleDateString('fi')}</h5>
+                    <div className="d-flex mb-2">
+                        <Rating value={picture.rating} onChange={(value) => updatePictureMutation.mutate({ ...picture, rating: value })} />
+                        <FormGroup check inline className="ms-4">
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id={`picture-is-private-${picture.id}`}
+                                checked={picture.isPrivate}
+                                onChange={(e) => updatePictureMutation.mutate({ ...picture, isPrivate: e.target.checked })}
+                            />
+                            <Label htmlFor={`picture-is-private-${picture.id}`} check>Private</Label>
+                        </FormGroup>
+                    </div>
                     <EditableTextarea
                         value={picture.description}
                         onChange={(value) => updatePictureMutation.mutate({ ...picture, description: value })}

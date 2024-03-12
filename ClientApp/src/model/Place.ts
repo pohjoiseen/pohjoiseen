@@ -17,6 +17,8 @@ interface Place {
     lat: number;
     lng: number;
     zoom: number;
+    isPrivate: boolean;
+    rating: number;
 }
 
 export default Place;

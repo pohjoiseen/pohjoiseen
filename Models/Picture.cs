@@ -1,7 +1,12 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Models;
 
+[Index(nameof(Hash), IsUnique = true)]
+[Index(nameof(PhotographedAt))]
+[Index(nameof(IsPrivate))]
+[Index(nameof(Rating))]
 public class Picture
 {
     public const int ThumbnailSize = 125;
@@ -38,6 +43,8 @@ public class Picture
     public double? Lng { get; set; }
     
     public bool IsPrivate { get; set; }
+    
+    public int Rating { get; set; }
     
     public int? SetId { get; set; }
     [JsonIgnore]

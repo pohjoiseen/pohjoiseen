@@ -20,6 +20,9 @@
     title: string;
     description: string;
     
+    isPrivate: boolean;
+    rating: number;
+    
     // EXIF
     photographedAt: Date;  // CreateDate from EXIF
     camera: string | null;  // Model from EXIF

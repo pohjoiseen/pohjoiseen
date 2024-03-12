@@ -91,7 +91,7 @@ const AreaPage = () => {
         if (places.data) {
             placesFilterInputRef.current?.scrollIntoView();
         }
-    }, [setAlreadyScrolled, filter, places]);
+    }, [setAlreadyScrolled, filter, places, alreadyScrolled]);
 
     /// loading/error messages ///
 
@@ -242,6 +242,8 @@ const AreaPage = () => {
                     lat: 0,
                     lng: 0,
                     zoom: 0,
+                    isPrivate: false,
+                    rating: 0
                 } as Place}
                 title="Add place"
                 onClose={() => setAddPlaceModalOpen(false)}

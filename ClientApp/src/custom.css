@@ -338,3 +338,9 @@ header {
   width: 80vw;
   max-width: 100%;
 }
+
+/* Private/draft */
+
+.is-private {
+  opacity: 0.66;
+}

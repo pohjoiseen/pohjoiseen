@@ -17,6 +17,7 @@ import Country from '../model/Country';
 import Area from '../model/Area';
 import Place from '../model/Place';
 import DnDTypes from '../model/DnDTypes';
+import Rating from './Rating';
 
 interface PlaceComponentProps {
     country: Country;
@@ -121,7 +122,7 @@ const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIs
     
     /// render ///
     
-    return <AccordionItem innerRef={ref} className={isDragging ? 'is-dragging' : ''} data-handler-id={handlerId}>
+    return <AccordionItem innerRef={ref} className={`${isDragging ? 'is-dragging' : ''}${place.isPrivate ? ' is-private': ''}`} data-handler-id={handlerId}>
         {/* do not use <AccordionHeader> because it does not allow us to intercept onClick */}
         <div className="accordion-header">
             <div
@@ -163,6 +164,12 @@ const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIs
                         onChange={(value) => updatePlaceMutation.mutate({ ...place, alias: value })}
                     />
                 </div>
+                {place.isPrivate && <i className="bi bi-shield-lock" />}
+                <Rating
+                    className="flex-grow-1 justify-content-end me-3"    
+                    value={place.rating}
+                    onChange={(value) => updatePlaceMutation.mutate({ ...place, rating: value })} 
+                />
             </div>
         </div>
         <AccordionBody accordionId={place.id.toString()}>
