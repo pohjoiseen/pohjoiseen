@@ -23,7 +23,7 @@ public class PictureRequestDTO
     public double? Lat { get; set; }
     public double? Lng { get; set; }
     [Required] public bool IsPrivate { get; set; }
-    public int SetId { get; set; }
+    public int? SetId { get; set; }
 
     public void ToModel(Picture picture)
     {

@@ -91,7 +91,8 @@ const PicturesUpload = () => {
             setCurrentPictureIndex(idx => idx === UPLOAD_IDLE ? pics.length : idx);
             return [...pics, picture]
         });
-    }, [setPicturesForUpload]);
+        // TODO: is currentPictureIndex necessary?  Formally no but might break upload
+    }, [setPicturesForUpload, currentPictureIndex]);
     
     /// uploading pictures with a button ///
     
@@ -224,7 +225,8 @@ const PicturesUpload = () => {
             setCurrentPictureIndex(UPLOAD_IDLE);  // uploaded everything possible
             //console.log(`Nothing to upload`);
         })();
-    }, [currentPictureIndex, setPictureForUpload, setUploadError, createPictureMutation]);
+        // TODO: is createPictureMutation necessary?  Formally yes but might break upload
+    }, [currentPictureIndex, setPictureForUpload, setUploadError]);
     
     /// keyboard ///
 
