@@ -22,6 +22,7 @@ public class PlaceResponseDTO
     public int Zoom { get; set; }
     public bool IsPrivate { get; set; }
     public int Rating { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public string? ThumbnailUrl { get; set; }
     
     public static PlaceResponseDTO FromModel(Place place, string? thumbnailUrl)
@@ -45,6 +46,7 @@ public class PlaceResponseDTO
             Zoom = place.Zoom,
             IsPrivate = place.IsPrivate,
             Rating = place.Rating,
+            UpdatedAt = place.UpdatedAt,
             ThumbnailUrl = thumbnailUrl,
         };
         return dto;

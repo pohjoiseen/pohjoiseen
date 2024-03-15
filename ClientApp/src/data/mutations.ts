@@ -102,6 +102,7 @@ export const useUpdateAreaMutation = () => {
     return useMutation({
         mutationFn: async (area: Area) => {
             await putArea(area.id, area);
+            area.updatedAt = new Date();
             const areasForRegionData: Area[] | undefined = queryClient.getQueryData([QueryKeys.AREAS_FOR_REGION, area.regionId]);
             if (areasForRegionData) {
                 queryClient.setQueryData([QueryKeys.AREAS_FOR_REGION, area.regionId], areasForRegionData.map(a => a.id === area.id ? area : a));
@@ -166,6 +167,7 @@ export const useUpdatePlaceMutation = () => {
     return useMutation({
         mutationFn: async (place: Place) => {
             await putPlace(place.id, place);
+            place.updatedAt = new Date();
             const placesForAreaData: Place[] | undefined = queryClient.getQueryData([QueryKeys.PLACES_FOR_AREA, place.areaId]);
             if (placesForAreaData) {
                 queryClient.setQueryData([QueryKeys.PLACES_FOR_AREA, place.areaId], placesForAreaData.map(p => p.id === place.id ? place : p));
@@ -226,6 +228,7 @@ export const useUpdatePictureMutation = () => {
     return useMutation({
         mutationFn: async (picture: Picture) => {
             await putPicture(picture.id!, picture);
+            picture.updatedAt = new Date();
             queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
             // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
             // but we don't attempt to track that, in fact IMHO it would only lead to worse UX

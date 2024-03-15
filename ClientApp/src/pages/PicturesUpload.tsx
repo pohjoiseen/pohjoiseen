@@ -84,7 +84,8 @@ const PicturesUpload = () => {
             lat: meta.latitude,
             lng: meta.longitude,
             isPrivate: false,
-            rating: 0
+            rating: 0,
+            updatedAt: new Date(),
         };
         
         // add to picture list

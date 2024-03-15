@@ -49,4 +49,6 @@ public class Picture
     public int? SetId { get; set; }
     [JsonIgnore]
     public PictureSet? Set { get; set; }
+    
+    public DateTime UpdatedAt { get; set; }
 }

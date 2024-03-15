@@ -1,5 +1,6 @@
 ﻿import Place from '../model/Place';
 import { handleError } from './common';
+import { placeToFrontend } from './mappings';
 
 export const getPlace = async (id: number): Promise<Place> => {
     const response = await fetch(`api/Places/${id}`, {
@@ -11,7 +12,7 @@ export const getPlace = async (id: number): Promise<Place> => {
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return await response.json();
+    return placeToFrontend(await response.json());
 };
 
 export const putPlace = async (id: number, place: Place) => {
@@ -38,7 +39,7 @@ export const postPlace = async (place: Place): Promise<Place> => {
     if (!response.ok || response.status !== 201) {
         await handleError(response);
     }
-    return await response.json();
+    return placeToFrontend(await response.json());
 }
 
 export const deletePlace = async (id: number): Promise<void> => {

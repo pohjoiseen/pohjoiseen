@@ -27,6 +27,7 @@ public class PictureResponseDTO
     public int Rating { get; set; }
     public int? SetId { get; set; }
     public string? SetName { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     public static PictureResponseDTO FromModel(Picture picture)
     {
@@ -55,6 +56,7 @@ public class PictureResponseDTO
             Rating = picture.Rating,
             SetId = picture.SetId,
             SetName = picture.Set?.Name,
+            UpdatedAt = picture.UpdatedAt,
         };
         return dto;
     }

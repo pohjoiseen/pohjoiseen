@@ -30,6 +30,8 @@
     lat: number | null;  // latitude from EXIF, if available
     lng: number | null;  // longitude from EXIF, if available
     
+    updatedAt: Date;
+    
     // Client-only fields
     blob?: File | undefined;  // used before the file is uploaded
     upload?: number | undefined;  // used during file upload, >0 = in progress, bytes uploaded; <0 = status

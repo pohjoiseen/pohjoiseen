@@ -1,6 +1,7 @@
 ﻿import Region from '../model/Region';
 import Area from '../model/Area';
 import { handleError } from './common';
+import { areaToFrontend } from './mappings';
 
 export const getRegion = async (id: number): Promise<Region> => {
     const response = await fetch(`api/Regions/${id}`, {
@@ -56,7 +57,8 @@ export const getAreasForRegion: (id: number) => Promise<Area[]> = async (id) => 
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return await response.json();
+    const result = await response.json();
+    return result.map(areaToFrontend);
 };
 
 export const reorderAreasInRegion: (id: number, ids: number[]) => Promise<void> = async (id, ids) => {

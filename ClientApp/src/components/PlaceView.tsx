@@ -116,7 +116,7 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
                 <Button color="secondary" className="me-2" onClick={() => publicTransportRef.current!.startEditing()}><i className="bi-plus-lg" /> Public transport</Button>}
             {!place.season && !isAddingSeason &&
                 <Button color="secondary" className="me-2" onClick={() => seasonRef.current!.startEditing()}><i className="bi-plus-lg" /> Season</Button>}
-            <FormGroup check inline className="m-0">
+            <FormGroup check inline className="m-0 me-2">
                 <input
                     type="checkbox"
                     className="form-check-input"
@@ -126,7 +126,8 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
                 />
                 <Label htmlFor={`place-is-private-${place.id}`} check>Private/Draft</Label>
             </FormGroup>
-            {onDelete && <Button color="danger" className="ms-auto" onClick={onDelete}>Delete</Button>}
+            <div className="ms-auto text-muted">Last updated: {place.updatedAt.toLocaleString('fi')}</div>
+            {onDelete && <Button color="danger" className="ms-2" onClick={onDelete}>Delete</Button>}
         </div>
     </>;
 }

@@ -26,6 +26,8 @@ public class Area
     public double Lng { get; set; }
     
     public int Zoom { get; set; }
+    
+    public DateTime UpdatedAt { get; set; }
 
     public IList<Place> Places { get; set; }
 }

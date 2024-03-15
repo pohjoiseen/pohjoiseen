@@ -67,7 +67,8 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
             lng: 0,
             zoom: 0,
             isPrivate: false,
-            rating: 0
+            rating: 0,
+            updatedAt: new Date()
         };
         const place = await createPlaceMutation.mutateAsync(newPlace);
         await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
@@ -178,6 +179,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                             <br/>
                             {picture.camera || ''} {picture.lens || ''}
                         </>}
+                        <br/>Last updated: {picture.updatedAt.toLocaleString('fi')}
                     </p>
                 </div>)}
             {showCreatePlaceModal && <CreatePlaceModal

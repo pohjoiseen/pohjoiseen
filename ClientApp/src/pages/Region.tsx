@@ -130,7 +130,8 @@ const RegionPage = () => {
                         order: (areas.data?.length || 0) + 1,
                         lat: 0,
                         lng: 0,
-                        zoom: 0
+                        zoom: 0,
+                        updatedAt: new Date(),
                     } as Area}
                     title="Add area"
                     onClose={() => setAddAreaModalOpen(!isAddAreaModalOpen)}

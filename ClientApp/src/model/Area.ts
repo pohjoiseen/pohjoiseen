@@ -12,6 +12,7 @@ interface Area {
     lat: number;
     lng: number;
     zoom: number;
+    updatedAt: Date;
     places: Place[];
 }
 

@@ -208,6 +208,8 @@ const AreaPage = () => {
                     status={area.exploreStatus}
                     onChange={(status) => updateAreaMutation.mutate({ ...area, exploreStatus: status })}
                 />
+                <br/>
+                Last updated: {area.updatedAt.toLocaleString('fi')}
             </h6>
             <EditableTextarea
                 value={area.notes}
@@ -271,7 +273,8 @@ const AreaPage = () => {
                     lng: 0,
                     zoom: 0,
                     isPrivate: false,
-                    rating: 0
+                    rating: 0,
+                    updatedAt: new Date(),
                 } as Place}
                 title="Add place"
                 onClose={() => setAddPlaceModalOpen(false)}

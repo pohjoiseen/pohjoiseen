@@ -1,6 +1,7 @@
 ﻿import Place from '../model/Place';
 import Area from '../model/Area';
 import { handleError } from './common';
+import { areaToFrontend, placeToFrontend } from './mappings';
 
 export const getArea = async (id: number): Promise<Area> => {
     const response = await fetch(`api/Areas/${id}`, {
@@ -12,7 +13,7 @@ export const getArea = async (id: number): Promise<Area> => {
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return await response.json();
+    return areaToFrontend(await response.json());
 };
 
 export const putArea = async (id: number, area: Area) => {
@@ -39,7 +40,7 @@ export const postArea = async (area: Area): Promise<Area> => {
     if (!response.ok || response.status !== 201) {
         await handleError(response);
     }
-    return await response.json();
+    return areaToFrontend(await response.json());
 }
 
 export const deleteArea = async (id: number): Promise<void> => {
@@ -56,7 +57,8 @@ export const getPlacesForArea: (id: number) => Promise<Place[]> = async (id) => 
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return await response.json();
+    const result = await response.json();
+    return result.map(placeToFrontend);
 };
 
 export const reorderPlacesInArea: (id: number, ids: number[]) => Promise<void> = async (id, ids) => {

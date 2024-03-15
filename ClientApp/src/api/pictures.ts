@@ -2,21 +2,7 @@
 import Picture from '../model/Picture';
 import { handleError } from './common';
 import ListWithTotal from '../model/ListWithTotal';
-
-// normalize a picture received from server for frontend in particular by converting
-// date fields to actual Date objects
-// TODO: do we need 'Z' or not?
-const toFrontend = (picture: any): Picture => {
-    if (picture.uploadedAt) {
-        picture.uploadedAt = new Date(picture.uploadedAt.endsWith('Z')
-            ? picture.uploadedAt : picture.uploadedAt + 'Z');
-    }
-    if (picture.photographedAt) {
-        picture.photographedAt = new Date(picture.photographedAt.endsWith('Z')
-            ? picture.photographedAt : picture.photographedAt + 'Z');
-    }
-    return picture as Picture;
-}
+import { pictureToFrontend } from './mappings';
 
 export interface GetPicturesOptions {
     setId?: number;
@@ -48,7 +34,7 @@ export const getPictures = async (options: GetPicturesOptions): Promise<ListWith
         await handleError(response);
     }
     const result = await response.json();
-    result.data = result.data.map(toFrontend);
+    result.data = result.data.map(pictureToFrontend);
     return result;
 };
 
@@ -57,7 +43,7 @@ export const getPicture = async (id: number): Promise<Picture> => {
     if (!response.ok || response.status !== 200) {
         await handleError(response);
     }
-    return toFrontend(await response.json());
+    return pictureToFrontend(await response.json());
 }
 
 export const getPicturesForPlace = async (placeId: number, limit?: number): Promise<Picture[]> => {
@@ -66,7 +52,7 @@ export const getPicturesForPlace = async (placeId: number, limit?: number): Prom
         await handleError(response);
     }
     const result = await response.json();
-    return result.map(toFrontend);
+    return result.map(pictureToFrontend);
 };
 
 export const getPicturesForArea = async (areaId: number, limit?: number): Promise<Picture[]> => {
@@ -75,7 +61,7 @@ export const getPicturesForArea = async (areaId: number, limit?: number): Promis
         await handleError(response);
     }
     const result = await response.json();
-    return result.map(toFrontend);
+    return result.map(pictureToFrontend);
 };
 
 export const putPicture = async (id: number, picture: Picture) => {
@@ -102,7 +88,7 @@ export const postPicture = async (picture: Picture): Promise<Picture> => {
     if (!response.ok || response.status !== 201) {
         await handleError(response);
     }
-    return toFrontend(await response.json());
+    return pictureToFrontend(await response.json());
 }
 
 export const deletePicture = async (id: number): Promise<void> => {
