@@ -1,7 +1,6 @@
 ﻿import * as React from 'react';
 import { useCallback, KeyboardEvent, MouseEvent } from 'react';
 import { DomEvent } from 'leaflet';
-import on = DomEvent.on;
 
 interface RatingProps {
     className?: string;
@@ -29,7 +28,7 @@ const Rating = ({ className, value, onChange }: RatingProps) => {
     
     return <div className={`d-flex ${className || ''}`} tabIndex={0} onKeyDown={keyDown}>
         {[1, 2, 3].map(k => <span onClick={click} data-rating={k} key={k}>
-            <i className={`bi bi-star${k <= value ? '-fill' : ''}`} />
+            <i className={`cursor-pointer bi bi-star${k <= value ? '-fill' : ''}`} />
         </span>)}
     </div>;
 };

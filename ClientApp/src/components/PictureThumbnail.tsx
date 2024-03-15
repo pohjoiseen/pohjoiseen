@@ -26,14 +26,20 @@ interface PictureThumbnailProps {
  * @param isLoading  Display loading spinner
  */
 const PictureThumbnail = ({ picture, isSelected, onOpen, onClick, onRetryUpload, isError, isLoading }: PictureThumbnailProps) => {
+    let title: string = '';
+    if (picture) {
+        title = picture.photographedAt.toLocaleDateString('fi') + '\n' + (picture.title || picture.filename);
+        if (picture.placeName) {
+            title += '\nLocation: ' + picture.placeName;
+        }
+    }
     return (
-        <div className="me-2 mb-2 position-relative picture-thumbnail">
+        <div className="me-2 mb-2 position-relative picture-thumbnail" title={title}>
             <img
                 height={PICTURE_SIZE_THUMBNAIL}
                 width={picture ? Math.round(picture.width / (picture.height / PICTURE_SIZE_THUMBNAIL)) : undefined}
                 src={picture?.thumbnailUrl || dummyImageURL} 
                 alt="" 
-                title={picture?.title || ''}
                 tabIndex={0}
                 onClick={(e) => {
                     onClick(e.ctrlKey, e.shiftKey);

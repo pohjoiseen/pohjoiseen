@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 interface PaginatorProps {
     page: number;
@@ -42,6 +42,64 @@ const Paginator = ({ page, setPage, totalPages, disableKeyboardNav }: PaginatorP
     if (totalPages <= 1) {
         return null;
     }
+    
+    let pages: ReactNode;
+    if (totalPages < 15) {
+        // show all pages if there are few enough
+        pages = Array.from(Array(totalPages).keys()).map(p => <PaginationItem key={p} active={p === page}>
+            <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+        </PaginationItem>);
+    } else if (page <= 7) {
+        // 1,2,3,*4*,5,6...98,99,100
+        pages = <>
+            {Array.from(Array(page + 3).keys()).map(p => <PaginationItem key={p} active={p === page}>
+                <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+            </PaginationItem>)}
+            <PaginationItem><PaginationLink><i className="bi bi-three-dots" /></PaginationLink></PaginationItem>
+            {Array.from(Array(3).keys()).map(k => {
+                const p = totalPages - 3 + k;
+                return <PaginationItem key={p} active={p === page}>
+                    <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+                </PaginationItem>;
+            })}
+        </>;
+    } else if (page >= totalPages - 8) {
+        // 1,2,3...95,96,*97*,98,99,100
+        pages = <>
+            {Array.from(Array(3).keys()).map(p => <PaginationItem key={p} active={p === page}>
+                <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+            </PaginationItem>)}
+            <PaginationItem><PaginationLink><i className="bi bi-three-dots" /></PaginationLink></PaginationItem>
+            {Array.from(Array(totalPages - page + 2).keys()).map(k => {
+                const p = totalPages - (totalPages - page + 2) + k;
+                return <PaginationItem key={p} active={p === page}>
+                    <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+                </PaginationItem>;
+            })}
+        </>;
+    } else {
+        // 1,2,3...48,49,*50*,51,52...98,99,100
+        pages = <>
+            {Array.from(Array(3).keys()).map(p => <PaginationItem key={p} active={p === page}>
+                <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+            </PaginationItem>)}
+            <PaginationItem><PaginationLink><i className="bi bi-three-dots" /></PaginationLink></PaginationItem>
+            {Array.from(Array(5).keys()).map(k => {
+                const p = page - 2 + k;
+                return <PaginationItem key={p} active={p === page}>
+                    <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+                </PaginationItem>;
+            })}
+            <PaginationItem><PaginationLink><i className="bi bi-three-dots" /></PaginationLink></PaginationItem>
+            {Array.from(Array(3).keys()).map(k => {
+                const p = totalPages - 3 + k;
+                return <PaginationItem key={p} active={p === page}>
+                    <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
+                </PaginationItem>;
+            })}
+        </>;
+    }
+    
     return <Pagination className="m-auto d-flex justify-content-center">
         <PaginationItem disabled={page === 0}>
             <PaginationLink onClick={() => setPage(0)}>
@@ -53,9 +111,7 @@ const Paginator = ({ page, setPage, totalPages, disableKeyboardNav }: PaginatorP
                 <i className="bi bi-caret-left-fill" title="Ctrl-Left"/>
             </PaginationLink>
         </PaginationItem>
-        {Array.from(Array(totalPages).keys()).map(p => <PaginationItem key={p} active={p === page}>
-            <PaginationLink onClick={() => setPage(p)}>{p + 1}</PaginationLink>
-        </PaginationItem>)}
+        {pages}
         <PaginationItem disabled={page === totalPages - 1}>
             <PaginationLink onClick={() => setPage(page + 1)}>
                 <i className="bi bi-caret-right-fill" title="Ctrl-Right"/>

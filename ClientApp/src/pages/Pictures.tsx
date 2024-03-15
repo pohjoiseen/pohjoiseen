@@ -29,6 +29,8 @@ import PictureSetList from '../components/PictureSetList';
 import MoveToPictureSetModal from '../components/MoveToPictureSetModal';
 import { SEARCHABLE_TABLES } from '../api/search';
 import PictureFilters from '../components/PictureFilters';
+import ViewModeSwitcher from '../components/ViewModeSwitcher';
+import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -53,7 +55,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const pageString = searchParams.get(QUERY_PARAMS.PAGE);
     const page = (!pageString || isNaN(parseInt(pageString))) ? 0 : parseInt(pageString) - 1;
     const viewModeString = searchParams.get(QUERY_PARAMS.VIEW_MODE);
-    const viewMode: PicturesViewMode = viewModeString ? viewModeString as PicturesViewMode : PicturesViewMode.THUMBNAILS;
+    const viewMode: PicturesViewMode = viewModeString ? viewModeString as PicturesViewMode : getDefaultViewMode();
     const fullscreenString = searchParams.get(QUERY_PARAMS.FULLSCREEN);
     const currentFullscreen = (!fullscreenString || isNaN(parseInt(fullscreenString))) ? -1 : parseInt(fullscreenString);
     const isFullscreen = currentFullscreen !== -1;
@@ -145,6 +147,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             return params;
         });
         setSelection([]);
+        setDefaultViewMode(mode);
     }, [setSearchParams, offset, getPageForOffset]);
 
     /// fullscreen mode ///
@@ -231,6 +234,11 @@ const Pictures = ({ sets }: { sets: boolean }) => {
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
     }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery, currentFullscreen, enterFullscreen, pageSize]);
+
+    /// selection ///
+
+    const [selection, setSelection] = useState<boolean[]>([]);
+    const numSelected = selection.filter(s => s).length;
     
     /// picture sets ///
     
@@ -238,10 +246,13 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const [isMovePictureToPictureSetModalOpen, setMovePictureToPictureSetModalOpen] = useState(false);
     const createPictureSetMutation = useCreatePictureSetMutation();
     const moveToPictureSetMutation = useMovePicturesToPictureSetMutation();
-    const movePicturesToPictureSet = (pictureSetId: number | null) => moveToPictureSetMutation.mutate({
-        id: pictureSetId, 
-        pictureIds: picturesQuery.data ? picturesQuery.data.data.filter((id, k) => selection[k]) : [] 
-    });
+    const movePicturesToPictureSet = useCallback((pictureSetId: number | null) => {
+        moveToPictureSetMutation.mutate({
+            id: pictureSetId,
+            pictureIds: picturesQuery.data ? picturesQuery.data.data.filter((id, k) => selection[k]) : []
+        });
+        setSelection([]);
+    }, [moveToPictureSetMutation, picturesQuery.data, selection, setSelection]);
     
     /// render ///
     
@@ -256,11 +267,6 @@ const Pictures = ({ sets }: { sets: boolean }) => {
         title = 'Pictures by folder';
     }
     
-    /// selection ///
-    
-    const [selection, setSelection] = useState<boolean[]>([]);
-    const numSelected = selection.filter(s => s).length;
-
     return <div>
         <NavBar>
             <h3>
@@ -278,13 +284,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
                     <DropdownItem onClick={() => setMovePictureToPictureSetModalOpen(true)}>Move to folder...</DropdownItem>
                 </DropdownMenu>
             </UncontrolledDropdown>}
-            <UncontrolledDropdown className="ms-2">
-                <DropdownToggle caret>View</DropdownToggle>
-                <DropdownMenu>
-                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.THUMBNAILS)}>Thumbnails</DropdownItem>
-                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.DETAILS)}>Details</DropdownItem>
-                </DropdownMenu>
-            </UncontrolledDropdown>
+            <ViewModeSwitcher className="ms-2" value={viewMode} setValue={setViewMode} />
         </NavBar>
         <Container onClick={() => setSelection([])}>
             {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}

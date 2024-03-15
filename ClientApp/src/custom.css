@@ -37,6 +37,11 @@ header {
   text-decoration: none;
 }
 
+/* Generic cursor: pointer class (why doesn't Bootstrap have it) */
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Silly "logo" */
 
 .koti-title {
@@ -51,12 +56,14 @@ header {
   border: 2px solid white;
   padding: 0 2px;
   height: 32px;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 .koti-title span {
   display: inline-block;
-  transform: translateY(-6px);
+  margin-bottom: 2px;
+  margin-left: 2px;
 }
 
 /* Editable textarea component */

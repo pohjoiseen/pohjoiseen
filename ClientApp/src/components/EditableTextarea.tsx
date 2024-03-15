@@ -109,7 +109,7 @@ const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, va
     return <form onSubmit={handleSubmit(onValid)} className="w-100">
         {titleString && <><b>{titleString}</b>:</>}
         <textarea
-            className={`editable-textarea form-control overflow-hidden w-100 ${errors.value && 'is-invalid'} ${inputClassName || ''}`}
+            className={`editable-textarea form-control w-100 ${errors.value && 'is-invalid'} ${inputClassName || ''}`}
             ref={(e) => {
                 ref(e);
                 inputRef.current = e;

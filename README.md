@@ -1,5 +1,7 @@
 ﻿## KoTi
 
+**Not updated for v1.0 yet**
+
 This is KoTi _(kohteiden tietokanta, Finn. points database)_, a privately deployed hobby project by
 me, Alexander Ulyanov.  It is meant for me to track my own travels and explorations mainly of Finland
 and to record information about various places of interest in the same place.  Ideally I would also upload

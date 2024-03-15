@@ -7,7 +7,7 @@ const NavBar = ({ children }: { children?: ReactNode }) => {
         <header>
             <Navbar className="border-bottom box-shadow mb-3" container light>
                 <div className="d-flex align-items-start w-100">
-                    <h3 className="koti-title"><Link to="/"><span>KoTi</span></Link></h3>
+                    <h3 className="koti-title"><Link to="/"><img width="24" height="24" alt="KoTi" src="/koti-logo.svg" /><span>KoTi</span></Link></h3>
                     {children && <><h3>&nbsp;&rsaquo;&nbsp;</h3>{children}</>}
                 </div>
             </Navbar>

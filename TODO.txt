@@ -1,0 +1,9 @@
+﻿Remaining For 1.0:
+
+* Tags for pictures
+* Picture deletion
+* More information in fullscreen mode
+* Add picture search filters: country, region, rating, private, category, date (from/to)
+* Fix glitchy search in autocomplete
+* If possible: fix changes sometimes lost from inputs on blur
+* Add whatever is needed to allow the option to run this as an app

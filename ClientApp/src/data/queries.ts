@@ -8,8 +8,10 @@ import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
 import PictureSet from '../model/PictureSet';
 import { getPictureSet, getPictureSets } from '../api/pictureSets';
+import { getStats } from '../api/home';
 
 export enum QueryKeys {
+    STATS = 'stats',
     COUNTRIES = 'countries',
     REGIONS_FOR_COUNTRY = 'regionsForCountry',
     AREAS_FOR_REGION = 'areasForRegion',
@@ -23,6 +25,11 @@ export enum QueryKeys {
 }
 
 export const PICTURE_PREVIEW_NUMBER = 10;
+
+export const useStatsQuery = () => useQuery({
+    queryKey: [QueryKeys.STATS],
+    queryFn: getStats
+});
 
 export const useCountriesQuery = () => useQuery({
     queryKey: [QueryKeys.COUNTRIES],

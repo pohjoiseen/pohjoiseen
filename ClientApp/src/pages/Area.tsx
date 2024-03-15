@@ -180,20 +180,6 @@ const AreaPage = () => {
             {updatePlaceMutation.isError && <Alert color="danger">Updating place: {errorMessage(updatePlaceMutation.error)}</Alert>}
             {deletePlaceMutation.isError && <Alert color="danger">Deleting place: {errorMessage(deletePlaceMutation.error)}</Alert>}
             {reorderPlacesMutation.isError && <Alert color="danger">Reordering places: {errorMessage(reorderPlacesMutation.error)}</Alert>}
-            {pictures.data.length > 0 && <div className="mb-2">
-                {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
-                    onSetSelection (click) does the same thing as onOpen (double click) */}
-                <PicturesList 
-                    noWrap
-                    showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
-                    viewMode={PicturesViewMode.THUMBNAILS}
-                    pictures={pictures.data} 
-                    currentIndex={-1}
-                    selection={[]} 
-                    onOpen={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
-                    onSetSelection={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
-                />
-            </div>}
             <MapPointPicker
                 mapType={country.mapType}
                 lat={area.lat}
@@ -201,6 +187,20 @@ const AreaPage = () => {
                 zoom={area.zoom}
                 onChange={(lat, lng, zoom) => updateAreaMutation.mutate({ ...area, lat, lng, zoom })}
             />
+            {pictures.data.length > 0 && <div className="mb-2">
+                {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
+                    onSetSelection (click) does the same thing as onOpen (double click) */}
+                <PicturesList
+                    noWrap
+                    showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
+                    viewMode={PicturesViewMode.THUMBNAILS}
+                    pictures={pictures.data}
+                    currentIndex={-1}
+                    selection={[]}
+                    onOpen={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
+                    onSetSelection={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
+                />
+            </div>}
             <h6>
                 Explore status:
                 &nbsp;

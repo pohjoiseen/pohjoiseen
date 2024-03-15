@@ -11,6 +11,8 @@ import { getPicture } from '../api/pictures';
 import { PicturesViewMode } from '../components/pictureViewCommon';
 import PictureFullscreen from '../components/PictureFullscreen';
 import { useCreatePictureMutation } from '../data/mutations';
+import ViewModeSwitcher from '../components/ViewModeSwitcher';
+import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
 
 const UPLOAD_IDLE = -1;
 const UPLOAD_ERROR = -2;
@@ -19,7 +21,11 @@ const UPLOAD_ERROR = -2;
 // (only in-memory state for everything, no queries and no view options via query parameters).
 // Could still be possible to deduplicate it partially... 
 const PicturesUpload = () => {
-    const [viewMode, setViewMode] = useState(PicturesViewMode.THUMBNAILS);
+    const [viewMode, realSetViewMode] = useState(getDefaultViewMode);
+    const setViewMode = useCallback((viewMode: PicturesViewMode) => {
+        realSetViewMode(viewMode);
+        setDefaultViewMode(viewMode);
+    }, [realSetViewMode]);
     const [currentFullscreen, setCurrentFullscreen] = useState(-1);
     // pictures list
     const [picturesForUpload, setPicturesForUpload] = useState<Picture[]>([]);
@@ -262,18 +268,12 @@ const PicturesUpload = () => {
             <h3>
                 <i className="bi bi-image"></i>
                 &nbsp;&rsaquo;&nbsp;
-                Uploading
+                Upload
             </h3>
-            <UncontrolledDropdown className="ms-auto">
-                <DropdownToggle caret>View</DropdownToggle>
-                <DropdownMenu>
-                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.THUMBNAILS)}>Thumbnails</DropdownItem>
-                    <DropdownItem onClick={() => setViewMode(PicturesViewMode.DETAILS)}>Details</DropdownItem>
-                </DropdownMenu>
-            </UncontrolledDropdown>
-            <Button color="primary" className="ms-2" onClick={() => uploadInputRef.current?.click()}>
+            <Button color="primary" className="ms-auto" onClick={() => uploadInputRef.current?.click()}>
                 <i className="bi bi-upload"></i> Choose files...
             </Button>
+            <ViewModeSwitcher className="ms-2" value={viewMode} setValue={setViewMode} />
             <input ref={uploadInputRef} type="file" hidden multiple onInput={onInputUpload} />
         </NavBar>
         <Container>
