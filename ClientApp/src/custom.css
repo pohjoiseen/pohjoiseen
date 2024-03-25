@@ -403,3 +403,7 @@ header {
 .place-mini-thumbnail.empty {
   background: #eee;
 }
+
+.picture-details-wrapper {
+  height: fit-content;
+}

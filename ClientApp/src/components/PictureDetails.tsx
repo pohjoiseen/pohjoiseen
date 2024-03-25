@@ -78,7 +78,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
     
     return (
         <div className="d-flex flex-row mb-2">
-            <div className="position-relative me-2">
+            <div className="position-relative me-2 picture-details-wrapper">
                 <img
                     width={PICTURE_SIZE_DETAILS}
                     height={picture ? Math.round(picture.height / (picture.width / PICTURE_SIZE_DETAILS)) : undefined}
@@ -175,7 +175,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         <div className="me-2">Tags:</div>
                         <TagSelector tags={picture.tags} onChange={(tags) => updatePictureMutation.mutate({ ...picture, tags })} />
                     </div>
-                    <p className="small text-muted mt-4">
+                    <p className="small text-muted mt-3 mb-0">
                         <a target="_blank" href={picture.url}>{picture.filename}</a>
                         &nbsp;&nbsp;&nbsp;
                         {picture.width}x{picture.height}
