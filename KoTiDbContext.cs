@@ -3,22 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi;
 
-public class KoTiDbContext : DbContext
+public class KoTiDbContext(DbContextOptions<KoTiDbContext> options) : DbContext(options)
 {
-    public DbSet<Country> Countries { get; set; }
-
-    public DbSet<Region> Regions { get; set; }
-    
-    public DbSet<Area> Areas { get; set; }
-    
-    public DbSet<Place> Places { get; set; }
-    
-    public DbSet<Picture> Pictures { get; set; }
-    public DbSet<PictureSet> PictureSets { get; set; }
-
-    public string DbPath { get; }
-
-    public KoTiDbContext(DbContextOptions<KoTiDbContext> options) : base(options)
-    {
-    }
+    public DbSet<Country> Countries { get; init; } = null!;
+    public DbSet<Region> Regions { get; init; } = null!;
+    public DbSet<Area> Areas { get; init; } = null!;
+    public DbSet<Place> Places { get; init; } = null!;
+    public DbSet<Picture> Pictures { get; init; } = null!;
+    public DbSet<PictureSet> PictureSets { get; init; } = null!;
+    public DbSet<Tag> Tags { get; init; } = null!;
 }

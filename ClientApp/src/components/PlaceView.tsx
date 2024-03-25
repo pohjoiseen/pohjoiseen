@@ -16,6 +16,7 @@ import { PICTURE_PREVIEW_NUMBER, usePicturesByPlaceQuery } from '../data/queries
 import { errorMessage } from '../util';
 import PicturesList from './PicturesList';
 import { PicturesViewMode } from './pictureViewCommon';
+import TagSelector from './TagSelector';
 
 interface PlaceProps {
     place: Place;
@@ -81,7 +82,7 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
             onChange={(value) => onChange({ ...place, links: value })}
             onStateChange={(state) => setIsAddingLinks(state)}
         />
-         <EditableTextarea
+        <EditableTextarea
             value={place.directions}
             titleString="Address/directions"
             editableRef={directionsRef}
@@ -102,20 +103,30 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
             onChange={(value) => onChange({ ...place, season: value })}
             onStateChange={(state) => setIsAddingSeason(state)}
         />
+        <div className="d-flex align-items-center mt-2 mb-2">
+            <div className="me-2">Tags:</div>
+            <TagSelector tags={place.tags} onChange={(tags) => onChange({ ...place, tags })} />
+        </div>
         <div className="clearfix">&nbsp;</div>
         <div className="mt-4 d-flex align-items-center">
             {!place.alias && !isAddingAlias &&
-                <Button color="secondary" className="me-2" onClick={onAddAlias}><i className="bi-plus-lg" /> Alias</Button>}
-            {!place.notes && !isAddingNotes  &&
-                <Button color="secondary" className="me-2" onClick={() => notesRef.current!.startEditing()}><i className="bi-plus-lg" /> Description</Button>}
-            {!place.links && !isAddingLinks  &&
-                <Button color="secondary" className="me-2" onClick={() => linksRef.current!.startEditing()}><i className="bi-plus-lg" /> Links</Button>}
+                <Button color="secondary" className="me-2" onClick={onAddAlias}><i
+                    className="bi-plus-lg"/> Alias</Button>}
+            {!place.notes && !isAddingNotes &&
+                <Button color="secondary" className="me-2" onClick={() => notesRef.current!.startEditing()}><i
+                    className="bi-plus-lg"/> Description</Button>}
+            {!place.links && !isAddingLinks &&
+                <Button color="secondary" className="me-2" onClick={() => linksRef.current!.startEditing()}><i
+                    className="bi-plus-lg"/> Links</Button>}
             {!place.directions && !isAddingDirections &&
-                <Button color="secondary" className="me-2" onClick={() => directionsRef.current!.startEditing()}><i className="bi-plus-lg" /> Address</Button>}
+                <Button color="secondary" className="me-2" onClick={() => directionsRef.current!.startEditing()}><i
+                    className="bi-plus-lg"/> Address</Button>}
             {!place.publicTransport && !isAddingPublicTransport &&
-                <Button color="secondary" className="me-2" onClick={() => publicTransportRef.current!.startEditing()}><i className="bi-plus-lg" /> Public transport</Button>}
+                <Button color="secondary" className="me-2" onClick={() => publicTransportRef.current!.startEditing()}><i
+                    className="bi-plus-lg"/> Public transport</Button>}
             {!place.season && !isAddingSeason &&
-                <Button color="secondary" className="me-2" onClick={() => seasonRef.current!.startEditing()}><i className="bi-plus-lg" /> Season</Button>}
+                <Button color="secondary" className="me-2" onClick={() => seasonRef.current!.startEditing()}><i
+                    className="bi-plus-lg"/> Season</Button>}
             <FormGroup check inline className="m-0 me-2">
                 <input
                     type="checkbox"

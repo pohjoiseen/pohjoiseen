@@ -106,6 +106,7 @@ public class AreasController : ControllerBase
     {
         // TODO: this is repeated in PlacesController.GetPlace()
         var list = await _context.Places
+            .Include(p => p.Tags)
             .GroupJoin(_context.Pictures, p => p.Id, pi => pi.PlaceId, (p, pictures) =>
                 new {
                     place = p,

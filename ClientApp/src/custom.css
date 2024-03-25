@@ -66,6 +66,37 @@ header {
   margin-left: 2px;
 }
 
+.koti-title span.koti-logo-wrapper {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  display: inline-block;
+  position: relative;
+}
+
+.koti-title span.koti-logo-wrapper img {
+  display: block;
+}
+
+.koti-title span.koti-logo-wrapper .spinner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #64382C;
+}
+
+.koti-title span.koti-logo-wrapper .spinner.hide {
+  display: none;
+}
+
+.koti-title span.koti-logo-wrapper .spinner .spinner-grow {
+  --bs-spinner-width: 24px;
+  --bs-spinner-height: 24px;
+  display: block;
+}
+
 /* Editable textarea component */
 
 .editable-textarea {

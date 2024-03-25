@@ -43,8 +43,9 @@ public class PlaceRequestDTO
     [Required]
     public int Rating { get; set; }
     
+    public IList<TagDTO> Tags { get; set; } = [];
 
-    public void ToModel(Place place)
+    public void ToModel(Place place, KoTiDbContext dbContext)
     {
         place.Name = Name;
         place.Alias = Alias;
@@ -62,5 +63,31 @@ public class PlaceRequestDTO
         place.Zoom = Zoom;
         place.IsPrivate = IsPrivate;
         place.Rating = Rating;
+        
+        foreach (var tagDto in Tags)
+        {
+            if (place.Tags.SingleOrDefault(t => t.Id == tagDto.Id) == null)
+            {
+                var newTag = new Tag
+                {
+                    Id = tagDto.Id.GetValueOrDefault(),
+                    Name = tagDto.Name,
+                    IsPrivate = tagDto.IsPrivate
+                };
+                if (tagDto.Id != null)
+                {
+                    dbContext.Attach(newTag);
+                }
+                else
+                {
+                    dbContext.Add(newTag);
+                }
+
+                place.Tags.Add(newTag);
+            } 
+        }
+
+        place.Tags = place.Tags.Where(tagExisting =>
+            tagExisting.Id == 0 || Tags.SingleOrDefault(t => t.Id == tagExisting.Id) != null).ToList();
     }
 }

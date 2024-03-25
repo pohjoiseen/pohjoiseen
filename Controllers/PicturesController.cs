@@ -29,6 +29,7 @@ public class PicturesController : ControllerBase
         var query = _context.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
+            .Include(p => p.Tags)
             .AsQueryable();
 
         query = query.OrderBy(p => p.PhotographedAt);
@@ -78,6 +79,7 @@ public class PicturesController : ControllerBase
         var pictures = await _context.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
+            .Include(p => p.Tags)
             .Where(p => p.PlaceId == placeId)
             .OrderByDescending(p => p.Rating)
             .ThenByDescending(p => p.PhotographedAt)
@@ -93,6 +95,7 @@ public class PicturesController : ControllerBase
         var pictures = await _context.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
+            .Include(p => p.Tags)
             .Where(p => p.Place != null && p.Place.AreaId == areaId)
             .OrderByDescending(p => p.Rating)
             .ThenByDescending(p => p.PhotographedAt)
@@ -108,6 +111,7 @@ public class PicturesController : ControllerBase
         var picture = await _context.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
+            .Include(p => p.Tags)
             .Where(p => p.Id == id)
             .FirstOrDefaultAsync(); 
             
@@ -123,7 +127,10 @@ public class PicturesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutPicture(int id, PictureRequestDTO dto)
     {
-        var picture = await _context.Pictures.FindAsync(id);
+        var picture = await _context.Pictures
+            .Include(p => p.Tags)
+            .Where(p => p.Id == id)
+            .FirstOrDefaultAsync();
         if (picture == null)
         {
             return NotFound();
@@ -134,7 +141,7 @@ public class PicturesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        dto.ToModel(picture);
+        dto.ToModel(picture, _context);
         
         _context.Entry(picture).State = EntityState.Modified;
 
@@ -167,7 +174,7 @@ public class PicturesController : ControllerBase
         }
 
         var picture = new Picture();
-        dto.ToModel(picture);
+        dto.ToModel(picture, _context);
 
         _context.Pictures.Add(picture);
         await _context.SaveChangesAsync();

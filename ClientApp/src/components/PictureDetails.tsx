@@ -13,6 +13,7 @@ import ExploreStatus from '../model/ExploreStatus';
 import Place from '../model/Place';
 import Rating from './Rating';
 import { FormGroup, Label } from 'reactstrap';
+import TagSelector from './TagSelector';
 
 interface PictureDetailsProps {
     picture?: Picture;
@@ -68,7 +69,8 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
             zoom: 0,
             isPrivate: false,
             rating: 0,
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            tags: []
         };
         const place = await createPlaceMutation.mutateAsync(newPlace);
         await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
@@ -169,6 +171,10 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                     >
                         View/Modify place
                     </button>}
+                    <div className="d-flex align-items-center mt-2 mb-2">
+                        <div className="me-2">Tags:</div>
+                        <TagSelector tags={picture.tags} onChange={(tags) => updatePictureMutation.mutate({ ...picture, tags })} />
+                    </div>
                     <p className="small text-muted mt-4">
                         <a target="_blank" href={picture.url}>{picture.filename}</a>
                         &nbsp;&nbsp;&nbsp;

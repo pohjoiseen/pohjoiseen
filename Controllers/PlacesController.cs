@@ -23,6 +23,7 @@ namespace KoTi.Controllers
         {
             // TODO: this is repeated in AreasController.GetPlacesForArea()
             var result  = await _context.Places
+                .Include(p => p.Tags)
                 .GroupJoin(_context.Pictures, p => p.Id, pi => pi.PlaceId, (p, pictures) =>
                     new {
                         place = p,
@@ -46,7 +47,10 @@ namespace KoTi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPlace(int id, PlaceRequestDTO requestDto)
         {
-            var place = await _context.Places.FindAsync(id);
+            var place = await _context.Places
+                .Include(p => p.Tags)
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
             if (place == null)
             {
                 return NotFound();
@@ -57,7 +61,7 @@ namespace KoTi.Controllers
                 return BadRequest(ModelState);
             }
 
-            requestDto.ToModel(place);
+            requestDto.ToModel(place, _context);
             
             _context.Entry(place).State = EntityState.Modified;
 
@@ -90,7 +94,7 @@ namespace KoTi.Controllers
             }
 
             var place = new Place();
-            requestDto.ToModel(place);
+            requestDto.ToModel(place, _context);
             if (place.Order == 0)
             {
                 place.Order = await _context.Places.Where(p => p.AreaId == place.AreaId).CountAsync() + 1;

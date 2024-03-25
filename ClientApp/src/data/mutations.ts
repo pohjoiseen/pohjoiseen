@@ -12,6 +12,8 @@ import Picture from '../model/Picture';
 import { postPicture, putPicture } from '../api/pictures';
 import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
+import Tag from '../model/Tag';
+import { postTag } from '../api/tags';
 
 export const useReorderRegionsMutation = () => {
     const queryClient = useQueryClient();
@@ -101,7 +103,6 @@ export const useUpdateAreaMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (area: Area) => {
-            await putArea(area.id, area);
             area.updatedAt = new Date();
             const areasForRegionData: Area[] | undefined = queryClient.getQueryData([QueryKeys.AREAS_FOR_REGION, area.regionId]);
             if (areasForRegionData) {
@@ -109,6 +110,7 @@ export const useUpdateAreaMutation = () => {
             } else {
                 await queryClient.invalidateQueries([QueryKeys.AREAS_FOR_REGION, area.regionId]);
             }
+            await putArea(area.id, area);
         }
     });
 };
@@ -166,7 +168,6 @@ export const useUpdatePlaceMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (place: Place) => {
-            await putPlace(place.id, place);
             place.updatedAt = new Date();
             const placesForAreaData: Place[] | undefined = queryClient.getQueryData([QueryKeys.PLACES_FOR_AREA, place.areaId]);
             if (placesForAreaData) {
@@ -174,6 +175,7 @@ export const useUpdatePlaceMutation = () => {
             } else {
                 await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, place.areaId]);
             }
+            await putPlace(place.id, place);
         }
     });
 };
@@ -227,9 +229,9 @@ export const useUpdatePictureMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (picture: Picture) => {
+            queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
             await putPicture(picture.id!, picture);
             picture.updatedAt = new Date();
-            queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
             // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
             // but we don't attempt to track that, in fact IMHO it would only lead to worse UX
         }
@@ -283,4 +285,15 @@ export const useMovePicturesToPictureSetMutation = () => {
             await queryClient.invalidateQueries([QueryKeys.PICTURES]);
         }
     });
+};
+
+export const useCreateTagMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (tag: Tag) => {
+            tag = await postTag(tag);
+            await queryClient.invalidateQueries([QueryKeys.TAGS]);
+            return tag;
+        },
+    })
 };

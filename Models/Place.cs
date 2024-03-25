@@ -47,6 +47,8 @@ public class Place
     public int Rating { get; set; }
     
     public DateTime UpdatedAt { get; set; }
-    
-    public IList<Picture> Pictures { get; set; }
+
+    public IList<Picture> Pictures { get; } = [];
+
+    public IList<Tag> Tags { get; set; } = [];
 }

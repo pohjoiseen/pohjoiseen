@@ -92,6 +92,7 @@ const PicturesUpload = () => {
             isPrivate: false,
             rating: 0,
             updatedAt: new Date(),
+            tags: []
         };
         
         // add to picture list

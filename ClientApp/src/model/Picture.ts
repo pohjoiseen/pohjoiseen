@@ -1,4 +1,6 @@
-﻿interface Picture {
+﻿import Tag from './Tag';
+
+interface Picture {
     id: number | null;
     filename: string;
     hash?: string;
@@ -31,6 +33,8 @@
     lng: number | null;  // longitude from EXIF, if available
     
     updatedAt: Date;
+    
+    tags: Tag[];
     
     // Client-only fields
     blob?: File | undefined;  // used before the file is uploaded

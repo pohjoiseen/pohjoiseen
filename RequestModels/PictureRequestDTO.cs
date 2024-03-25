@@ -25,8 +25,9 @@ public class PictureRequestDTO
     [Required] public bool IsPrivate { get; set; }
     [Required] public int Rating { get; set; }
     public int? SetId { get; set; }
+    public IList<TagDTO> Tags { get; set; } = [];
 
-    public void ToModel(Picture picture)
+    public void ToModel(Picture picture, KoTiDbContext dbContext)
     {
         picture.Filename = Filename;
         picture.Hash = Hash;
@@ -48,5 +49,31 @@ public class PictureRequestDTO
         picture.IsPrivate = IsPrivate;
         picture.Rating = Rating;
         picture.SetId = SetId;
+        
+        foreach (var tagDto in Tags)
+        {
+            if (picture.Tags.SingleOrDefault(t => t.Id == tagDto.Id) == null)
+            {
+                var newTag = new Tag
+                {
+                    Id = tagDto.Id.GetValueOrDefault(),
+                    Name = tagDto.Name,
+                    IsPrivate = tagDto.IsPrivate
+                };
+                if (tagDto.Id != null)
+                {
+                    dbContext.Attach(newTag);
+                }
+                else
+                {
+                    dbContext.Add(newTag);
+                }
+
+                picture.Tags.Add(newTag);
+            } 
+        }
+
+        picture.Tags = picture.Tags.Where(tagExisting =>
+            tagExisting.Id == 0 || Tags.SingleOrDefault(t => t.Id == tagExisting.Id) != null).ToList();
     }
 }

@@ -28,6 +28,7 @@ public class PictureResponseDTO
     public int? SetId { get; set; }
     public string? SetName { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public IList<Tag> Tags { get; init; } = [];
 
     public static PictureResponseDTO FromModel(Picture picture)
     {
@@ -57,6 +58,7 @@ public class PictureResponseDTO
             SetId = picture.SetId,
             SetName = picture.Set?.Name,
             UpdatedAt = picture.UpdatedAt,
+            Tags = picture.Tags
         };
         return dto;
     }

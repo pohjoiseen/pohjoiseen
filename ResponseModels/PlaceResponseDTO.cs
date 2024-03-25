@@ -24,6 +24,8 @@ public class PlaceResponseDTO
     public int Rating { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string? ThumbnailUrl { get; set; }
+
+    public IList<Tag> Tags { get; init; } = [];
     
     public static PlaceResponseDTO FromModel(Place place, string? thumbnailUrl)
     {
@@ -47,6 +49,7 @@ public class PlaceResponseDTO
             IsPrivate = place.IsPrivate,
             Rating = place.Rating,
             UpdatedAt = place.UpdatedAt,
+            Tags = place.Tags,
             ThumbnailUrl = thumbnailUrl,
         };
         return dto;

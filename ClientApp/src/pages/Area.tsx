@@ -174,12 +174,12 @@ const AreaPage = () => {
             }}>Delete</Button>
         </NavBar>
         <Container>
-            {updateAreaMutation.isError && <Alert color="danger">Updating area: {errorMessage(updateAreaMutation.error)}</Alert>}
-            {deleteAreaMutation.isError && <Alert color="danger">Deleting area: {errorMessage(deleteAreaMutation.error)}</Alert>}
-            {createPlaceMutation.isError && <Alert color="danger">Creating place: {errorMessage(createPlaceMutation.error)}</Alert>}
-            {updatePlaceMutation.isError && <Alert color="danger">Updating place: {errorMessage(updatePlaceMutation.error)}</Alert>}
-            {deletePlaceMutation.isError && <Alert color="danger">Deleting place: {errorMessage(deletePlaceMutation.error)}</Alert>}
-            {reorderPlacesMutation.isError && <Alert color="danger">Reordering places: {errorMessage(reorderPlacesMutation.error)}</Alert>}
+            {updateAreaMutation.isError && <Alert color="danger" className="alert-fixed">Updating area: {errorMessage(updateAreaMutation.error)}</Alert>}
+            {deleteAreaMutation.isError && <Alert color="danger" className="alert-fixed">Deleting area: {errorMessage(deleteAreaMutation.error)}</Alert>}
+            {createPlaceMutation.isError && <Alert color="danger" className="alert-fixed">Creating place: {errorMessage(createPlaceMutation.error)}</Alert>}
+            {updatePlaceMutation.isError && <Alert color="danger" className="alert-fixed">Updating place: {errorMessage(updatePlaceMutation.error)}</Alert>}
+            {deletePlaceMutation.isError && <Alert color="danger" className="alert-fixed">Deleting place: {errorMessage(deletePlaceMutation.error)}</Alert>}
+            {reorderPlacesMutation.isError && <Alert color="danger" className="alert-fixed">Reordering places: {errorMessage(reorderPlacesMutation.error)}</Alert>}
             <MapPointPicker
                 mapType={country.mapType}
                 lat={area.lat}
@@ -261,6 +261,7 @@ const AreaPage = () => {
                     id: 0,
                     areaId,
                     name: '',
+                    alias: '',
                     category: PlaceCategory.Default,
                     exploreStatus: ExploreStatus.None,
                     notes: '',
@@ -275,6 +276,7 @@ const AreaPage = () => {
                     isPrivate: false,
                     rating: 0,
                     updatedAt: new Date(),
+                    tags: []
                 } as Place}
                 title="Add place"
                 onClose={() => setAddPlaceModalOpen(false)}

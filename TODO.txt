@@ -1,9 +1,19 @@
 ﻿Remaining For 1.0:
 
-* Tags for pictures
+* Tag list page
+* Coordinates for pictures
 * Picture deletion
 * More information in fullscreen mode
-* Add picture search filters: country, region, rating, private, category, date (from/to)
+* Add picture search filters: country, region, rating, private, category, date (from/to), tags
 * Fix glitchy search in autocomplete
-* If possible: fix changes sometimes lost from inputs on blur
-* Add whatever is needed to allow the option to run this as an app
+* Check that it is possible to use "install an app" option in Edge
+* Edit place popup doesn't get shaded or get lock icon if you click "Private", doesn't have rating control
+* Do not actually submit Editables on blur, as long as the content was not changed
+* Add thumbnails to search results
+* Fix various spinner sizes
+* New categories: street
+* Page title
+* Invalidate search results cache as appropriate, at the very least on place search for autocomplete
+* Warn when leaving the upload page
+* Allow copying the picture from fullscreen mode with Ctrl-C 
+* Fix all build warnings both on backend and frontend

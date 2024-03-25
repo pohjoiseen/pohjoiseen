@@ -51,4 +51,6 @@ public class Picture
     public PictureSet? Set { get; set; }
     
     public DateTime UpdatedAt { get; set; }
+    
+    public IList<Tag> Tags { get; set; } = [];
 }

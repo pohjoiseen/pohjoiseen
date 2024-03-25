@@ -1,5 +1,6 @@
 ﻿import ExploreStatus from './ExploreStatus';
 import { PlaceCategory } from './PlaceCategory';
+import Tag from './Tag';
 
 interface Place {
     id: number;
@@ -21,6 +22,7 @@ interface Place {
     rating: number;
     updatedAt: Date;
     thumbnailUrl?: string;
+    tags: Tag[];
 }
 
 export default Place;

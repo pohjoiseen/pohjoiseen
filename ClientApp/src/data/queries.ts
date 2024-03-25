@@ -9,6 +9,7 @@ import Picture from '../model/Picture';
 import PictureSet from '../model/PictureSet';
 import { getPictureSet, getPictureSets } from '../api/pictureSets';
 import { getStats } from '../api/home';
+import { getTags } from '../api/tags';
 
 export enum QueryKeys {
     STATS = 'stats',
@@ -22,6 +23,7 @@ export enum QueryKeys {
     PICTURES_FOR_AREA = 'picturesForArea',
     SETS = 'sets',
     SEARCH = 'search',
+    TAGS = 'tags',
 }
 
 export const PICTURE_PREVIEW_NUMBER = 10;
@@ -150,4 +152,9 @@ export const useSearchQuery = (options: SearchOptions) => useQuery({
         }
         return await search(options)
     }
+});
+
+export const useTagsQuery = (q: string) => useQuery({
+    queryKey: [QueryKeys.TAGS, q],
+    queryFn: () => q ? getTags(q) : []
 });
