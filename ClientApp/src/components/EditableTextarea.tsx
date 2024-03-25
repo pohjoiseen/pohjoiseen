@@ -103,7 +103,9 @@ const EditableTextareaForm = ({ value, onSubmit, inputClassName, titleString, va
 
     const onValid = (values: { value: string }) => {
         editableContext.onEndEdit();
-        onSubmit(values.value);
+        if (values.value !== value) {
+            onSubmit(values.value);
+        }
     }
 
     return <form onSubmit={handleSubmit(onValid)} className="w-100">

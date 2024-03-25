@@ -324,6 +324,11 @@ header {
   object-fit: contain;
 }
 
+.picture-fullscreen img:focus {
+  outline: none;
+}
+
+
 /* Picture overlay */
 
 .picture-upload-overlay {

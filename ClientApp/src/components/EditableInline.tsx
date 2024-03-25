@@ -83,7 +83,9 @@ const EditableInlineForm = ({ value, onSubmit, inputClassName, validation }: Edi
     
     const onValid = (values: { value: string }) => {
         editableContext.onEndEdit();
-        onSubmit(values.value);
+        if (values.value !== value) {
+            onSubmit(values.value);
+        }
     }
     
     return <form onSubmit={handleSubmit(onValid)}>

@@ -159,6 +159,9 @@ export const useCreatePlaceMutation = () => {
             } else {
                 await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, place.areaId]);
             }
+            // mostly to make sure place autocomplete in picture details does not get stuck with old results
+            // when a place is created/edited inline
+            await queryClient.invalidateQueries([QueryKeys.SEARCH]);
             return place;
         },
     });
@@ -175,6 +178,9 @@ export const useUpdatePlaceMutation = () => {
             } else {
                 await queryClient.invalidateQueries([QueryKeys.PLACES_FOR_AREA, place.areaId]);
             }
+            // mostly to make sure place autocomplete in picture details does not get stuck with old results
+            // when a place is created/edited inline
+            await queryClient.invalidateQueries([QueryKeys.SEARCH]);
             await putPlace(place.id, place);
         }
     });
@@ -229,9 +235,9 @@ export const useUpdatePictureMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (picture: Picture) => {
+            picture.updatedAt = new Date();
             queryClient.setQueryData([QueryKeys.PICTURE, picture.id], picture);
             await putPicture(picture.id!, picture);
-            picture.updatedAt = new Date();
             // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
             // but we don't attempt to track that, in fact IMHO it would only lead to worse UX
         }

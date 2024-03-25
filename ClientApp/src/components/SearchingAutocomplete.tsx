@@ -15,11 +15,25 @@ interface SearchingAutocompleteProps {
     onAddNew?: (title: string) => void;
 }
 
+// transform an arbitrary search string to something SQLite full-text search engine will not choke on
+// This is really more of a backend task, but then we want the search endpoint to actually accept raw SQLite
+// full-text search query syntax (which we use for search on the main page), so we just do the preprocessing
+// in autocompletes.  We remove all non-alphanumeric characters (Unicode-awarely, and replacing them with whitespace)
+// and slap an * at the end of the query, if it doesn't already end in a space
+const searchStringToSQLiteQuery = (q: string) => {
+    q = q.trimStart();
+    q = q.replaceAll(/[^\d\p{L}]+/ug, ' ');
+    if (q.length && !q.endsWith(' ')) {
+        q += '*';
+    }
+    return q;
+};
+
 export const SearchingAutocomplete = ({ id, title, placeholder, table, addNewText, onSelect, onAddNew, inEditableContext }:
                                           SearchingAutocompleteProps & { inEditableContext?: boolean }) => {
     const [searchString, setSearchString] = useState('');
     const searchQuery = useSearchQuery({
-        q: searchString ? searchString.trim() + '*' : '',
+        q: searchStringToSQLiteQuery(searchString),
         tables: table
     });
     
