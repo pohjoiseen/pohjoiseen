@@ -111,7 +111,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                     <h5 className="mb-4">
                         <i className="text-muted">{picture.filename}</i><br/>
                         {/* TODO: locale should probably not be hardcoded */}
-                        {picture.photographedAt.toLocaleDateString('fi')}<br/>
+                        <span title={picture.photographedAt.toLocaleString('fi')}>{picture.photographedAt.toLocaleDateString('fi')}</span><br/>
                     </h5>
                     <p className="small text-muted">
                         {picture.width}x{picture.height}
@@ -132,7 +132,9 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         inputClassName="fs-5 p-0 lh-1"
                     />
                     {/* TODO: locale should probably not be hardcoded */}
-                    <h5 title={'Uploaded: ' + (picture.uploadedAt ? picture.uploadedAt.toLocaleDateString('fi') : 'not yet')}>{picture.photographedAt.toLocaleDateString('fi')}</h5>
+                    <h5 title={`Created: ${picture.photographedAt.toLocaleString('fi')}; uploaded: ${picture.uploadedAt ? picture.uploadedAt.toLocaleString('fi') : 'not yet'}`}>
+                        {picture.photographedAt.toLocaleDateString('fi')}
+                    </h5>
                     <div className="d-flex mb-2">
                         <Rating value={picture.rating} onChange={(value) => updatePictureMutation.mutate({ ...picture, rating: value })} />
                         <FormGroup check inline className="ms-4">
