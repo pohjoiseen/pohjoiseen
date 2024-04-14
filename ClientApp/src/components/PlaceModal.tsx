@@ -16,6 +16,7 @@ import PlaceCategoryIndicator from './PlaceCategoryIndicator';
 import EditableInline from './EditableInline';
 import { EditableHandle } from './Editable';
 import { Link } from 'react-router-dom';
+import Rating from './Rating';
 
 interface PlaceModalProps {
     id: number;
@@ -63,9 +64,9 @@ const PlaceModal = ({ id, onSave, onClose }: PlaceModalProps) => {
     // render part is basically a simplified version of PlaceComponent
     return (
         <Modal isOpen={true} toggle={doClose} className="modal-wide">
-            <ModalHeader toggle={doClose} tag="div">
+            <ModalHeader toggle={doClose} tag="div" className="modal-header-w100">
                 {place && <>
-                    <div className="d-flex align-items-center">
+                    <div className="d-flex align-items-center w-100">
                         <ExploreStatusIndicator
                             status={place.exploreStatus}
                             onChange={(status) => updatePlaceMutation.mutate({ ...place, exploreStatus: status })}
@@ -95,12 +96,20 @@ const PlaceModal = ({ id, onSave, onClose }: PlaceModalProps) => {
                         <h5 className="m-0">(
                             <Link to={`/country/${countryRef.current?.id}/region/${areaRef.current?.regionId}/area/${areaRef.current?.id}`}>{areaRef.current?.name}</Link>
                         )</h5>
+                        {place.isPrivate && <i className="bi bi-shield-lock ms-2" />}
+                        <div className="flex-grow-1" />
+                        <Rating
+                            className="me-3"
+                            value={place.rating}
+                            onChange={(value) => updatePlaceMutation.mutate({ ...place, rating: value })}
+                        />
                     </div>
                 </>}
                 {!place && 'Edit place'}
             </ModalHeader>
-            <ModalBody>
-                {(isLoading || placesForArea.isLoading) && <h3 className="text-center"><Spinner type="grow" size="sm"/> Loading...</h3>}
+            <ModalBody className={place && place.isPrivate ? 'is-private' : ''}>
+                {(isLoading || placesForArea.isLoading) &&
+                    <h3 className="text-center"><Spinner type="grow" size="sm"/> Loading...</h3>}
                 {loadingError && <Alert color="danger">Loading data for places: {loadingError}</Alert>}
                 {placesForArea.isError &&
                     <Alert color="danger">Loading places: {errorMessage(placesForArea.error)}</Alert>}

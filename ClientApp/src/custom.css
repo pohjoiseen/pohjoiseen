@@ -382,6 +382,10 @@ header {
   max-width: 100%;
 }
 
+.modal-header-w100 > .modal-title {
+  width: 100%;
+}
+
 /* Private/draft */
 
 .is-private {

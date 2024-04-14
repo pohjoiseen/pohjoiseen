@@ -1,6 +1,5 @@
 ﻿Remaining For 1.0:
 
-* Edit place popup doesn't get shaded or get lock icon if you click "Private", doesn't have rating control
 * Page title
 * Tag list page
 * Add picture search filters: country, region, rating, private, category, date (from/to), tags
@@ -13,4 +12,5 @@
 * Check that it is possible to use "install an app" option in Edge
 * Fix various spinner sizes
 * Warn when leaving the upload page
+* Place autocomplete z-index issue in picture details when isPrivate=true
 * Fix all build warnings both on backend and frontend
