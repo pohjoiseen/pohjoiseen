@@ -25,11 +25,17 @@ public class PicturesController : ControllerBase
         [FromQuery] int limit,
         [FromQuery] int offset,
         [FromQuery] int? setId,
+        [FromQuery] int? countryId,
+        [FromQuery] int? regionId,
         [FromQuery] int? placeId,
-        [FromQuery] int? areaId)
+        [FromQuery] int? areaId,
+        [FromQuery(Name = "tagIds")] IList<int>? tagIds,
+        [FromQuery] int? minRating)
     {
         var query = _context.Pictures
             .Include(p => p.Place)
+            .ThenInclude(pl => pl!.Area)
+            .ThenInclude(a => a.Region)
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .AsQueryable();
@@ -55,6 +61,29 @@ public class PicturesController : ControllerBase
         if (areaId != null)
         {
             query = query.Where(p => p.Place != null && p.Place.AreaId == areaId);
+        }
+
+        if (regionId != null)
+        {
+            query = query.Where(p => p.Place != null && p.Place.Area.RegionId == regionId);
+        }
+
+        if (countryId != null)
+        {
+            query = query.Where(p => p.Place != null && p.Place.Area.Region.CountryId == countryId);
+        }
+
+        if (minRating != null)
+        {
+            query = query.Where(p => p.Rating >= minRating);
+        }
+
+        if (tagIds != null)
+        {
+            foreach (var tagId in tagIds)
+            {
+                query = query.Where(p => p.Tags.Any(t => t.Id == tagId));
+            }
         }
 
         var queryPaginated = query;

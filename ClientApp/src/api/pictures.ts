@@ -8,6 +8,10 @@ export interface GetPicturesOptions {
     setId?: number;
     placeId?: number;
     areaId?: number;
+    regionId?: number;
+    countryId?: number;
+    tagIds?: number[];
+    minRating?: number;
     limit?: number;
     offset?: number;
 }
@@ -22,6 +26,18 @@ export const getPictures = async (options: GetPicturesOptions): Promise<ListWith
     }
     if (options.areaId) {
         params['areaId'] = options.areaId;
+    }
+    if (options.regionId) {
+        params['regionId'] = options.regionId;
+    }
+    if (options.countryId) {
+        params['countryId'] = options.countryId;
+    }
+    if (options.tagIds) {
+        params['tagIds'] = options.tagIds;
+    }
+    if (options.minRating) {
+        params['minRating'] = options.minRating;
     }
     if (options.limit) {
         params['limit'] = options.limit;

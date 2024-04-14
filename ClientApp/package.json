@@ -1,6 +1,6 @@
 {
   "name": "koti",
-  "version": "0.99",
+  "version": "0.99.1",
   "private": true,
   "dependencies": {
     "@tanstack/react-query": "^4.32.0",

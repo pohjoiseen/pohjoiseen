@@ -36,6 +36,7 @@ import ViewModeSwitcher from '../components/ViewModeSwitcher';
 import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
 import { confirmModal } from '../components/ModalContainer';
 import useTitle from '../hooks/useTitle';
+import Tag from '../model/Tag';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -49,7 +50,9 @@ const QUERY_PARAMS = {
     SET_ID: 'folderId',
     OBJECT_TABLE: 'objectTable',
     OBJECT_ID: 'objectId',
-    OBJECT_NAME: 'objectName'
+    OBJECT_NAME: 'objectName',
+    TAGS: 'tags',
+    MIN_RATING: 'minRating'
 }
 
 const Pictures = ({ sets }: { sets: boolean }) => {
@@ -72,6 +75,17 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const objectIdString = searchParams.get(QUERY_PARAMS.OBJECT_ID);
     const objectId = objectIdString ? parseInt(objectIdString) : null;
     const objectName = searchParams.get(QUERY_PARAMS.OBJECT_NAME);
+    const tagsStr = searchParams.get(QUERY_PARAMS.TAGS);
+    let tags: Tag[] = [];
+    if (tagsStr) {
+        try {
+            tags = JSON.parse(tagsStr);
+        } catch (e) {
+            tags = [];
+        }
+    }
+    const minRatingStr = searchParams.get(QUERY_PARAMS.MIN_RATING);
+    const minRating = minRatingStr ? parseInt(minRatingStr) : 0;
     
     const setObjectFilter = useCallback((table: string, id: number | null, name: string | null) => {
         setSearchParams((params) => {
@@ -88,6 +102,28 @@ const Pictures = ({ sets }: { sets: boolean }) => {
         });
     }, [setSearchParams]);
     
+    const setTags = useCallback((tags: Tag[]) => {
+        setSearchParams((params) => {
+            if (tags.length) {
+                params.set(QUERY_PARAMS.TAGS, JSON.stringify(tags));
+            } else {
+                params.delete(QUERY_PARAMS.TAGS);
+            }
+            return params;
+        });
+    }, [searchParams]);
+    
+    const setMinRating = useCallback((minRating: number) => {
+        setSearchParams((params) => {
+            if (minRating > 0) {
+                params.set(QUERY_PARAMS.MIN_RATING, minRating.toString());
+            } else {
+                params.delete(QUERY_PARAMS.MIN_RATING);
+            }
+            return params;
+        })
+    }, [searchParams]);
+    
     // pictures list
     const pageSize = PAGE_SIZES[viewMode];
     const offset = page * pageSize;
@@ -95,6 +131,10 @@ const Pictures = ({ sets }: { sets: boolean }) => {
         limit: pageSize,
         placeId: objectTable === 'Places' && objectId ? objectId : undefined,
         areaId: objectTable === 'Areas' && objectId ? objectId : undefined,
+        regionId: objectTable === 'Regions' && objectId ? objectId : undefined,
+        countryId: objectTable === 'Countries' && objectId ? objectId : undefined,
+        tagIds: tags.length ? tags.map(t => t.id) : undefined,
+        minRating: minRating || undefined,
         offset
     };
     if (typeof setId === 'number') {
@@ -332,7 +372,11 @@ const Pictures = ({ sets }: { sets: boolean }) => {
                 objectTable={objectTable}
                 objectId={objectId}
                 objectName={objectName} 
+                tags={tags}
+                minRating={minRating}
                 onSetObject={setObjectFilter}
+                onSetTags={setTags}
+                onSetRating={setMinRating}
             />}
             {picturesQuery.isLoading && !picturesQuery.isSuccess && <h3 className="text-center">
                 <Spinner type="grow" /> Loading pictures...
