@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using KoTi.RequestModels;
 using KoTi.Models;
+using KoTi.ResponseModels;
 
 namespace KoTi.Controllers;
 
@@ -18,18 +19,18 @@ public class PictureSetsController : ControllerBase
 
     // GET: api/PictureSets
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PictureSet>>> GetPictureSets()
+    public async Task<ActionResult<IEnumerable<PictureSetResponseDTO>>> GetPictureSets()
     {
-        return await _context.PictureSets
+        var pictureSets = await _context.PictureSets
             .Where(ps => ps.ParentId == null)
             .OrderBy(p => p.Name)
             .ToListAsync();
+        return Ok(await CreateResponseWithThumbnails(pictureSets));
     }
-
     
     // GET: api/PictureSets/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<PictureSet>> GetPictureSet(int id)
+    public async Task<ActionResult<PictureSetResponseDTO>> GetPictureSet(int id)
     {
         var pictureSet = await _context.PictureSets
             .Include(ps => ps.Children)
@@ -41,12 +42,13 @@ public class PictureSetsController : ControllerBase
             return NotFound();
         }
 
-        return pictureSet;
+        return PictureSetResponseDTO.FromModel(pictureSet, new List<string>(),
+            await CreateResponseWithThumbnails(pictureSet.Children));
     }
 
     // PUT: api/PictureSets/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutPictureSet(int id, PictureSetDTO dto)
+    public async Task<IActionResult> PutPictureSet(int id, PictureSetRequestDTO dto)
     {
         var pictureSet = await _context.PictureSets.FindAsync(id);
         if (pictureSet == null)
@@ -84,7 +86,7 @@ public class PictureSetsController : ControllerBase
 
     // POST: api/PictureSets
     [HttpPost]
-    public async Task<ActionResult<PictureSet>> PostPictureSet(PictureSetDTO dto)
+    public async Task<ActionResult<PictureSet>> PostPictureSet(PictureSetRequestDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -160,5 +162,31 @@ public class PictureSetsController : ControllerBase
     private bool PictureSetExists(int id)
     {
         return (_context.PictureSets?.Any(e => e.Id == id)).GetValueOrDefault();
+    }
+
+    private async Task<IEnumerable<PictureSetResponseDTO>> CreateResponseWithThumbnails(IEnumerable<PictureSet> pictureSets)
+    {
+        // N+1 queries, but should be alright with SQLite?
+        // otherwise would need to drop into fully raw SQL
+        // with something like:
+        // SELECT ps.*, ps.Name, GROUP_CONCAT(x.ThumbnailUrl)
+        // FROM PictureSets ps
+        //   LEFT JOIN (
+        //   SELECT p.SetId, p.ThumbnailUrl,
+        //   row_number() OVER (PARTITION BY p.SetId ORDER BY p.Rating DESC, p.PhotographedAt DESC) AS rown
+        //   FROM Pictures p) x
+        // ON x.SetId = ps.Id AND x.rown <= 4
+        // GROUP BY ps.Id, ps.Name 
+        return await Task.WhenAll(pictureSets.Select(async ps =>
+        {
+            var thumbnailUrls = await _context.Pictures
+                .Where(p => p.SetId == ps.Id)
+                .OrderByDescending(p => p.Rating)
+                .ThenByDescending(p => p.PhotographedAt)
+                .Select(p => p.ThumbnailUrl)
+                .Take(4)
+                .ToListAsync();
+            return PictureSetResponseDTO.FromModel(ps, thumbnailUrls);
+        }));
     }
 }

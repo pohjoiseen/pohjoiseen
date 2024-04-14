@@ -4,4 +4,5 @@
     isPrivate: boolean;
     parentId: number | null;
     children?: PictureSet[];
+    thumbnailUrls: string[];
 }

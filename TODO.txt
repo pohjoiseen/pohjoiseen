@@ -1,10 +1,9 @@
 ﻿Remaining For 1.0:
 
-* Better folder view
 * Better category selection
 * Override date for pictures and do not crash on missing date
 * Make it possible to middleclick on pictures in place/area and on place in picture details to open in new page
-* New place category: sports, beach, water tower
+* New place category: sports, beach, water tower, airport, cottage
 * Tag list page
 * Coordinates for pictures
 * Picture deletion
@@ -18,5 +17,4 @@
 * Fix various spinner sizes
 * Page title
 * Warn when leaving the upload page
-* Nicer folder list, make Ctrl-Up go up level in folder view
 * Fix all build warnings both on backend and frontend

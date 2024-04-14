@@ -407,3 +407,20 @@ header {
 .picture-details-wrapper {
   height: fit-content;
 }
+
+.picture-set-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.picture-set-thumbnails > a {
+  display: block;
+  width: 50%;
+  aspect-ratio: 1 / 1;
+}
+
+.picture-set-thumbnails > a > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -129,6 +129,7 @@ export const usePictureSetQuery = (id: number | null) => useQuery({
                 isPrivate: false,
                 parentId: null,
                 children: [],
+                thumbnailUrls: []
             };
         } 
         if (!id) {
@@ -137,7 +138,8 @@ export const usePictureSetQuery = (id: number | null) => useQuery({
                 name: '<Root>',
                 isPrivate: false,
                 parentId: null,
-                children: await getPictureSets()
+                children: await getPictureSets(),
+                thumbnailUrls: []
             };
         }
         return await getPictureSet(id);
