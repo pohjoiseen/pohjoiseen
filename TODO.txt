@@ -1,6 +1,5 @@
 ﻿Remaining For 1.0:
 
-* Page title
 * Tag list page
 * Add picture search filters: country, region, rating, private, category, date (from/to), tags
 * Add thumbnails to search results

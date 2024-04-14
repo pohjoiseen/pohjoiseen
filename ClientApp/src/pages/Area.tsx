@@ -33,6 +33,7 @@ import MapPointPicker from '../components/MapPointPicker';
 import PlaceComponent from '../components/PlaceComponent';
 import PicturesList from '../components/PicturesList';
 import { PicturesViewMode } from '../components/pictureViewCommon';
+import useTitle from '../hooks/useTitle';
 
 const AreaPage = () => {
     // country/region id from route
@@ -96,11 +97,9 @@ const AreaPage = () => {
     const placesFilterInputRef = useRef<HTMLInputElement>(null);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     useLayoutEffect(() => {
-        console.log('placeIdOpen = ', placeIdOpen, '; alreadyScrolled = ', alreadyScrolled, '; area = ', area, '; places.data = ', places.data, '; filter = ', filter, '; ref = ', placesFilterInputRef.current);
         if (!placeIdOpen || alreadyScrolled || !area || !places.data) {
             return;
         }
-        console.log('running effect');
         if (!filter) {
             const place = places.data.find(p => p.id.toString() === placeIdOpen);
             if (place) {
@@ -109,6 +108,8 @@ const AreaPage = () => {
         }
         requestAnimationFrame(() => placesFilterInputRef.current?.scrollIntoView());
     }, [setAlreadyScrolled, placeIdOpen, area, places.data, alreadyScrolled]);
+
+    useTitle(() => area ? area.name : false, [area]);
 
     /// loading/error messages ///
 

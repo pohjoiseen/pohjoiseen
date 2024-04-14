@@ -8,6 +8,7 @@ import SearchString from '../components/SearchString';
 import { useSearchQuery } from '../data/queries';
 import Paginator from '../components/Paginator';
 import { getUrl, SEARCHABLE_TABLES_NAMES } from '../api/search';
+import useTitle from '../hooks/useTitle';
 
 const PAGE_SIZE = 25;
 
@@ -51,6 +52,8 @@ const Search = () => {
         const url = await getUrl(tableName, tableId);
         navigate(url);
     };
+    
+    useTitle(() => query ? `Search: '${query}'` : 'Search', [query]);
 
     return <div>
         <NavBar>

@@ -9,6 +9,7 @@ import NavBar from '../components/NavBar';
 import { useCountriesQuery, useRegionsQuery } from '../data/queries';
 import { useCreateRegionMutation, useReorderRegionsMutation } from '../data/mutations';
 import RegionCard from '../components/RegionCard';
+import useTitle from '../hooks/useTitle';
 
 const Country = () => {
     const countryId = parseInt(useParams()['countryId']!);
@@ -22,6 +23,8 @@ const Country = () => {
 
     const createRegionMutation = useCreateRegionMutation();
     const reorderRegionsMutation = useReorderRegionsMutation();
+    
+    useTitle(() => country ? `${country.flagEmoji} ${country.name}` : false, [country]);
     
     if (countries.isError) {
         return <Alert color="danger">Loading countries: {errorMessage(countries.error)}</Alert>;

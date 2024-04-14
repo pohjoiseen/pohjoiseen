@@ -13,6 +13,7 @@ import PictureFullscreen from '../components/PictureFullscreen';
 import { useCreatePictureMutation } from '../data/mutations';
 import ViewModeSwitcher from '../components/ViewModeSwitcher';
 import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
+import useTitle from '../hooks/useTitle';
 
 const UPLOAD_IDLE = -1;
 const UPLOAD_ERROR = -2;
@@ -262,6 +263,8 @@ const PicturesUpload = () => {
 
     const [selection, setSelection] = useState<boolean[]>([]);
 
+    useTitle('Upload');
+    
     /// render ///
     
     return <div>

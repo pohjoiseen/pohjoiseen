@@ -6,11 +6,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { useCountriesQuery, useStatsQuery } from '../data/queries';
 import SearchString from '../components/SearchString';
+import useTitle from '../hooks/useTitle';
 
 const Home = () => {
     const stats = useStatsQuery();
     const countries = useCountriesQuery();
     const navigate = useNavigate();
+    
+    useTitle();
 
     const search = (query: string, tables: string) => {
         navigate('/search?' + qs.stringify({ q: query, tables }));

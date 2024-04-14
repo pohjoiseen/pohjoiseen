@@ -13,6 +13,7 @@ import { getPlace } from '../api/places';
 import { getArea } from '../api/areas';
 import { getRegion } from '../api/regions';
 import { getCountry } from '../api/countries';
+import useTitle from '../hooks/useTitle';
 
 const PlaceRedirect = () => {
     const placeId = parseInt(useParams()['placeId']!);
@@ -36,6 +37,8 @@ const PlaceRedirect = () => {
             }
         })();
     }, []);
+    
+    useTitle(() => error || false, [error]);
 
     return <div>
         <NavBar>

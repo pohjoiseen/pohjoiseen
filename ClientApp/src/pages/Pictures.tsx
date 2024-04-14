@@ -35,6 +35,7 @@ import PictureFilters from '../components/PictureFilters';
 import ViewModeSwitcher from '../components/ViewModeSwitcher';
 import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
 import { confirmModal } from '../components/ModalContainer';
+import useTitle from '../hooks/useTitle';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -272,6 +273,20 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             deletePicturesMutation.mutate(ids);
         }
     }, [selection, numSelected]);
+    
+    /// page title ///
+    
+    useTitle(() => {
+       if (sets && pictureSetQuery.data) {
+           return pictureSetQuery.data.id ? pictureSetQuery.data.name : 'Pictures by folder';
+       } else if (picturesQuery.data) {
+           return `Pictures (${picturesQuery.data.total})`; 
+       } else if (picturesQuery.isLoading) {
+           return false;
+       } else {
+           return undefined;
+       }
+    }, [pictureSetQuery.data, picturesQuery.data, picturesQuery.isLoading]);
     
     /// render ///
     

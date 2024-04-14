@@ -18,6 +18,7 @@ import {
 } from '../data/mutations';
 import CreateModal from '../components/CreateModal';
 import AreaCard from '../components/AreaCard';
+import useTitle from '../hooks/useTitle';
 
 const RegionPage = () => {
     // country/region id from route
@@ -49,7 +50,9 @@ const RegionPage = () => {
     const createAreaMutation = useCreateAreaMutation();
     const updateAreaMutation = useUpdateAreaMutation();
     const reorderAreasMutation = useReorderAreasMutation();
-    
+
+    useTitle(() => region ? region.name : false, [region]);
+
     /// loading/error messages ///
     
     // do not show anything unless all loaded
