@@ -25,6 +25,7 @@ interface PicturesListProps {
     pictures: (Picture | number)[];
     currentIndex: number;
     selection: boolean[];
+    link?: string;
     onOpen: (index: number) => void;
     onRetryUpload?: (index: number) => void;
     onSetSelection: (selection: boolean[]) => void;
@@ -33,6 +34,7 @@ interface PicturesListProps {
 interface PictureByIdProps {
     id: number;
     isSelected: boolean;
+    link?: string;
     onOpen?: () => void;
     onClick: (ctrlKey: boolean, shiftKey: boolean) => void;
     onRetryUpload: () => void;
@@ -71,20 +73,21 @@ const handleClick = (index: number, lastIndex: number, ctrlKey: boolean, shiftKe
  * @param onClick  Click/Space handler for image
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
  */
-const PictureThumbnailById = ({ id, isSelected, onOpen, onClick, onRetryUpload }: PictureByIdProps) => {
+const PictureThumbnailById = ({ id, isSelected, link, onOpen, onClick, onRetryUpload }: PictureByIdProps) => {
     const pictureQuery = usePictureQuery(id);
     return <PictureThumbnail
         picture={pictureQuery.data}
         isSelected={isSelected}
         isError={pictureQuery.isError}
         isLoading={pictureQuery.isLoading && !pictureQuery.isSuccess}
+        link={link}
         onOpen={onOpen!}
         onClick={onClick}
         onRetryUpload={onRetryUpload}
     />;
 }
 
-const PicturesListThumbnails = ({ pictures, noWrap, showMore, onOpen, onRetryUpload, selection, onSetSelection }: PicturesListProps) => {
+const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRetryUpload, selection, onSetSelection }: PicturesListProps) => {
     const lastIndex = useRef(0);
 
     return <div className={noWrap ? "d-flex overflow-x-auto" : "d-flex flex-wrap"}>
@@ -93,6 +96,7 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, onOpen, onRetryUpl
                 ? <PictureThumbnailById
                     id={p}
                     isSelected={selection[key]}
+                    link={link}
                     onOpen={() => onOpen(key)}
                     onClick={(ctrlKey, shiftKey) => {
                         handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
@@ -103,6 +107,7 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, onOpen, onRetryUpl
                 : <PictureThumbnail
                     picture={p}
                     isSelected={selection[key]}
+                    link={link}
                     onOpen={() => onOpen(key)}
                     onClick={(ctrlKey, shiftKey) => {
                         handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);

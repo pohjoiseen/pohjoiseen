@@ -167,12 +167,16 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                             />
                         </div>
                     </div>
-                    {picture.placeId && onEditPlace && <button
+                    {picture.placeId && onEditPlace && <a
+                        href={'/place/' + picture.placeId}
                         className="btn btn-secondary btn-sm"
-                        onClick={() => onEditPlace(picture.placeId!)}
+                        onClick={(e) => {
+                            onEditPlace(picture.placeId!);
+                            e.preventDefault();
+                        }}
                     >
                         View/Modify place
-                    </button>}
+                    </a>}
                     <div className="d-flex align-items-center mt-2 mb-2">
                         <div className="me-2">Tags:</div>
                         <TagSelector tags={picture.tags} onChange={(tags) => updatePictureMutation.mutate({ ...picture, tags })} />

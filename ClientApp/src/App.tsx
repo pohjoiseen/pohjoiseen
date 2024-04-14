@@ -12,6 +12,7 @@ import Area from './pages/Area';
 import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
 import Search from './pages/Search';
+import PlaceRedirect from './pages/PlaceRedirect';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -31,10 +32,13 @@ const App = () => {
                 <ModalContainer>
                     <Routes>
                         <Route index={true} element={<Home />} />
+                        
                         <Route path="/country/:countryId" element={<Country />} />
                         <Route path="/country/:countryId/region/:regionId" element={<Region />} />
                         <Route path="/country/:countryId/region/:regionId/area/new" element={<Area />} />
                         <Route path="/country/:countryId/region/:regionId/area/:areaId" element={<Area />} />
+                        
+                        <Route path="/place/:placeId" element={<PlaceRedirect />} />
 
                         <Route path="/pictures/all" element={<Pictures sets={false} />} />
                         <Route path="/pictures/folders" element={<Pictures sets={true} />} />

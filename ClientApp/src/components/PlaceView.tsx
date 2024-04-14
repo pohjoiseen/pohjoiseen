@@ -46,20 +46,6 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
     return <>
         {pictures.isError &&
             <Alert color="danger">Loading pictures: {errorMessage(pictures.error)}</Alert>}
-        {pictures && pictures.data && <div className="mb-2">
-            {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
-                      onSetSelection (click) does the same thing as onOpen (double click) */}
-            <PicturesList
-                noWrap
-                showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
-                viewMode={PicturesViewMode.THUMBNAILS}
-                pictures={pictures.data}
-                currentIndex={-1}
-                selection={[]}
-                onOpen={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
-                onSetSelection={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
-            />
-        </div>}
         {isVisible && <MapPointPicker
             mapType={country.mapType}
             lat={place.lat}
@@ -70,6 +56,21 @@ const PlaceView = ({ place, isVisible, country, area, isAddingAlias, onChange, o
             parentZoom={area.zoom}
             onChange={(lat, lng, zoom) => onChange({ ...place, lat, lng, zoom })}
         />}
+        {pictures && pictures.data && <div className="mb-2">
+            {/* TODO: should be possible to open in fullscreen to, but for now just stub out.
+                      onSetSelection (click) does the same thing as onOpen (double click) */}
+            <PicturesList
+                noWrap
+                showMore={pictures.data.length > PICTURE_PREVIEW_NUMBER}
+                viewMode={PicturesViewMode.THUMBNAILS}
+                pictures={pictures.data}
+                currentIndex={-1}
+                selection={[]}
+                link={`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`}
+                onOpen={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
+                onSetSelection={() => navigate(`/pictures/all?objectTable=Places&objectId=${place.id}&objectName=${place.name}`)}
+            />
+        </div>}
         <EditableTextarea
             value={place.notes}
             editableRef={notesRef}

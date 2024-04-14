@@ -60,17 +60,7 @@ public class SearchController : ControllerBase
 
             case "Places":
             {
-                var place = await _context.Places
-                    .Include(p => p.Area)
-                    .Include(p => p.Area.Region)
-                    .Where(p => p.Id == tableId)
-                    .FirstOrDefaultAsync();
-                if (place == null)
-                {
-                    return NotFound();
-                }
-                
-                return $"/country/{place.Area.Region.CountryId}/region/{place.Area.RegionId}/area/{place.AreaId}?place={place.Id}&filter={Uri.EscapeDataString(place.Name)}";
+                return $"/place/{tableId}";
             }
             
             case "Areas":

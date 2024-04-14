@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Accordion, Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../util';
@@ -95,14 +95,20 @@ const AreaPage = () => {
 
     const placesFilterInputRef = useRef<HTMLInputElement>(null);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
-    useEffect(() => {
-        if (!filter || alreadyScrolled) {
+    useLayoutEffect(() => {
+        console.log('placeIdOpen = ', placeIdOpen, '; alreadyScrolled = ', alreadyScrolled, '; area = ', area, '; places.data = ', places.data, '; filter = ', filter, '; ref = ', placesFilterInputRef.current);
+        if (!placeIdOpen || alreadyScrolled || !area || !places.data) {
             return;
         }
-        if (places.data) {
-            placesFilterInputRef.current?.scrollIntoView();
+        console.log('running effect');
+        if (!filter) {
+            const place = places.data.find(p => p.id.toString() === placeIdOpen);
+            if (place) {
+                setFilter(place.name);
+            }
         }
-    }, [setAlreadyScrolled, filter, places, alreadyScrolled]);
+        requestAnimationFrame(() => placesFilterInputRef.current?.scrollIntoView());
+    }, [setAlreadyScrolled, placeIdOpen, area, places.data, alreadyScrolled]);
 
     /// loading/error messages ///
 
@@ -197,6 +203,7 @@ const AreaPage = () => {
                     pictures={pictures.data}
                     currentIndex={-1}
                     selection={[]}
+                    link={`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`}
                     onOpen={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
                     onSetSelection={() => navigate(`/pictures/all?objectTable=Areas&objectId=${area.id}&objectName=${area.name}`)}
                 />
