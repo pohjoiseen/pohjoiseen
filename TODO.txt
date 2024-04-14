@@ -1,9 +1,6 @@
 ﻿Remaining For 1.0:
 
-* Better category selection
 * Override date for pictures and do not crash on missing date
-* Make it possible to middleclick on pictures in place/area and on place in picture details to open in new page
-* New place category: sports, beach, water tower, airport, cottage
 * Tag list page
 * Coordinates for pictures
 * Picture deletion
