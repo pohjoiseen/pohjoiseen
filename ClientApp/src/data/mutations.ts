@@ -9,7 +9,7 @@ import { deleteRegion, postRegion, putRegion, reorderAreasInRegion } from '../ap
 import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas';
 import { deletePlace, postPlace, putPlace } from '../api/places';
 import Picture from '../model/Picture';
-import { postPicture, putPicture } from '../api/pictures';
+import { deletePicture, deletePictures, postPicture, putPicture } from '../api/pictures';
 import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 import Tag from '../model/Tag';
@@ -240,6 +240,28 @@ export const useUpdatePictureMutation = () => {
             await putPicture(picture.id!, picture);
             // changing a picture might invalidate some pictures lists (reordered, picture added or removed from some)
             // but we don't attempt to track that, in fact IMHO it would only lead to worse UX
+        }
+    });
+};
+
+export const useDeletePictureMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (picture: Picture) => {
+            // deleting a picture invalidates all existing picture lists
+            await deletePicture(picture.id!);
+            await queryClient.invalidateQueries({ queryKey: [QueryKeys.PICTURES] });
+        }
+    });
+};
+
+export const useDeletePicturesMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (ids: number[]) => {
+            // deleting a picture invalidates all existing picture lists
+            await deletePictures(ids);
+            await queryClient.invalidateQueries({ queryKey: [QueryKeys.PICTURES] });
         }
     });
 };

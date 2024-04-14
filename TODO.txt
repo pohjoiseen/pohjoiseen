@@ -1,17 +1,16 @@
 ﻿Remaining For 1.0:
 
-* Override date for pictures and do not crash on missing date
-* Tag list page
-* Coordinates for pictures
-* Picture deletion
-* More information in fullscreen mode
-* On upload make it possible to choose/create a folder right away
-* Make the global "updating" spinner flash on picture uploads
-* Add picture search filters: country, region, rating, private, category, date (from/to), tags
-* Check that it is possible to use "install an app" option in Edge
 * Edit place popup doesn't get shaded or get lock icon if you click "Private", doesn't have rating control
-* Add thumbnails to search results
-* Fix various spinner sizes
 * Page title
+* Tag list page
+* Add picture search filters: country, region, rating, private, category, date (from/to), tags
+* Add thumbnails to search results
+* Override date for pictures and do not crash on missing date
+* On upload make it possible to choose/create a folder right away
+* More information in fullscreen mode
+* Coordinates for pictures
+* Make the global "updating" spinner flash on picture uploads
+* Check that it is possible to use "install an app" option in Edge
+* Fix various spinner sizes
 * Warn when leaving the upload page
 * Fix all build warnings both on backend and frontend

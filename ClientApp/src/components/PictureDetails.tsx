@@ -3,7 +3,7 @@ import Picture, { PICTURE_SIZE_DETAILS } from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
 import EditableInline from './EditableInline';
-import { useCreatePlaceMutation, useUpdatePictureMutation } from '../data/mutations';
+import { useCreatePlaceMutation, useDeletePictureMutation, useUpdatePictureMutation } from '../data/mutations';
 import EditableTextarea from './EditableTextarea';
 import { EditableSearchingAutocomplete } from './SearchingAutocomplete';
 import { useCallback, useState } from 'react';
@@ -14,6 +14,7 @@ import Place from '../model/Place';
 import Rating from './Rating';
 import { FormGroup, Label } from 'reactstrap';
 import TagSelector from './TagSelector';
+import { confirmModal } from './ModalContainer';
 
 interface PictureDetailsProps {
     picture?: Picture;
@@ -43,6 +44,7 @@ interface PictureDetailsProps {
  */
 const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlace, onClick, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
     const updatePictureMutation = useUpdatePictureMutation();
+    const deletePictureMutation = useDeletePictureMutation();
     const createPlaceMutation = useCreatePlaceMutation();
     const [showCreatePlaceModal, setCreatePlaceModal] = useState('');
     
@@ -75,6 +77,13 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
         const place = await createPlaceMutation.mutateAsync(newPlace);
         await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
     }, [picture, setCreatePlaceModal, createPlaceMutation, updatePictureMutation]);
+    
+    const doDelete = useCallback(async () => {
+        if (picture && await confirmModal('Really delete this picture?  This operation cannot be reversed.  ' +
+            'Not only picture metadata in database, but also the actual picture file will be deleted.')) {
+            deletePictureMutation.mutate(picture);
+        }
+    }, [picture, deletePictureMutation]);
     
     return (
         <div className="d-flex flex-row mb-2">
@@ -135,7 +144,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                     <h5 title={`Created: ${picture.photographedAt.toLocaleString('fi')}; uploaded: ${picture.uploadedAt ? picture.uploadedAt.toLocaleString('fi') : 'not yet'}`}>
                         {picture.photographedAt.toLocaleDateString('fi')}
                     </h5>
-                    <div className="d-flex mb-2">
+                    <div className="d-flex align-items-center mb-2">
                         <Rating value={picture.rating} onChange={(value) => updatePictureMutation.mutate({ ...picture, rating: value })} />
                         <FormGroup check inline className="ms-4">
                             <input
@@ -147,6 +156,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                             />
                             <Label htmlFor={`picture-is-private-${picture.id}`} check>Private</Label>
                         </FormGroup>
+                        <button className="btn btn-danger btn-sm ms-2" onClick={doDelete}>Delete</button>
                     </div>
                     <EditableTextarea
                         value={picture.description}

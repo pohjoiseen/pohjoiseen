@@ -11,10 +11,12 @@ namespace KoTi.Controllers;
 public class PicturesController : ControllerBase
 {
     private readonly KoTiDbContext _context;
+    private readonly PictureStorage _pictureStorage;
 
-    public PicturesController(KoTiDbContext context)
+    public PicturesController(KoTiDbContext context, PictureStorage pictureStorage)
     {
         _context = context;
+        _pictureStorage = pictureStorage;
     }
     
     // GET: api/Pictures
@@ -195,8 +197,53 @@ public class PicturesController : ControllerBase
         _context.Pictures.Remove(picture);
         await _context.SaveChangesAsync();
 
+        if (!picture.ThumbnailUrl.Equals(picture.Url))
+        {
+            await _pictureStorage.DeletePictureAsync(picture.ThumbnailUrl);
+        }
+
+        if (!picture.DetailsUrl.Equals(picture.Url))
+        {
+            await _pictureStorage.DeletePictureAsync(picture.DetailsUrl);
+        }
+
+        await _pictureStorage.DeletePictureAsync(picture.Url.Replace(_pictureStorage.PublicUrl, ""));
+
         return NoContent();
     }
+    
+    // DELETE: api/Pictures
+    [HttpDelete]
+    public async Task<IActionResult> DeletePictureMultiple(IdsDTO ids)
+    {
+        foreach (var id in ids.Ids)
+        {
+            var picture = await _context.Pictures.FindAsync(id);
+            if (picture == null)
+            {
+                continue;
+            }
+
+            _context.Pictures.Remove(picture);
+            // sync after every picture, yes
+            await _context.SaveChangesAsync();
+
+            if (!picture.ThumbnailUrl.Equals(picture.Url))
+            {
+                await _pictureStorage.DeletePictureAsync(picture.ThumbnailUrl.Replace(_pictureStorage.PublicUrl, ""));
+            }
+
+            if (!picture.DetailsUrl.Equals(picture.Url))
+            {
+                await _pictureStorage.DeletePictureAsync(picture.DetailsUrl.Replace(_pictureStorage.PublicUrl, ""));
+            }
+
+            await _pictureStorage.DeletePictureAsync(picture.Url.Replace(_pictureStorage.PublicUrl, ""));
+        }
+
+        return NoContent();
+    }
+
 
     private bool PictureExists(int id)
     {

@@ -19,7 +19,10 @@ import { PicturesViewMode } from '../components/pictureViewCommon';
 import PictureFullscreen from '../components/PictureFullscreen';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-    useCreatePictureSetMutation, useMovePicturesToPictureSetMutation,
+    useCreatePictureSetMutation,
+    useDeletePictureMutation,
+    useDeletePicturesMutation,
+    useMovePicturesToPictureSetMutation,
     useUpdatePictureMutation
 } from '../data/mutations';
 import Paginator from '../components/Paginator';
@@ -31,6 +34,7 @@ import { SEARCHABLE_TABLES } from '../api/search';
 import PictureFilters from '../components/PictureFilters';
 import ViewModeSwitcher from '../components/ViewModeSwitcher';
 import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
+import { confirmModal } from '../components/ModalContainer';
 
 const PAGE_SIZES: { [mode in PicturesViewMode ]: number } = {
     [PicturesViewMode.THUMBNAILS]: 100,
@@ -254,6 +258,21 @@ const Pictures = ({ sets }: { sets: boolean }) => {
         setSelection([]);
     }, [moveToPictureSetMutation, picturesQuery.data, selection, setSelection]);
     
+    /// deletion ///
+
+    const deletePictureMutation = useDeletePictureMutation();
+    const deletePicturesMutation = useDeletePicturesMutation();
+    const deleteMultiple = useCallback(async () => {
+        if (!picturesQuery.data) {
+            return;
+        }
+        if (await confirmModal('Really remove ' + numSelected + ' picture(s)?  This operation cannot be reversed.  ' +
+            'Not only picture metadata in database, but also the actual picture file(s) will be deleted.')) {
+            const ids = picturesQuery.data.data.filter((id, k) => selection[k]);
+            deletePicturesMutation.mutate(ids);
+        }
+    }, [selection, numSelected]);
+    
     /// render ///
     
     let title: ReactNode;
@@ -278,10 +297,11 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             {sets && pictureSetQuery.data && <button className="btn btn-primary ms-2"
                 onClick={() => setAddPictureSetModalOpen(true)}
             ><i className="bi-plus-lg" /> Create folder...</button>}
-            {numSelected > 0 && sets && <UncontrolledDropdown className="ms-2">
+            {numSelected > 0 && <UncontrolledDropdown className="ms-2">
                 <DropdownToggle caret>{numSelected} selected</DropdownToggle>
                 <DropdownMenu>
                     <DropdownItem onClick={() => setMovePictureToPictureSetModalOpen(true)}>Move to folder...</DropdownItem>
+                    <DropdownItem onClick={deleteMultiple}>Delete</DropdownItem>
                 </DropdownMenu>
             </UncontrolledDropdown>}
             <ViewModeSwitcher className="ms-2" value={viewMode} setValue={setViewMode} />
@@ -290,6 +310,8 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}
             {createPictureSetMutation.isError && <Alert color="danger">Creating folder: {errorMessage(createPictureSetMutation.error)}</Alert>}
             {updatePictureMutation.isError && <Alert color="danger" className="alert-fixed">Updating picture: {errorMessage(updatePictureMutation.error)}</Alert>}
+            {deletePictureMutation.isError && <Alert color="danger" className="alert-fixed">Deleting picture: {errorMessage(deletePictureMutation.error)}</Alert>}
+            {deletePicturesMutation.isError && <Alert color="danger" className="alert-fixed">Deleting pictures: {errorMessage(deletePicturesMutation.error)}</Alert>}
             {sets && pictureSetQuery.data && <PictureSetList pictureSet={pictureSetQuery.data} />}
             {!sets && <PictureFilters 
                 objectTable={objectTable}

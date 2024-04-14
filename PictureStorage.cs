@@ -39,4 +39,9 @@ public class PictureStorage
             CannedACL = S3CannedACL.PublicRead
         });
     }
+
+    public async Task DeletePictureAsync(string name)
+    {
+        await _amazonS3.DeleteObjectAsync(_bucketName, name);
+    }
 }

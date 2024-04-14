@@ -99,3 +99,16 @@ export const deletePicture = async (id: number): Promise<void> => {
         await handleError(response);
     }
 }
+
+export const deletePictures = async (ids: number[]): Promise<void> => {
+    const response = await fetch('api/Pictures', {
+        method: 'DELETE',
+        body: JSON.stringify({ ids }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!response.ok || response.status !== 204) {
+        await handleError(response);
+    }
+};
