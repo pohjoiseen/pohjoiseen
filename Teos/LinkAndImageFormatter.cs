@@ -195,6 +195,13 @@ public class LinkAndImageFormatter : IContentFormatter
                         image.SetAttributeValue("height", imageInfo.Size().Height);
                     }
                 }
+
+                // XXX If only one size found, force full-size image as a 2x option
+                // Seems like not the right way to fix this but I'm tired of too small pictures suddenly not having a retina option...
+                if (srcSet.Count == 1)
+                {
+                    srcSet.Add(baseSrc + " 2x");
+                }
             }
 
             // set srcset if there is more than one valid size

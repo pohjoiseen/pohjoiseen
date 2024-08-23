@@ -30,10 +30,7 @@ builder.Services.AddRazorTemplating();
 builder.Services.AddLogging(opt =>
 {
     opt
-        .AddConsole(c =>
-        {
-            c.LogToStandardErrorThreshold = LogLevel.Trace;
-        })
+        .AddConsole()
         .AddSimpleConsole(c =>
         {
             c.TimestampFormat = "[HH:mm:ss.fffff] ";
