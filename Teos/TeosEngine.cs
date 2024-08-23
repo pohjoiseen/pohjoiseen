@@ -680,16 +680,27 @@ public class TeosEngine : ITeosEngine
                     }
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
 
-                    // dummy HttpContext with a dummy HttpResponse, but replace body in the response with the output file stream
+                    // dummy HttpContext with a dummy HttpResponse, render to a memory stream
                     HttpContext httpContext = new DefaultHttpContext();
-                    httpContext.Response.Body = File.OpenWrite(path);
+                    httpContext.Response.Body = new MemoryStream();
                     bool rendered = await TryRender(url, httpContext.Response);
                     if (!rendered)
                     {
                         throw new Exception(
                             $"URL {url} received from controller for content {content} but not handled, should not happen");
                     }
-                    httpContext.Response.Body.Close();
+                    
+                    // write out to filesystem whatever has been rendered
+                    // we used to do "httpContext.Response.Body = File.OpenWrite(path);" directly,
+                    // but for some reason it eventually started to sometimes render corrupted files, with garbage
+                    // in the end, seemingly last parts of the HTML repeating randomly a few times, in particular
+                    // for Fennica blog content types for pages >1.  Difficult to say why but introducing
+                    // this bit of indirection seems to solve the issue, perhaps the renderer wants to be able to
+                    // massage data a bit or something
+                    httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+                    var reader = new StreamReader(httpContext.Response.Body);
+                    string result = reader.ReadToEnd();
+                    File.WriteAllText(path, result);
                 }
             }
             catch (Exception ex)
