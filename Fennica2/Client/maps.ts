@@ -115,12 +115,13 @@ function renderMapPopup(geo: Geo, post: PostDefinition, name: string, url: strin
     
     let links = `<b>${_('Read more', lang)}</b>: <a href=${url + (geo.anchor ? '#' + geo.anchor : '')}>${post.title}</a>`;
     if (geo.links && geo.links.length) {
-        links = geo.links.map((link: { label?: string; path?: string; }) => {
+        const otherLinks = geo.links.map((link: { label?: string; path?: string; }) => {
             const target = link.path || url + (geo.anchor ? '#' + geo.anchor : '');
             return link.label
                 ? `<b><a href="${target}">${link.label}</a></b>`
                 : `<b>${_('Read more', lang)}</b>: <a href=${target}>${post.title}</a></b>`
         }).join("<br/>");
+        links = `${links}<br><b>${_('See also', lang)}</b>:<br>${otherLinks}`;
     }
 
     return `<div class="map-popup">
