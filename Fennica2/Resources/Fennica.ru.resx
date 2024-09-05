@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="about-website" xml:space="preserve">
-    <value>О сайте</value>
+    <value>О сайте и авторе</value>
   </data>
   <data name="articles" xml:space="preserve">
     <value>Статьи</value>

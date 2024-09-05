@@ -46,10 +46,10 @@ var engine = new FennicaEngine("Fennica", contentDir, buildDir, args.Contains("-
     {
         Sizes = new Dictionary<string, int>() { { "1x", Fennica.ImageSize }, { "2x", Fennica.ImageSize * 2 } }
     }))
-    .AddContentType<Page>(".*\\.article\\.md$", new MarkdownLoader(), new PageController())
-    .AddContentType<Post>("([0-9]{4})-([0-9]{2})-([0-9]{2})-[^/]+\\.post\\.md$", new MarkdownLoader(),
+    .AddContentType<Page>(".*\\.ru\\.article\\.md$", new MarkdownLoader(), new PageController())
+    .AddContentType<Post>("([0-9]{4})-([0-9]{2})-([0-9]{2})-[^/]+\\.ru\\.post\\.md$", new MarkdownLoader(),
         new PostController())
-    .AddContentType<Blog>("index\\...\\.blog\\.md$", new MarkdownLoader(),
+    .AddContentType<Blog>("index\\.ru\\.blog\\.md$", new MarkdownLoader(),
         new BlogController(app.Services.GetService<IStringLocalizer<Fennica>>()!))
     .AddHTMLFormatter(new TypographyFormatter())
     .AddHTMLFormatter(new LinkAndImageFormatter(

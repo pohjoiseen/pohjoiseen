@@ -358,7 +358,7 @@ header.big::before {
     right: 0;
     width: 100%;
     height: 100%;
-    background: url(./header-bg.jpg) 50% 60% no-repeat;
+    background: url(./header-bg.jpg) 50% 50% no-repeat;
     background-size: cover;
     opacity: 0.6;
 }
@@ -376,6 +376,7 @@ header.big::before {
     color: #222;
     padding: 5px;
     border-radius: 7px;
+    margin: 6px 0;
 }
 
 .main-title img {
@@ -407,7 +408,7 @@ header nav {
     font-size: 15px;
     margin-left: 15px;
     line-height: 1.2;
-    color: #606060;
+    color: #888;
     z-index: 1;
 }
 
@@ -421,7 +422,7 @@ header.big nav {
 }
 
 header nav a {
-    color: #888;
+    color: #aaa;
     text-decoration: none;
 }
 

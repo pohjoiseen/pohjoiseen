@@ -133,8 +133,8 @@
                     <text>
                         <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" ? "active" : "")">@(Localizer["blog"].Value)</a> |
                         <a href="/@layoutParams.Language/article/contents/" class="@(layoutParams.BigHeaderPage == "contents" ? "active" : "")">@(Localizer["contents"])</a> |
-                        <a href="/@layoutParams.Language/article/about/" class="@(layoutParams.BigHeaderPage == "about" ? "active" : "")">@(Localizer["about-website"])</a> |
-                        <a href="@Fennica.TwitterRu"><img class="twitter" alt="Twitter" src="/static/twitter-white.svg" />Twitter</a> |
+                        <a href="/@layoutParams.Language/article/about/" class="@(layoutParams.BigHeaderPage == "about" ? "active" : "")">@(Localizer["about-website"])</a>
+                        @* <a href="@Fennica.TwitterRu"><img class="twitter" alt="Twitter" src="/static/twitter-white.svg" />Twitter</a> | *@
                         <br class="onlymobile-inline" />
                     </text>
                 }
@@ -142,11 +142,12 @@
                 {
                     <text>
                         <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" ? "active" : "")">@(Localizer["blog"].Value)</a> |
-                        <a href="@Fennica.Twitter"><img class="twitter" alt="Twitter" src="/static/twitter-white.svg" />Twitter</a> |
+                        @* <a href="@Fennica.Twitter"><img class="twitter" alt="Twitter" src="/static/twitter-white.svg" />Twitter</a> | *@
                         <br class="onlymobile-inline" />
                     </text>
                 }
                 
+                @*
                 @if (layoutParams.LanguageVersions.ContainsKey("fi"))
                 {
                     <a href="@layoutParams.LanguageVersions["fi"]" class="@(layoutParams.Language == "fi" ? "active" : "")">Suomi</a>
@@ -173,7 +174,9 @@
                 {
                     <span class="muted">Русский</span>
                 }
+                *@
             } else {
+                @*
                 @if (layoutParams.LanguageVersions.ContainsKey("fi"))
                 {
                     <a href="@layoutParams.LanguageVersions["fi"]" class="@(layoutParams.Language == "fi" ? "active" : "")">FIN</a>
@@ -200,6 +203,7 @@
                 {
                     <span class="muted">RUS</span>
                 }
+                *@
             }
         </nav>
     </header>

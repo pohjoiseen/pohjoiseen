@@ -18,7 +18,7 @@ public class Fennica
 
     public static readonly string FooterLink = "https://www.pohjoiseen.fi/";
 
-    public static readonly IList<string> Languages = new List<string>() { "en", "ru", "fi" };
+    public static readonly IList<string> Languages = new List<string>() { "ru" };
 
     public static readonly int ImageSize = 677;
 
