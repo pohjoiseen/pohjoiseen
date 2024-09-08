@@ -178,7 +178,7 @@ ul > li {
 figure {
     text-align: center;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     position: relative;
     left: calc(-40vw + 50%);
     width: 80vw;
@@ -188,7 +188,7 @@ figure img, #primary img {
     max-width: 100%;
     height: auto;
     margin: auto;
-    display: block;
+    display: inline-block;
     box-sizing: border-box;
 }
 
@@ -197,6 +197,7 @@ figcaption {
     font-size: smaller;
     font-style: italic;
     width: 75%;
+    max-width: 980px;
     margin: auto;
 }
 
@@ -717,6 +718,13 @@ header.big img.twitter {
     margin: 10px auto;
 }
 
+/* TODO: show shade at the bottom, otherwise not clear this is scrollable
+.map-popup-description {
+    max-height: 200px;
+    overflow-y: scroll;
+}
+*/
+
 .mapview-zoom-notice {
     background: rgba(100, 56, 44, 0.8);
     box-shadow: #000 0 0 5px, #000 0 0 5px;
@@ -992,6 +1000,9 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     padding: 20px;
     display: flex;
     align-items: start;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .post-heading-coatsofarms img {
@@ -1022,6 +1033,8 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     overflow: hidden;
     text-overflow: ellipsis;
     color: #fff;
+    position: relative;
+    z-index: 1;
 }
 
 .body-blog .post-heading-no-pic .post-title {
@@ -1172,3 +1185,13 @@ nav.navigation {
         height: 26px;
     }
 }
+
+/* Automatic width for videos -- should put some class on iframe but I would keep forgetting it, and so far we don't
+   have any other iframes */
+
+iframe {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+}
+

@@ -130,7 +130,7 @@ function renderMapPopup(geo: Geo, post: PostDefinition, name: string, url: strin
         </a></h4>
         ${geo.subtitle && `<div class="map-popup-subtitle">${geo.subtitle}</div>`}
         ${image && `<p><img src=${image} /></p>`}
-        ${(geo.description || post.description) && `<p>${geo.description || post.description}</p>`}
+        ${(geo.description || post.description) && `<p class="map-popup-description">${geo.description || post.description}</p>`}
         <p>
             ${links}<br>
             <b>${_('Published on', lang)}</b>: ${formatPostDate(name)}
