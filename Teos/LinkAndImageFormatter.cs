@@ -191,8 +191,8 @@ public class LinkAndImageFormatter : IContentFormatter
                         image.SetAttributeValue("src", srcForSize);
                         // and set width/height from this image, determine from actual image file
                         var imageInfo = await Image.IdentifyAsync(filenameForSize);
-                        image.SetAttributeValue("width", imageInfo.Size().Width);
-                        image.SetAttributeValue("height", imageInfo.Size().Height);
+                        image.SetAttributeValue("width", imageInfo.Size.Width);
+                        image.SetAttributeValue("height", imageInfo.Size.Height);
                     }
                 }
 

@@ -226,7 +226,7 @@ header.big .muted {
     color: #666;
 }
 
-img.twitter {
+img.twitter, img.telegram {
     width: 20px;
     height: 20px;
     vertical-align: top;
@@ -472,7 +472,7 @@ footer p a {
     display: none;
 }
 
-header.big img.twitter {
+header.big img.twitter, header.big img.telegram {
     width: 30px;
     height: 30px;
     vertical-align: text-top;
@@ -574,7 +574,7 @@ header.big img.twitter {
         font-size: 14px;
     }
     
-    header.big img.twitter {
+    header.big img.twitter, header.big img.telegram {
         width: 10px;
         height: 10px;
         margin-right: 3px;
