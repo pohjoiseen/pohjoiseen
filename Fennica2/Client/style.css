@@ -725,15 +725,45 @@ header.big img.twitter, header.big img.telegram {
 }
 */
 
-.mapview-zoom-notice {
+.mapview-overlay {
+    text-align: center;
+}
+
+.mapview-zoom-notice, .mapview-map-buttons {
     background: rgba(100, 56, 44, 0.8);
     box-shadow: #000 0 0 5px, #000 0 0 5px;
     color: #fff;
     font-size: 20px;
     font-weight: bold;
-    width: 300px;
     margin: auto;
     text-align: center;
+}
+
+.mapview-zoom-notice {
+    width: 300px;
+}
+
+.mapview-map-buttons {
+    display: inline-block;
+    margin-bottom: 20px;
+    width: max-content;
+}
+
+.mapview-map-buttons button {
+    background: none;
+    border: none;
+    outline: none;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0;
+    padding: 5px 12px;
+}
+
+.mapview-map-buttons button.active {
+    background-color: #64382C;
+    color: #fff;
 }
 
 .leaflet-popup-pane {

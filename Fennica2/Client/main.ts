@@ -28,4 +28,4 @@ document.querySelectorAll('.glider-contain').forEach(galleryRoot => {
        
 // Init maps
 document.querySelectorAll('.leaflet-container')
-    .forEach(leafletRoot => initMap(leafletRoot as HTMLElement));
+    .forEach(leafletRoot => initMap(leafletRoot as HTMLElement, (leafletRoot as HTMLElement).dataset['map'] as any));

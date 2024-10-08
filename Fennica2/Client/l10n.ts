@@ -7,6 +7,8 @@ const strings: {[lang: string]: {[key: string]: string}} = {
         "Read more": "Подробнее",
         "Zoom in to see less notable places": "Приблизьте карту, чтобы увидеть больше мест",
         "See also": "См. также",
+        "Finland": "Финляндия",
+        "Other": "Прочее"
     },
     "fi": {
         "Published on": "Julkaistu",

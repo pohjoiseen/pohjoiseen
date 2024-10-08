@@ -101,6 +101,8 @@ public class MapFormatter : IContentFormatter
             
         do
         {
+            matched = false;
+            
             // find next <!--map-->...<!--/map--> block
             Match openMatch = Regex.Match(html, openTag);
             if (!openMatch.Success)
@@ -111,10 +113,10 @@ public class MapFormatter : IContentFormatter
             int openIndex = openMatch.Index;
 
             // map name from opening tag
-            string mapName = "index";
+            string[] mapNames = { "index" };
             if (openMatch.Groups[1].Value.Length > 0)
             {
-                mapName = openMatch.Groups[1].Value;
+                mapNames = openMatch.Groups[1].Value.Split(",");
             }
 
             int closeIndex = html.IndexOf(closeTag);
@@ -126,20 +128,27 @@ public class MapFormatter : IContentFormatter
             matched = true;
                 
             // geoJSON data
-            var geoJSONs = GenerateGeoJSON(mapName, content.Language);
-            string geoJSONsSerialized = JsonSerializer.Serialize(geoJSONs, new JsonSerializerOptions
+            var containersHTML = "";
+            var first = true;
+            foreach (var mapName in mapNames)
             {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
-            });
+                var geoJSONs = GenerateGeoJSON(mapName, content.Language);
+                string geoJSONsSerialized = JsonSerializer.Serialize(geoJSONs, new JsonSerializerOptions
+                {
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+                });
+                containersHTML += $"<div class=\"leaflet-container\" data-map=\"{mapName}\" data-geojson=\"{HttpUtility.HtmlEncode(geoJSONsSerialized)}\"" + 
+                                  (!first ? " style=\"display: none;\"" : "") + "></div>";
+                first = false;
+            }
                 
             // wrapped content
             string wrappedHtml = html[(openIndex + openMatch.Length)..closeIndex].Trim();
                 
             // replacement HTML
             StringBuilder output = new StringBuilder();
-            output.Append($"<div class=\"mapview-wrapper {(wrappedHtml.Length > 0 ? "with-aside" : "no-aside")}\">");
-            output.Append(
-                $"<div class=\"leaflet-container\" data-geojson=\"{HttpUtility.HtmlEncode(geoJSONsSerialized)}\"></div>");
+            output.Append($"<div class=\"mapview-wrapper {(wrappedHtml.Length > 0 ? "with-aside" : "no-aside")}\" data-maps=\"{string.Join(',', mapNames)}\">");
+            output.Append(containersHTML);
             if (wrappedHtml.Length > 0)
             {
                 output.Append($"<div class=\"mapview-aside\">{wrappedHtml}</div>");

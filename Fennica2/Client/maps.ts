@@ -1,8 +1,7 @@
 /**
  * Maps support for client side of fennica.pohjoiseen.fi.  In current iteration a rather plain Leaflet map.
  * Things of note:
- * - currently meant to display specifically Finnish map (from Finnish Maanmittauslaitos), we define custom
- *   projection for it
+ * - currently can display Finnish map (from Finnish Maanmittauslaitos) and generic OSM
  * - POIs aka geos are mapped to posts, a post can have one or more geos.  They are diplayed as markers
  *   with various icons in a similar style
  * - geos have minimum zoom levels.  We define (on server/generator side) 16 GeoJSON layers with features,
@@ -16,10 +15,7 @@ import {GeoJSON} from 'geojson';
 import {Geo, PostDefinition} from './contentTypes';
 import _ from './l10n';
 
-const MAP_SETTINGS = {
-    DEFAULT_LAT: 61.504951,
-    DEFAULT_LNG: 24.627933,
-    DEFAULT_ZOOM: 4,
+const SETTINGS = {
     MIN_ZOOM: 2,
     MAX_ZOOM: 13,
     ICON_PATH: '/static/map-icons/',
@@ -31,11 +27,35 @@ const MAP_SETTINGS = {
     POPUP_ANCHOR_Y: -19,
     POPUP_WIDTH: 320,
     POPUP_WIDTH_MOBILE: 250,
-    MAP_SOURCE: 'https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/maastokartta/default/ETRS-TM35FIN/{z}/{y}/{x}.png?api-key=27e77bfc-266a-4406-afe0-f7e827c11be3',
-    //MAP_SOURCE: 'https://tiles.kartat.kapsi.fi/taustakartta_3067/{z}/{x}/{y}.png',
-    MAP_ATTRIBUTION: 'Map &copy; <a href="http://www.maanmittauslaitos.fi/avoindata">Maanmittauslaitos</a>, ' +
-        'via <a href="https://www.maanmittauslaitos.fi/karttakuvapalvelu/tekninen-kuvaus-wmts">open WMTS API</a>.  Icons: <a href="https://mapicons.mapsmarker.com">Maps Icons Collection</a>'
 };
+
+const MAPS = {
+    index: {
+        NAME: 'Finland',
+        DEFAULT_LAT: 61.504951,
+        DEFAULT_LNG: 24.627933,
+        DEFAULT_ZOOM: 2,
+        TOO_LOW_ZOOM: 1,
+        CRS: getCRStm35(),
+        MAP_SOURCE: 'https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/maastokartta/default/ETRS-TM35FIN/{z}/{y}/{x}.png?api-key=27e77bfc-266a-4406-afe0-f7e827c11be3',
+        //MAP_SOURCE: 'https://tiles.kartat.kapsi.fi/taustakartta_3067/{z}/{x}/{y}.png',
+        MAP_ATTRIBUTION: 'Карта &copy; <a href="http://www.maanmittauslaitos.fi/avoindata">Геодезическое бюро Финляндии</a>, ' +
+            'через <a href="https://www.maanmittauslaitos.fi/karttakuvapalvelu/tekninen-kuvaus-wmts">открытый WMTS API</a>.  Иконки: <a href="https://mapicons.mapsmarker.com">Maps Icons Collection</a>'
+    },
+    osm: {
+        NAME: 'Other',
+        DEFAULT_LAT: 63.0262974,
+        DEFAULT_LNG: 18.4077187,
+        DEFAULT_ZOOM: 4,
+        TOO_LOW_ZOOM: 2,
+        CRS: L.CRS.EPSG3857,
+        MAP_SOURCE: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        MAP_ATTRIBUTION: 'Карта &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>. ' +
+            'Иконки: <a href="https://mapicons.mapsmarker.com">Maps Icons Collection</a>'
+    }
+};
+
+const initializedMaps = new WeakMap<HTMLElement, L.Map>;
 
 /**
  * Finnish coordinate system for using Finnish open data map raster layers.
@@ -86,8 +106,7 @@ function updateLayers(map: L.Map, layers: (L.GeoJSON | null)[], zoom: number) {
 }
 
 /**
- * Get post date in localized human-readable format -- same as generator/util.ts,
- * do not pull it here as that's server side code.
+ * Get post date in localized human-readable format.
  * 
  * @param {string} name
  * @return {string}
@@ -189,31 +208,46 @@ function onMarkerClick(e: L.LeafletMouseEvent) {
     fetchFunction();
 }
 
-// zoom notice overlay stuff, recipe from https://stackoverflow.com/a/42234061
+// map buttons/zoom notice overlay stuff, recipe from https://stackoverflow.com/a/42234061
 // this is apparently the easiest way to add a static overlay which would NOT display on top of popups
 L.Map.addInitHook(function(this: L.Map) {
     this.createPane('static');
     this.getPane('static')!.style.zIndex = '675';
 });
-const ZoomNoticeOverlay = L.Layer.extend({
+const MyControlsOverlay = L.Layer.extend({
     onAdd: function(map: L.Map) {
         this._map = map;
+        this._onMapSwitch = this._onMapSwitch.bind(this);
 
         const pane = map.getPane('static')!;
         this._container = L.DomUtil.create('div');
         pane.appendChild(this._container);
-
-        this._container.className = 'mapview-zoom-notice';
-        this._container.textContent = _('Zoom in to see less notable places', lang);
+        
+        const mapWrapper = map.getContainer().parentNode;
+        const allMapNames = (mapWrapper as HTMLElement).dataset['maps']!.split(',');
+        const mapButtons = allMapNames.map(mapName => `<button type="button" ${mapName === map.getContainer().dataset['map'] ? ' class="active"' : ''}data-map="${mapName}">
+            ${_(MAPS[mapName as keyof typeof MAPS].NAME, lang)}</button>`);
+        var html = mapButtons.length > 1 ? `<div class=\"mapview-map-buttons\">${mapButtons.join('')}</div>` : '';
+        html += `<div class=\"mapview-zoom-notice\">${_('Zoom in to see less notable places', lang)}</div>`;
+        this._container.innerHTML = html;
+        this._container.className = 'mapview-overlay';
         
         map.on('move zoom viewreset zoomend moveend', (e) => this._update(e.target), this);
 
         this._update(map);
+        
+        this._container.querySelectorAll('button').forEach((button: HTMLButtonElement) => {
+            button.addEventListener('click', this._onMapSwitch);
+        });
     },
 
     onRemove: function(map: L.Map) {
         L.DomUtil.remove(this._container);
         map.off('move zoom viewreset zoomend moveend', (e) => this._update(e.target), this);
+
+        this._container.querySelectorAll('button').forEach((button: HTMLButtonElement) => {
+            button.removeEventListener('click', this._onMapSwitch);
+        });
     },
 
     _update: function(map: L.Map) {
@@ -223,13 +257,34 @@ const ZoomNoticeOverlay = L.Layer.extend({
         const offset = map.containerPointToLayerPoint([0, 0])
             .add([map.getPixelBounds().getSize().x / 2 - this._container.offsetWidth / 2, 10]);
         L.DomUtil.setPosition(this._container, offset);
+    },
+    
+    _onMapSwitch: function(e: MouseEvent) {
+        const button: HTMLButtonElement = e.target as HTMLButtonElement;
+        if (button.classList.contains('active')) {
+            return;
+        }
+        
+        // on map switch button, hide current map container and show the appropriate one
+        this._map.getContainer().style.display = 'none';
+        const mapName = button.dataset['map'] as keyof typeof MAPS;
+        const newMapContainer = this._map.getContainer().parentNode.querySelector(`.leaflet-container[data-map=${mapName}]`);
+        if (newMapContainer) {
+            newMapContainer.style.display = 'block';
+            const newMap = initializedMaps.get(newMapContainer);
+            if (newMap) {
+                // new map must resize itself and minimal zoom level must be enforced (seem to default to minimal zoom otherwise)
+                newMap.invalidateSize();
+                if (newMap.getZoom() <= MAPS[mapName].TOO_LOW_ZOOM) {
+                    newMap.setZoom(MAPS[mapName].DEFAULT_ZOOM, { animate: false });
+                }
+            }
+        }
     }
 });
 
-const finnishCRS = getCRStm35();
-
 // is there a good way to set this in CSS...  (also we could update on window resize of course)
-const popupWidth = window.innerWidth >= 768 ? MAP_SETTINGS.POPUP_WIDTH : MAP_SETTINGS.POPUP_WIDTH_MOBILE;
+const popupWidth = window.innerWidth >= 768 ? SETTINGS.POPUP_WIDTH : SETTINGS.POPUP_WIDTH_MOBILE;
 
 const lang = document.documentElement.lang;
 
@@ -237,8 +292,9 @@ const lang = document.documentElement.lang;
  * Creates a map.  Called once per map container.
  * 
  * @param {HTMLElement} containerEl
+ * @param {string} mapType
  */
-export function initMap(containerEl: HTMLElement) {
+export function initMap(containerEl: HTMLElement, mapType: keyof typeof MAPS) {
 
     // get map data
     const geoJSONs: GeoJSON[] = JSON.parse(containerEl.dataset.geojson!);
@@ -246,8 +302,10 @@ export function initMap(containerEl: HTMLElement) {
     
     // create map
     const map = L.map(containerEl, {
-        crs: finnishCRS
+        crs: MAPS[mapType].CRS
     });
+    // store element -> map association for switching maps.  Leaflet doesn't store it anywhere itself
+    initializedMaps.set(containerEl, map);
 
     // do not show default "Leaflet" attribution
     // (It is not required as per https://groups.google.com/g/leaflet-js/c/fA6M7fbchOs/m/JTNVhqdc7JcJ) 
@@ -256,17 +314,16 @@ export function initMap(containerEl: HTMLElement) {
     // scale control
     L.control.scale({metric: true}).addTo(map);
     
-    // tiles from MML
-    L.tileLayer(MAP_SETTINGS.MAP_SOURCE, {
-        attribution: MAP_SETTINGS.MAP_ATTRIBUTION,
-        minZoom: MAP_SETTINGS.MIN_ZOOM,
-        maxZoom: MAP_SETTINGS.MAX_ZOOM,
+    // tiles from the specified source
+    L.tileLayer(MAPS[mapType].MAP_SOURCE, {
+        attribution: MAPS[mapType].MAP_ATTRIBUTION,
+        minZoom: SETTINGS.MIN_ZOOM,
+        maxZoom: SETTINGS.MAX_ZOOM,
         detectRetina: true
     }).addTo(map);
 
-    // zoom notice
-    new ZoomNoticeOverlay().addTo(map);
-
+    // zoom notice/map switching buttons
+    new MyControlsOverlay().addTo(map);
 
     // create GeoJSON layers, one per zoom level (but only if GeoJSON is non-empty)
     const geoJSONLayers: (L.GeoJSON | null)[] = geoJSONs.map((geoJSON, k) => {
@@ -279,10 +336,10 @@ export function initMap(containerEl: HTMLElement) {
                 // for each point create a marker with an icon of predefined size and click event handler
                 return L.marker(latLng, {
                     icon: L.icon({
-                        iconUrl: MAP_SETTINGS.ICON_PATH + (geoJsonPoint.properties.icon || 'star') + '.png',
-                        iconSize: [MAP_SETTINGS.ICON_WIDTH, MAP_SETTINGS.ICON_HEIGHT],
-                        iconAnchor: [MAP_SETTINGS.ICON_ANCHOR_X, MAP_SETTINGS.ICON_ANCHOR_Y],
-                        popupAnchor: [MAP_SETTINGS.POPUP_ANCHOR_X, MAP_SETTINGS.POPUP_ANCHOR_Y]
+                        iconUrl: SETTINGS.ICON_PATH + (geoJsonPoint.properties.icon || 'star') + '.png',
+                        iconSize: [SETTINGS.ICON_WIDTH, SETTINGS.ICON_HEIGHT],
+                        iconAnchor: [SETTINGS.ICON_ANCHOR_X, SETTINGS.ICON_ANCHOR_Y],
+                        popupAnchor: [SETTINGS.POPUP_ANCHOR_X, SETTINGS.POPUP_ANCHOR_Y]
                     })
                 })
                     .on('click', onMarkerClick);
