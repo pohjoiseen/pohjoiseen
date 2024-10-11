@@ -26,7 +26,7 @@ public class Fennica
 
     public static readonly int PostsPerPage = 24;
 
-    public static readonly string GAID = "UA-72859112-1";
+    public static readonly string GAID = "G-LGDZY44QS4";
     
     public static readonly string Twitter = "https://twitter.com/EncFennica";
     
