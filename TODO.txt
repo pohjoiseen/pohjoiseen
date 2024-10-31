@@ -1,5 +1,7 @@
 ﻿Remaining For 1.0:
 
+* "Database is locked"
+* Rethink or remove folder thumbnails, very slow, also empty folders look bad
 * Tag list page
 * Add thumbnails to search results
 * Override date for pictures and do not crash on missing date

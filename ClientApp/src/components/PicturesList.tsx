@@ -12,11 +12,8 @@ import Picture, { PICTURE_SIZE_THUMBNAIL } from '../model/Picture';
 import { usePictureQuery } from '../data/queries';
 import { dummyImageURL, PicturesViewMode } from './pictureViewCommon';
 import PictureThumbnail from './PictureThumbnail';
-import PictureDetails from './PictureDetails';
-import { DomEvent } from 'leaflet';
-import on = DomEvent.on;
+import PictureDetails, { PictureDetailsCopyPaste, PictureDetailsCopyPasteContext } from './PictureDetails';
 import PlaceModal from './PlaceModal';
-import { useUpdatePictureMutation } from '../data/mutations';
 
 interface PicturesListProps {
     viewMode: PicturesViewMode;
@@ -37,6 +34,7 @@ interface PictureByIdProps {
     link?: string;
     onOpen?: () => void;
     onClick: (ctrlKey: boolean, shiftKey: boolean) => void;
+    onCopy?: (details: PictureDetailsCopyPaste) => void;
     onRetryUpload: () => void;
     onEditPlace?: (placeId: number) => void;
 }
@@ -69,6 +67,7 @@ const handleClick = (index: number, lastIndex: number, ctrlKey: boolean, shiftKe
  * 
  * @param id
  * @param isSelected
+ * @param link
  * @param onOpen  Double click/Enter handler for image
  * @param onClick  Click/Space handler for image
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
@@ -133,10 +132,11 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRe
  * @param isSelected
  * @param onOpen  Double click/Enter handler for image
  * @param onClick  Click/Space handler for image
+ * @param onCopy  Copy common properties
  * @param onRetryUpload  Click handler for error icon (not used otherwise)
  * @param onEditPlace  View/Modify place button handler
  */
-const PictureDetailsById = ({ id, isSelected, onOpen, onClick, onRetryUpload, onEditPlace }: PictureByIdProps) => {
+const PictureDetailsById = ({ id, isSelected, onOpen, onClick, onCopy, onRetryUpload, onEditPlace }: PictureByIdProps) => {
     const pictureQuery = usePictureQuery(id);
     return <PictureDetails
         picture={pictureQuery.data}
@@ -145,6 +145,7 @@ const PictureDetailsById = ({ id, isSelected, onOpen, onClick, onRetryUpload, on
         isLoading={pictureQuery.isLoading && !pictureQuery.isSuccess}
         onOpen={onOpen!}
         onClick={onClick}
+        onCopy={onCopy!}
         onRetryUpload={onRetryUpload}
         onEditPlace={onEditPlace!}
     />;
@@ -154,42 +155,54 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSet
     const [editedPlaceId, setEditedPlaceId] = useState(0);
     const lastIndex = useRef(0);
     
+    const copyPasteContext = useRef<PictureDetailsCopyPaste>({
+        title: null,
+        description: null,
+        placeId: null,
+        placeName: null,
+        tags: null
+    });
+    
     return <div>
-        {pictures.map((p, key) => <Fragment key={typeof p === 'number' ? p : (p.id || 'idx' + key)}>
-            {typeof p === 'number'
-                ? <PictureDetailsById
-                    id={p}
-                    isSelected={selection[key]}
-                    onOpen={() => onOpen(key)}
-                    onClick={(ctrlKey, shiftKey) => {
-                        handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
-                        lastIndex.current = key;
-                    }}
-                    onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
-                    onEditPlace={(placeId) => setEditedPlaceId(placeId)}
-                />
-                : <PictureDetails
-                    isNotYetUploaded
-                    isSelected={selection[key]}
-                    picture={p}
-                    onOpen={() => onOpen(key)}
-                    onClick={(ctrlKey, shiftKey) => {
-                        handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
-                        lastIndex.current = key;
-                    }}
-                    onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
-                />
-            }
-        </Fragment>)}
-        {!!editedPlaceId && <PlaceModal
-            id={editedPlaceId}
-            onSave={(placeName: string) => {
-                // TODO: should update place name in pictures, but that would be quite tricky.
-                // Just keep showing old name if place name was updated
-                setEditedPlaceId(0);
-            }}
-            onClose={() => setEditedPlaceId(0)}
-        />}
+        <PictureDetailsCopyPasteContext.Provider value={copyPasteContext.current}>
+            {pictures.map((p, key) => <Fragment key={typeof p === 'number' ? p : (p.id || 'idx' + key)}>
+                {typeof p === 'number'
+                    ? <PictureDetailsById
+                        id={p}
+                        isSelected={selection[key]}
+                        onOpen={() => onOpen(key)}
+                        onClick={(ctrlKey, shiftKey) => {
+                            handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
+                            lastIndex.current = key;
+                        }}
+                        onCopy={context => copyPasteContext.current = context}
+                        onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
+                        onEditPlace={(placeId) => setEditedPlaceId(placeId)}
+                    />
+                    : <PictureDetails
+                        isNotYetUploaded
+                        isSelected={selection[key]}
+                        picture={p}
+                        onOpen={() => onOpen(key)}
+                        onClick={(ctrlKey, shiftKey) => {
+                            handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
+                            lastIndex.current = key;
+                        }}
+                        onCopy={context => copyPasteContext.current = context}
+                        onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
+                    />
+                }
+            </Fragment>)}
+            {!!editedPlaceId && <PlaceModal
+                id={editedPlaceId}
+                onSave={(/* placeName: string */) => {
+                    // TODO: should update place name in pictures, but that would be quite tricky.
+                    // Just keep showing old name if place name was updated
+                    setEditedPlaceId(0);
+                }}
+                onClose={() => setEditedPlaceId(0)}
+            />}
+        </PictureDetailsCopyPasteContext.Provider>
     </div>;
 };
 

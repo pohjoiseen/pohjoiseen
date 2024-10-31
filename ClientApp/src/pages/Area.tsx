@@ -107,6 +107,7 @@ const AreaPage = () => {
             }
         }
         requestAnimationFrame(() => placesFilterInputRef.current?.scrollIntoView());
+        setAlreadyScrolled(true);
     }, [setAlreadyScrolled, placeIdOpen, area, places.data, alreadyScrolled]);
 
     useTitle(() => area ? area.name : false, [area]);
