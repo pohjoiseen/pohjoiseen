@@ -64,7 +64,7 @@ public class GalleryFormatter : IContentFormatter
                 output.Append($"<img loading=\"lazy\" src=\"{image.Attribute("src")!.Value}\" srcset=\"{(image.Attribute("srcset") != null ? image.Attribute("srcset")!.Value : "")}\" />");
                 if (image.Attribute("alt") != null && image.Attribute("alt")!.Value.Length > 0)
                 {
-                    output.Append("<p>" + image.Attribute("alt")!.Value + "</p>");
+                    output.Append("<p>" + new XText(image.Attribute("alt")!.Value) + "</p>");
                 }
                 output.Append("</div>");  // .glider-image-wrap
                 output.Append("</div>");  // .glider-image
