@@ -10,7 +10,7 @@ public class Fennica
 
     public static readonly string Author = "Alexander Ulyanov";
 
-    public static readonly string Copyright = "© 2015-2024";
+    public static readonly string Copyright = "© 2015-2025";
 
     public static readonly string FaviconLink = "/static/favicon.png";
 
