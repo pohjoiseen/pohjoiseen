@@ -164,13 +164,11 @@ public class BlogController : FennicaController
         feed.Items = items;
 
         // write out
-        Rss20FeedFormatter rssFormatter = new Rss20FeedFormatter(feed);
-        StringBuilder sb = new StringBuilder();
-        XmlWriter xmlWriter = XmlWriter.Create(sb, new XmlWriterSettings() { Encoding = Encoding.UTF8 });
+        response.ContentType = "application/rss+xml; charset=utf-8";
+        var xmlWriter = XmlWriter.Create(response.Body, new XmlWriterSettings() { Encoding = Encoding.UTF8, Async = true });
+        var rssFormatter = new Rss20FeedFormatter(feed);
         rssFormatter.WriteTo(xmlWriter);
-        xmlWriter.Close();
-        response.ContentType = "text/xml; charset=utf-8";
-        await response.WriteAsync(sb.ToString());
+        await xmlWriter.FlushAsync();
     }
 
     /// <inheritdoc cref="FennicaController.Render"/>
