@@ -191,8 +191,10 @@ figure > a {
 
 figure img, #primary img {
     max-width: 100%;
+    max-height: 85vh;
     height: auto;
     margin: auto;
+    object-fit: contain;
     display: inline-block;
     line-height: 0;
     box-sizing: border-box;
@@ -599,18 +601,11 @@ header.big img.twitter, header.big img.telegram {
 @media (min-width: 768px) {
     .glider-contain {
         position: relative;
-        width: calc(100vw - 40px);
-        left: -20px;
-    }
+        width: auto;
+        margin-left: -20px;
+        margin-right: -20px;
+      }
 
-}
-
-@media (min-width: 1056px) {
-    .glider-contain {
-        position: relative;
-        width: 1015px;
-        left: calc(50% - 507px);
-    }
 }
 
 .glider-image {
@@ -663,9 +658,8 @@ header.big img.twitter, header.big img.telegram {
 }
 
 .glider-image-wrap img {
-    /* TODO: doesn't work well for tablet sizes (if there are vertical pictures in the glider, there is some white
-       remaining at the bottom of horizontal ones).  Not critical */
-    max-height: calc(min(100vw * 2 / 3, 677px));
+    max-height: 80vh;
+    object-fit: contain;
 }
 
 /* Gallery - mobile */
