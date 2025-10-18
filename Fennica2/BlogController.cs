@@ -82,7 +82,7 @@ public class BlogController : FennicaController
             pages.Add(0);
             pages.AddRange(Enumerable.Range(thisPage - 2, 5));
             pages.Add(0);
-            pages.AddRange(Enumerable.Range(thisPage - 2, numPages - thisPage + 3));
+            pages.AddRange(Enumerable.Range(numPages - 2, 3));
         }
 
         return pages;
