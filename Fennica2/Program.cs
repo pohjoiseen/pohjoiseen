@@ -5,7 +5,7 @@
 
 using System.Text;
 using Teos;
-using Fennica;
+using Fennica2;
 using Microsoft.Extensions.Localization;
 
 // Locate content and build directories

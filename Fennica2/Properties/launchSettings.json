@@ -1,0 +1,33 @@
+﻿{
+  "profiles": {
+    "Dev Server": {
+      "commandName": "Project",
+      "commandLineArgs": "serve --with-drafts",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5112",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "KOTI__DBFILE": "../KoTi/koti.db",
+        "KOTI__DO_ACCESS_KEY": "DO0042T6CJB4NF82FDYA",
+        "KOTI__DO_ENDPOINT": "https://ams3.digitaloceanspaces.com",
+        "KOTI__DO_BUCKET": "koti-dev",
+        "KOTI__DO_BASE_PUBLIC_URL": "https://koti-dev.ams3.cdn.digitaloceanspaces.com/"
+      }
+    },
+    "Generator": {
+      "commandName": "Project",
+      "commandLineArgs": "generate",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "KOTI__DBFILE": "../KoTi/koti.db",
+        "KOTI__DO_ACCESS_KEY": "DO0042T6CJB4NF82FDYA",
+        "KOTI__DO_ENDPOINT": "https://ams3.digitaloceanspaces.com",
+        "KOTI__DO_BUCKET": "koti-dev",
+        "KOTI__DO_BASE_PUBLIC_URL": "https://koti-dev.ams3.cdn.digitaloceanspaces.com/"
+      }
+    }
+  }
+}

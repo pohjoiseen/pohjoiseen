@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Base class for Fennica controllers with some useful functions.

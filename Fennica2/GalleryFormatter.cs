@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Converts pseudo-markup <!--gallery-->...<!--/gallery--> into markup usable by glider image carousel JS library.

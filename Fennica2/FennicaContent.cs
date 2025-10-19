@@ -1,6 +1,6 @@
 ﻿using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Base class for content in Fennica project.  The property that all Fennica content always has is language.

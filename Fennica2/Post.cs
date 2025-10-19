@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Post for Fennica website, the main content type.

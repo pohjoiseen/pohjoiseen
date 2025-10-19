@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KoTi\KoTi.csproj" />
     <ProjectReference Include=".\Teos\Teos.csproj" />
   </ItemGroup>
     

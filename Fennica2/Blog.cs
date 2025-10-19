@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Fennica2 currently has only a single blog (in several language versions).

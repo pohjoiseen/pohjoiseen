@@ -11,8 +11,11 @@ public class Picture
 {
     public const int ThumbnailSize = 125;
     public const int DetailsSize = 500;
+    public const int WebsiteSize = 677;  // must match ImageSize in FennicaProject
     public const string ThumbnailSuffix = ".t";
     public const string DetailsSuffix = ".d";
+    public const string Website1xSuffix = ".1x";
+    public const string Website2xSuffix = ".2x";
     
     public int Id { get; set; }
     
@@ -53,4 +56,6 @@ public class Picture
     public DateTime UpdatedAt { get; set; }
     
     public IList<Tag> Tags { get; set; } = [];
+    
+    public bool WebsiteSizesExist { get; set; }
 }

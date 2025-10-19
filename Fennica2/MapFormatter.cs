@@ -8,7 +8,7 @@ using GeoJSON.Text.Feature;
 using GeoJSON.Text.Geometry;
 using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Converts pseudo-markup <!--map-->...<!--/map--> into markup usable by map browser (see Client/maps.ts).

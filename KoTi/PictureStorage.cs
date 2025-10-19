@@ -7,7 +7,7 @@ public class PictureStorage
 {
     private readonly IAmazonS3 _amazonS3;
     private readonly string _bucketName;
-    public string PublicUrl { get; private set; }
+    public string PublicUrl { get; private init; }
     
     public PictureStorage(IAmazonS3 amazonS3, string bucketName, string publicUrl)
     {

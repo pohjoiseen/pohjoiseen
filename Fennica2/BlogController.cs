@@ -6,7 +6,7 @@ using Microsoft.Extensions.Localization;
 using Razor.Templating.Core;
 using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Controller for Blog content.

@@ -1,6 +1,6 @@
 ﻿using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Subclassed version of the TeosEngine for Fennica.

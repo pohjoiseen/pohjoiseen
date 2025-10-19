@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoTi", "KoTi\KoTi.csproj", "{BF1BCEDB-F870-4735-96F8-B907A6094058}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fennica", "Fennica\Fennica.csproj", "{D452A333-0FDC-44E0-9AB1-D6075861564A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fennica2", "Fennica2\Fennica2.csproj", "{D452A333-0FDC-44E0-9AB1-D6075861564A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teos", "Fennica\Teos\Teos.csproj", "{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teos", "Fennica2\Teos\Teos.csproj", "{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Standalone page on Fennica website.

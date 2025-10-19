@@ -1,4 +1,4 @@
-﻿namespace Fennica;
+﻿namespace Fennica2;
 
 /// <summary>
 /// Parameters for _FennicaLayout.cshtml.  Mostly self-explanatory.

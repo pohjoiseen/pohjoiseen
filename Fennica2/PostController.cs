@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Text.Unicode;
 using Teos;
 
-namespace Fennica;
+namespace Fennica2;
 
 /// <summary>
 /// Controller for Post content.

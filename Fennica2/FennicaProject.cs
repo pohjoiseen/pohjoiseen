@@ -1,4 +1,4 @@
-﻿namespace Fennica;
+﻿namespace Fennica2;
 
 /// <summary>
 /// This just contains some website constants and is used for StringLocalizer.
