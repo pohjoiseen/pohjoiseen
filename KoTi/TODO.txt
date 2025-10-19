@@ -1,0 +1,18 @@
+﻿Remaining For 1.0:
+
+* "Database is locked"
+* Rethink or remove folder thumbnails, very slow, also empty folders look bad
+* Tag list page
+* Add thumbnails to search results
+* Override date for pictures and do not crash on missing date
+* On upload make it possible to choose/create a folder right away
+* More information in fullscreen mode
+* Improve country and region page (at least link to pictures)
+* Coordinates for pictures
+* Add more picture search filters: private, date (from/to)
+* Make the global "updating" spinner flash on picture uploads
+* Check that it is possible to use "install an app" option in Edge
+* Fix various spinner sizes
+* Warn when leaving the upload page
+* Place autocomplete z-index issue in picture details when isPrivate=true
+* Fix all build warnings both on backend and frontend

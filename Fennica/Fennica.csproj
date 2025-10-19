@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Teos\**</DefaultItemExcludes>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GeoJSON.Text" Version="1.1.0" />
+    <PackageReference Include="Razor.Templating.Core" Version="2.1.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include=".\Teos\Teos.csproj" />
+  </ItemGroup>
+    
+</Project>
