@@ -20,6 +20,6 @@ public class PicturesUploadController : ControllerBase
         // read in image entirely before continuing
         MemoryStream input = new MemoryStream();
         await Request.Body.CopyToAsync(input);
-        return await _pictureUpload.UploadFromUIAsync(input, hash, filename);
+        return await _pictureUpload.UploadAsync(input, hash, filename);
     }
 }

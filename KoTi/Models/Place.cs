@@ -12,9 +12,8 @@ public class Place
     public int Id { get; set; }
     
     public int AreaId { get; set; }
-    
-    [JsonIgnore]
-    public Area Area { get; set; }
+
+    [JsonIgnore] public Area Area { get; set; } = null!;
 
     public string Name { get; set; } = "";
 

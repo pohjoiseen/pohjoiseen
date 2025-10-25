@@ -3,6 +3,7 @@ using KoTi.ResponseModels;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 
 namespace KoTi;
@@ -12,13 +13,15 @@ public class PictureUpload
     private readonly PictureStorage _pictureStorage;
     private readonly KoTiDbContext _context;
 
+    private readonly int JPEG_QUALITY_LEVEL = 75;
+
     public PictureUpload(PictureStorage pictureStorage, KoTiDbContext context)
     {
         _pictureStorage = pictureStorage;
         _context = context;
     }
 
-    public async Task<UploadResult> UploadFromUIAsync(MemoryStream input, string hash, string filename)
+    public async Task<UploadResult> UploadAsync(Stream input, string hash, string filename)
     {
         string baseOutputName = $"{hash}/{filename}";
 
@@ -33,11 +36,12 @@ public class PictureUpload
             
             return new UploadResult
             {
+                ExistedInStorage = true,
                 ExistingId = existing?.Id,
                 Hash = hash,
                 PictureUrl = _pictureStorage.PublicUrl + existingKey,
-                ThumbnailUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.ThumbnailSuffix),
-                DetailsUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.DetailsSuffix)
+                ThumbnailUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.ThumbnailSuffix, true),
+                DetailsUrl = _pictureStorage.PublicUrl + GetFilenameWithSuffix(existingKey, Picture.DetailsSuffix, true)
             };
         }
         
@@ -66,7 +70,7 @@ public class PictureUpload
                     await resizedImage.SaveAsync(output, new JpegEncoder());
                 }
 
-                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.ThumbnailSuffix);
+                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.ThumbnailSuffix, true);
                 output.Seek(0, SeekOrigin.Begin);
                 await _pictureStorage.UploadPictureAsync(outputName, output);
                 result.ThumbnailUrl = outputName;
@@ -80,10 +84,10 @@ public class PictureUpload
                 MemoryStream output = new MemoryStream();
                 using (var resizedImage = inputImage.Clone(x => x.Resize(Picture.DetailsSize * 2, (int) (height * scale))))
                 {
-                    await resizedImage.SaveAsync(output, new JpegEncoder());
+                    await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JPEG_QUALITY_LEVEL });
                 }
 
-                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.DetailsSuffix);
+                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.DetailsSuffix, true);
                 output.Seek(0, SeekOrigin.Begin);
                 await _pictureStorage.UploadPictureAsync(outputName, output);
                 result.DetailsUrl = outputName;
@@ -99,10 +103,99 @@ public class PictureUpload
         result.PictureUrl = _pictureStorage.PublicUrl + result.PictureUrl;
         return result;
     }
+
+    public async Task<bool> EnsureWebsiteVersionsExist(Picture picture)
+    {
+        if (picture.WebsiteSizesExist)
+        {
+            return false;
+        }
+
+        Image? image = null;
+
+        var sizes = new Dictionary<string, int>
+        {
+            { ".1x", Picture.WebsiteSize },
+            { ".2x", Picture.WebsiteSize * 2 }
+        };
+        
+        foreach (var size in sizes)
+        {
+            string sizeSuffix = size.Key;
+            int targetSize = size.Value;
+
+            // determine target sizes
+            (int width, int height) = picture.GetDownsizedDimensions(targetSize);
+            if (width == 0 || height == 0)
+            {
+                continue;  // too small, skip this size
+            }
+
+	    // might be already resized but not in database
+            var resizedName = $"{picture.Hash}/{GetFilenameWithSuffix(picture.Filename, sizeSuffix, false)}";
+	    var alreadyUploaded = await _pictureStorage.CheckPictureAlreadyUploadedAsync(resizedName);
+	    if (alreadyUploaded == null)
+            {
+                // load image if not done yet
+                if (image == null)
+                {
+                    var url = new Uri(picture.Url);
+                    using var httpClient = new HttpClient();
+                    await using var responseStream = await httpClient.GetStreamAsync(url);
+                    image = await Image.LoadAsync(responseStream);
+                }
+
+                // actually resize and save
+                using (Image resizedImage = image.Clone(x => x.Resize(width, height)))
+                {
+                    // clear metadata from resized versions
+                    resizedImage.Metadata.ExifProfile = null;
+                    resizedImage.Metadata.XmpProfile = null;
+
+                    MemoryStream output = new MemoryStream();
+                    if (picture.Filename.EndsWith(".jpg") || picture.Filename.EndsWith(".jpeg"))
+                    {
+                        await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JPEG_QUALITY_LEVEL });
+                    }
+                    else if (picture.Filename.EndsWith(".png"))
+                    {
+                        await resizedImage.SaveAsync(output, new PngEncoder());
+                    }
+                    else
+                    {
+                        throw new Exception("Could not determine format for " + picture.Filename);
+                    }
+                     
+		    output.Seek(0,  SeekOrigin.Begin);
+                    await _pictureStorage.UploadPictureAsync(resizedName, output);
+                }
+	    }
+
+            if (sizeSuffix == ".1x")
+            {
+                picture.Website1xUrl = _pictureStorage.PublicUrl + resizedName;
+            }
+
+            if (sizeSuffix == ".2x")
+            {
+                picture.Website2xUrl = _pictureStorage.PublicUrl + resizedName;
+            }
+        }
+
+        picture.WebsiteSizesExist = true;
+        await _context.SaveChangesAsync();
+        
+        if (image != null)
+        {
+            image.Dispose();
+        }
+        return image != null;
+    }
     
-    private string GetFilenameWithSuffix(string filename, string suffix)
+    public static string GetFilenameWithSuffix(string filename, string suffix, bool forceJpg)
     {
         string extension = Path.GetExtension(filename);
-        return filename.Substring(0, filename.Length - extension.Length) + suffix + ".jpg";
+        return filename.Substring(0, filename.Length - extension.Length) + suffix +
+               (forceJpg ? ".jpg" : extension);
     }
 }

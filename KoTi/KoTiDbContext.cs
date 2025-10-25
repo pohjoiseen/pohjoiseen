@@ -12,4 +12,15 @@ public class KoTiDbContext(DbContextOptions<KoTiDbContext> options) : DbContext(
     public DbSet<Picture> Pictures { get; init; } = null!;
     public DbSet<PictureSet> PictureSets { get; init; } = null!;
     public DbSet<Tag> Tags { get; init; } = null!;
+    public DbSet<Article> Articles { get; init; } = null!;
+    public DbSet<Post> Posts { get; init; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Post>()
+            .OwnsMany<Post.CoatOfArms>(p => p.CoatsOfArms, builder => builder.ToJson())
+            .OwnsMany<Post.GeoPoint>(p => p.Geo, builder => builder
+                .OwnsMany<Post.Link>(g => g.Links, builder => builder.ToJson())
+                .ToJson());
+    }
 }

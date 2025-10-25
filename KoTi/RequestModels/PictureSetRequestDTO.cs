@@ -5,7 +5,7 @@ namespace KoTi.RequestModels;
 
 public class PictureSetRequestDTO
 {
-    [Required] public string Name { get; set; }
+    [Required] public string Name { get; set; } = "";
     
     [Required] public bool IsPrivate { get; set; }
     

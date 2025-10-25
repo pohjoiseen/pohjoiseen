@@ -8,6 +8,7 @@ public class UploadResult
     public string ThumbnailUrl { get; set; } = "";
 
     public string DetailsUrl { get; set; } = "";
-
-    public int? ExistingId { get; set; }= null;
+    
+    public bool ExistedInStorage { get; set; }
+    public int? ExistingId { get; set; }
 }

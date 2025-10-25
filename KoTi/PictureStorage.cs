@@ -35,7 +35,7 @@ public class PictureStorage
             BucketName = _bucketName,
             Key = name,
             InputStream = content,
-            ContentType = "image/jpeg",
+            ContentType = name.EndsWith(".png") ? "image/png" : "image/jpeg",
             CannedACL = S3CannedACL.PublicRead
         });
     }
