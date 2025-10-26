@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Holvi;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi.RequestModels;
-using KoTi.Models;
+using Holvi.Models;
 using KoTi.ResponseModels;
 
 namespace KoTi.Controllers;
@@ -10,9 +11,9 @@ namespace KoTi.Controllers;
 [ApiController]
 public class PictureSetsController : ControllerBase
 {
-    private readonly KoTiDbContext _context;
+    private readonly HolviDbContext _context;
 
-    public PictureSetsController(KoTiDbContext context)
+    public PictureSetsController(HolviDbContext context)
     {
         _context = context;
     }

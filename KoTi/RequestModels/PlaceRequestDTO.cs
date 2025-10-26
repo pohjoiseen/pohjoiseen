@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using KoTi.Models;
+using Holvi;
+using Holvi.Models;
 
 namespace KoTi.RequestModels;
 
@@ -45,7 +46,7 @@ public class PlaceRequestDTO
     
     public IList<TagDTO> Tags { get; set; } = [];
 
-    public void ToModel(Place place, KoTiDbContext dbContext)
+    public void ToModel(Place place, HolviDbContext dbContext)
     {
         place.Name = Name;
         place.Alias = Alias;

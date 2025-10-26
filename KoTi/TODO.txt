@@ -1,4 +1,4 @@
-﻿Remaining For 1.0:
+﻿Remaining features:
 
 * "Database is locked"
 * Rethink or remove folder thumbnails, very slow, also empty folders look bad

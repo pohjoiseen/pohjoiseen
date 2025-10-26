@@ -1,3 +1,4 @@
+using Holvi;
 using KoTi;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddKoTiServices(builder.Configuration);
+builder.Services.AddHolviServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -29,7 +30,7 @@ if (args.Length > 0)
     {
         case "migrate":
         {
-            var context = app.Services.CreateScope().ServiceProvider.GetService<KoTiDbContext>();
+            var context = app.Services.CreateScope().ServiceProvider.GetService<HolviDbContext>();
             context!.Database.Migrate();
             return;
         }
@@ -41,7 +42,7 @@ if (args.Length > 0)
                 throw new Exception("Input directory required!");
             }
             await ImportFennica2Posts.Do(args[1], app.Logger,
-                app.Services.CreateScope().ServiceProvider.GetService<KoTiDbContext>()!,
+                app.Services.CreateScope().ServiceProvider.GetService<HolviDbContext>()!,
                 app.Services.CreateScope().ServiceProvider.GetService<PictureUpload>()!);
             return;
         }

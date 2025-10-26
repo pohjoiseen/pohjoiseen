@@ -1,7 +1,8 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using KoTi.Models;
+using Holvi;
+using Holvi.Models;
 using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
@@ -19,7 +20,7 @@ namespace KoTi;
 // and last post for some reason.  This was fixed manually instead of here.  Remains now for reference
 public static class ImportFennica2Posts
 {
-    public static async Task Do(string directory, ILogger logger, KoTiDbContext dbContext, PictureUpload pictureUpload)
+    public static async Task Do(string directory, ILogger logger, HolviDbContext dbContext, PictureUpload pictureUpload)
     {
         logger.LogInformation("Reading in post markdown files, parsing, processing images");
         
@@ -166,7 +167,7 @@ public static class ImportFennica2Posts
     }
 
 
-    private static Picture ProcessImage(ILogger logger, KoTiDbContext dbContext, PictureUpload pictureUpload, 
+    private static Picture ProcessImage(ILogger logger, HolviDbContext dbContext, PictureUpload pictureUpload, 
                                         PictureSet pictureSet, IDictionary<string, string> imgMap,
                                         string imagePath, string imageOriginalUrl)
     {

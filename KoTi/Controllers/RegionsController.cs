@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Holvi;
 using KoTi.RequestModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using KoTi.Models;
+using Holvi.Models;
 
 namespace KoTi;
 
@@ -14,9 +15,9 @@ namespace KoTi;
 [ApiController]
 public class RegionsController : ControllerBase
 {
-    private readonly KoTiDbContext _context;
+    private readonly HolviDbContext _context;
 
-    public RegionsController(KoTiDbContext context)
+    public RegionsController(HolviDbContext context)
     {
         _context = context;
     }

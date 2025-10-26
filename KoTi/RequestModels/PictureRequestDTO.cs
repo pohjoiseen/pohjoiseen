@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using KoTi.Models;
+using Holvi;
+using Holvi.Models;
 
 namespace KoTi.RequestModels;
 
@@ -27,7 +28,7 @@ public class PictureRequestDTO
     public int? SetId { get; set; }
     public IList<TagDTO> Tags { get; set; } = [];
 
-    public void ToModel(Picture picture, KoTiDbContext dbContext)
+    public void ToModel(Picture picture, HolviDbContext dbContext)
     {
         picture.Filename = Filename;
         picture.Hash = Hash;

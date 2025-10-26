@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Holvi;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KoTi.ResponseModels;
 using Microsoft.Data.Sqlite;
@@ -9,9 +10,9 @@ namespace KoTi.Controllers;
 [ApiController]
 public class SearchController : ControllerBase
 {
-    private readonly KoTiDbContext _context;
+    private readonly HolviDbContext _context;
 
-    public SearchController(KoTiDbContext context)
+    public SearchController(HolviDbContext context)
     {
         _context = context;
     }

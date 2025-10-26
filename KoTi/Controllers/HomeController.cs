@@ -1,4 +1,5 @@
-﻿using KoTi.ResponseModels;
+﻿using Holvi;
+using KoTi.ResponseModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,9 @@ namespace KoTi.Controllers;
 [ApiController]
 public class HomeController : ControllerBase
 {
-    private readonly KoTiDbContext _context;
+    private readonly HolviDbContext _context;
 
-    public HomeController(KoTiDbContext context)
+    public HomeController(HolviDbContext context)
     {
         _context = context;
     }

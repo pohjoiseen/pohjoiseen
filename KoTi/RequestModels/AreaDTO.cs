@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using KoTi.Models;
+using Holvi.Models;
 
 namespace KoTi.RequestModels;
 

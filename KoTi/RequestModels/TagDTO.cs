@@ -1,4 +1,4 @@
-﻿using KoTi.Models;
+﻿using Holvi.Models;
 
 namespace KoTi.RequestModels;
 

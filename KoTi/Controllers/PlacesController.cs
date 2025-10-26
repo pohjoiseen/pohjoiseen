@@ -1,7 +1,8 @@
+using Holvi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Holvi.Models;
 using KoTi.RequestModels;
-using KoTi.Models;
 using KoTi.ResponseModels;
 
 namespace KoTi.Controllers
@@ -10,9 +11,9 @@ namespace KoTi.Controllers
     [ApiController]
     public class PlacesController : ControllerBase
     {
-        private readonly KoTiDbContext _context;
+        private readonly HolviDbContext _context;
 
-        public PlacesController(KoTiDbContext context)
+        public PlacesController(HolviDbContext context)
         {
             _context = context;
         }

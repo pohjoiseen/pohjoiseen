@@ -1,4 +1,5 @@
-﻿using KoTi.Models;
+﻿using Holvi;
+using Holvi.Models;
 using KoTi.RequestModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,9 @@ namespace KoTi.Controllers;
 [ApiController]
 public class TagsController : ControllerBase
 {
-    private readonly KoTiDbContext _context;
+    private readonly HolviDbContext _context;
 
-    public TagsController(KoTiDbContext context)
+    public TagsController(HolviDbContext context)
     {
         _context = context;
     }

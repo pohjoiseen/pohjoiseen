@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fennica2", "Fennica2\Fennic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teos", "Fennica2\Teos\Teos.csproj", "{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holvi", "Holvi\Holvi.csproj", "{BCDBBF51-AC74-4AD2-AD8D-6E97F5C97AE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{763A41A9-DFF8-41BE-ACC7-2D24B2AB48A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCDBBF51-AC74-4AD2-AD8D-6E97F5C97AE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCDBBF51-AC74-4AD2-AD8D-6E97F5C97AE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCDBBF51-AC74-4AD2-AD8D-6E97F5C97AE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCDBBF51-AC74-4AD2-AD8D-6E97F5C97AE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
