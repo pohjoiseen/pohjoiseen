@@ -1,0 +1,64 @@
+﻿@model PostModel
+@inject Helpers Helpers
+@inject ContentFormatter ContentFormatter
+@{
+    var useTitleImage = Model.Post.TitlePicture != null && !(Model.Post.TitleImageInText ?? false);
+}
+
+<div class="@(useTitleImage ? "post-heading" : "post-heading-no-pic")"
+     style="@(useTitleImage ? $"background-image: url({Model.Post.TitlePicture!.Url}), url({Model.Post.TitlePicture!.ThumbnailUrl}); background-position: 50% {(Model.Post.TitleImageOffsetY > 0 ? Model.Post.TitleImageOffsetY : 50)}%" : "")">
+    @if (Model.Post.CoatsOfArms is { Count: > 0 })
+    {
+        <div class="post-heading-coatsofarms">
+            @foreach (var coa in Helpers.ResolveCoatsOfArms(Model.Post))
+            {
+                <img alt="" src="@coa.Url" style="--width: @(coa.Size > 0 ? coa.Size : Fennica3.CoatOfArmsSize)px" />
+            }
+        </div>
+    }   
+    <div class="post-title">
+        <h1>@Model.Post.Title</h1>
+        @if (!String.IsNullOrEmpty(Model.Post.DateDescription))
+        {
+            <h4><span class="time"><time>@Model.Post.DateDescription</time></span></h4>
+        }
+        @if (!String.IsNullOrEmpty(Model.Post.LocationDescription))
+        {
+            <h4><span class="place">@Model.Post.LocationDescription</span></h4>
+        }
+        @if (Model.PrevPost != null)
+        {
+            <h4><span class="prev">@Localizer.GetString("previous"):
+                    <a href="@Helpers.PostLink(Model.PrevPost)">@Model.PrevPost.Title</a>
+            </span></h4>
+        }
+        @if (Model.NextPost != null)
+        {
+            <h4><span class="next">@Localizer.GetString("next"):
+                    <a href="@Helpers.PostLink(Model.NextPost)">@Model.NextPost.Title</a>
+            </span></h4>
+        }
+    </div>
+</div>
+<main class="post-main">
+    <article>
+        <hr />
+        @if ((Model.Post.TitleImageInText ?? false) && Model.Post.TitlePicture != null)
+        {
+            @Html.Raw(await ContentFormatter.FormatHTMLAsync($"<p><img alt=\"{Model.Post.TitleImageCaption ?? ""}\" src=\"{Model.Post.TitlePicture.Url}\" /></p>"))
+        }
+        @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.Post.ContentMD))
+        <hr />
+    </article>
+    <div class="notes">
+        @if (!String.IsNullOrEmpty(Model.Post.Address))
+        {
+            <p><b>@Localizer.GetString("address")</b>: @Model.Post.Address</p>
+        }
+        @if (!String.IsNullOrEmpty(Model.Post.PublicTransport))
+        {
+            <p><b>@Localizer.GetString("public-transport")</b>: @Model.Post.PublicTransport</p>
+        }
+        <p><b>@Localizer.GetString("published-on")</b>: <time>@Model.Post.Date.ToLongDateString()</time></p>
+    </div>
+</main>

@@ -1,0 +1,139 @@
+﻿@model BlogModel
+@inject Helpers Helpers
+@inject ContentFormatter ContentFormatter
+@{
+    int miniCounter = 0;
+    bool firstPost = true;
+}
+
+<main class="blog-main">
+    @if (Model.Page == 1)
+    {
+        <article class="article-main" style="overflow: hidden;">
+            <hr/>
+            @Html.Raw(Helpers.BeginPostMaps(Model.LayoutParams.Language))
+            @if (Model.MapAsideText != null)
+            {
+                @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.MapAsideText))
+            }
+            @Html.Raw(Helpers.EndPostMaps())
+            @if (Model.IntroText != null)
+            {
+                @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.IntroText))
+            }
+            <hr style="clear: both;"/>
+        </article>
+    }
+    
+    @foreach (var post in Model.Posts)
+    {
+        // use smaller image if possible
+        string? titleImage = post.TitlePicture?.Website1xUrl ?? post.TitlePicture?.Url;
+        // show <hr> between groups of mini and non-mini posts
+        // wrap every two mini posts into a div and keep counters for that
+        // rather awkward code but oh well
+        bool showHr = !firstPost && ((post.Mini && miniCounter == 0) || (!post.Mini && miniCounter > 0));
+        // 0th mini: close = false, open = true
+        // 1st mini: close = false, open = false
+        // 2nd mini: close = true, open = true
+        // 3rd mini: close = false, open = false
+        // 4th mini: close = true, open = true
+        // non-mini: close = true, open = false
+        bool openMiniWrapper = miniCounter % 2 == 0 && post.Mini;
+        bool closeMiniWrapper = miniCounter > 0 && (!post.Mini || miniCounter % 2 == 0);
+        firstPost = false;
+        if (post.Mini)
+        {
+            miniCounter++;
+        }
+        else
+        {
+            miniCounter = 0;
+        }
+        <text>
+            @if (showHr)
+            {
+                <hr/>
+            }
+            @if (closeMiniWrapper)
+            {
+                @Html.Raw("</div>")
+            }
+            @if (openMiniWrapper)
+            {
+                @Html.Raw("<div class=\"post-mini-wrapper\">")
+            }
+            <article class="post-list-entry @(post.Mini ? "post-mini" : "post-normal")">
+                @if (titleImage != null)
+                {
+                    <text>
+                        <a class="post-list-entry-titleimage" href="@Helpers.PostLink(post)"><img alt="" src="@titleImage"/></a>
+                        @Html.Raw("<div class=\"post-list-entry-body\">")
+                    </text>
+                }
+                else
+                {
+                    @:<div>
+                }
+                    <div class="post-list-entry-top">
+                        <div class="post-list-entry-title">
+                            <h2><a href="@Helpers.PostLink(post)">@post.Title</a></h2>
+                            <h4><time>@post.Date.ToLongDateString()</time></h4>
+                        </div>
+                        @if (post.CoatsOfArms is { Count: > 0 })
+                        {
+                            <div class="post-list-entry-coatsofarms">
+                                @foreach (var coa in Helpers.ResolveCoatsOfArms(post))
+                                {
+                                    <img alt="" src="@coa.Url" style="--width: @((coa.Size > 0 ? coa.Size : Fennica3.CoatOfArmsSize) / (post.Mini ? 2 : 1))px"/>
+                                }
+                            </div>
+                        }
+                    </div>
+                    @if (post.Description.Length > 0)
+                    {
+                        <p class="post-list-entry-description">
+                            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(post.Description))
+                        </p>
+                    }
+                @Html.Raw("</div>")
+            </article>
+        </text>
+    }
+    @if (miniCounter > 0)
+    {
+        @Html.Raw("</div>")
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="navigation pagination" role="navigation">
+            <h2 class="screen-reader-text">Pages</h2>
+            <div class="nav-links">
+                @if (Model.Page != 1)
+                {
+                    <a class="prev page-numbers" href="@(Model.Page == 1 ? Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language }) : Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page = Model.Page - 1 }))"><span class="screen-reader-text">Previous</span><i class="fas fa-arrow-left"></i></a>                     
+                }
+                @foreach (int page in Model.Pagination)
+                {
+                    if (page == 0)
+                    {
+                        <span class="page-numbers dots">…</span>
+                    }
+                    else if (page == Model.Page)
+                    {
+                        <span aria-current="page" class="page-numbers current">@(page)</span>                        
+                    }
+                    else
+                    {
+                        <a class="page-numbers" href="@Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page })"><span class="meta-nav screen-reader-text">Page </span>@(page)</a>
+                    }
+                }
+                @if (Model.Page != Model.TotalPages)
+                {
+                    <a class="next page-numbers" href="@Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page = Model.Page + 1 })"><span class="screen-reader-text">Next</span><i class="fas fa-arrow-right"></i></a>                    
+                }
+            </div>
+        </nav>
+    }
+</main>

@@ -1,0 +1,10 @@
+﻿@model ArticleModel
+@inject ContentFormatter ContentFormatter
+
+<main>
+    <h1 class="article-title">@Model.Article.Title</h1>
+    <hr />
+    <article class="article-main">
+        @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.Article.ContentMD))
+    </article>
+</main>

@@ -11,23 +11,22 @@ public static class HolviExtensions
     public static IServiceCollection AddHolviServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<HolviDbContext>(o =>
-            o.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("KOTI__DBFILE")}"));
+            o.UseSqlite($"Data Source={configuration["Holvi:DatabaseFile"]}"));
         services.AddScoped<IAmazonS3, AmazonS3Client>(provider => new AmazonS3Client(
-            Environment.GetEnvironmentVariable("KOTI__DO_ACCESS_KEY"),
+            configuration["Holvi:S3:AccessKey"],
             // allow using secret manager for secret key
-            Environment.GetEnvironmentVariable("KOTI__DO_SECRET_KEY") == null
-                ? configuration["KOTI__DO_SECRET_KEY"] : Environment.GetEnvironmentVariable("KOTI__DO_SECRET_KEY"),
-            new AmazonS3Config()
+            configuration["Holvi:S3:SecretKey"],
+            new AmazonS3Config
             {
                 ForcePathStyle = false,
                 RegionEndpoint = RegionEndpoint.USEast1,
-                ServiceURL = Environment.GetEnvironmentVariable("KOTI__DO_ENDPOINT")
+                ServiceURL = configuration["Holvi:S3:Endpoint"]
             }
         ));
         services.AddScoped<PictureStorage>(provider => new PictureStorage(
             provider.GetService<IAmazonS3>()!,
-            Environment.GetEnvironmentVariable("KOTI__DO_BUCKET")!,
-            Environment.GetEnvironmentVariable("KOTI__DO_BASE_PUBLIC_URL")!
+            configuration["Holvi:S3:Bucket"]!,
+            configuration["Holvi:S3:PublicUrl"]!
         ));
         services.AddScoped<PictureUpload>();
         return services;

@@ -9,17 +9,17 @@ public class Post
     /// </summary>
     public record GeoPoint
     {
-        public string Title { get; set; } = "";
-        public string? Subtitle { get; set; }
-        public string? Description { get; set; }
-        public string? TitleImage { get; set; }
-        public string? Anchor { get; set; }
-        public double Lat { get; set; }
-        public double Lng { get; set; }
-        public int? Zoom { get; set; }
-        public string? Icon { get; set; }
-        public IList<string>? Maps { get; set; }
-        public IList<Link>? Links { get; set; }
+        public string? Title { get; init; }
+        public string? Subtitle { get; init; }
+        public string? Description { get; init; }
+        public string? TitleImage { get; init; }
+        public string? Anchor { get; init; }
+        public double Lat { get; init; }
+        public double Lng { get; init; }
+        public int? Zoom { get; init; }
+        public string? Icon { get; init; }
+        public IList<string>? Maps { get; init; }
+        public IList<Link>? Links { get; init; }
     }
 
     /// <summary>
@@ -27,8 +27,8 @@ public class Post
     /// </summary>
     public record CoatOfArms
     {
-        public string Url { get; set; } = "";
-        public int? Size { get; set; }
+        public string Url { get; init; } = "";
+        public int? Size { get; init; }
     }
 
     /// <summary>
@@ -36,11 +36,11 @@ public class Post
     /// </summary>
     public record Link
     {
-        public string Label { get; set; } = "";
-        public string Path { get; set; } = "";
+        public string Label { get; init; } = "";
+        public string Path { get; init; } = "";
     }
     
-    public int Id { get; set; }
+    public int Id { get; init; }
     
     public bool Draft { get; set; }
 
@@ -62,8 +62,6 @@ public class Post
 
     public int? TitlePictureId { get; set; }
     public Picture? TitlePicture { get; set; }
-
-    public string? TitleImage { get; set; }
 
     /// <summary>
     /// For title images as header background, sets background-position-y

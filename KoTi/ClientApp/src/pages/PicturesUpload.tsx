@@ -50,8 +50,8 @@ const PicturesUpload = () => {
     /// enqueue for upload ///
     
     const addFile = useCallback(async (file: File) => {
-        // only accept JPEGs for the time being
-        if (file.type !== 'image/jpeg') {
+        // only accept JPEGs and PNGs for the time being
+        if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
             return;
         }
         
@@ -85,11 +85,11 @@ const PicturesUpload = () => {
             size: file.size,
             title: '',
             description: '',
-            photographedAt: meta.DateTimeOriginal || meta.CreateDate,
-            camera: meta.Model,
-            lens: meta.LensModel ? meta.LensModel.replace(meta.Model + ' ', '') : null,
-            lat: meta.latitude,
-            lng: meta.longitude,
+            photographedAt: meta?.DateTimeOriginal || meta?.CreateDate || new Date(),
+            camera: meta?.Model,
+            lens: meta?.LensModel ? meta?.LensModel.replace(meta?.Model + ' ', '') : null,
+            lat: meta?.latitude,
+            lng: meta?.longitude,
             isPrivate: false,
             rating: 0,
             updatedAt: new Date(),

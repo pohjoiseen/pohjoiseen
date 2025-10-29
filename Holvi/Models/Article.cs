@@ -12,6 +12,8 @@ public class Article
 
     [MaxLength(255)]
     public string Name { get; set; } = "";
+
+    public string Title { get; set; } = "";
     
     public string ContentMD { get; set; } = "";
 

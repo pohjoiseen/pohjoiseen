@@ -1,3 +1,6 @@
+// Was written for one-time use.  Quite buggy but helped a lot.  Won't be used again
+
+#if DONOTCOMPILE
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -17,7 +20,7 @@ namespace KoTi;
 // One-time use: import Fennica2 posts and convert links and images
 // only posts (articles can just do manually), only Russian
 // Not well-polished; slowish, post link resolving doesn't handle links with hashes
-// and last post for some reason.  This was fixed manually instead of here.  Remains now for reference
+// and last post for some reason, other issue.  This was fixed manually instead of here.  Remains now for reference
 public static class ImportFennica2Posts
 {
     public static async Task Do(string directory, ILogger logger, HolviDbContext dbContext, PictureUpload pictureUpload)
@@ -253,3 +256,4 @@ public static class ImportFennica2Posts
         return picture;
     }
 }
+#endif

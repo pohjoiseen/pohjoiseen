@@ -1,27 +1,28 @@
 ﻿## KoTi
 
-**Not updated for v1.0 yet**
+This is KoTi _(originally "kohteiden tietokanta", Finn. points database)_, a privately deployed hobby project by
+me, Alexander Ulyanov.  Its functions are:
 
-This is KoTi _(kohteiden tietokanta, Finn. points database)_, a privately deployed hobby project by
-me, Alexander Ulyanov.  It is meant for me to track my own travels and explorations mainly of Finland
-and to record information about various places of interest in the same place.  Ideally I would also upload
-all my pictures there too, but that's not implemented yet.  The database is not publicly accessible and
-won't be in the foreseeable future, but there's nothing secret about this source and I have
-published it under GPL3.
+1. Interface to a large database of photos uploaded to S3 storage
+2. Database of points of interest subdivided by country/database/area
+3. Backoffice for Fennica3 blog editing, using the same database of photos as in point 1. **(IN PROGRESS)**
+
+PoI database was the original function, hence the app name, and I originally planned it for my personal use only,
+but in practice I'm just way too lazy to maintain such a database just for myself.  This part is the most complete
+but also the least maintained.  However, I plan to use it in Fennica3 in the future as well.
+
+The application is not meant to be publicly accessible future, but there's nothing secret about this source and
+I have  published it under GPL3.
 
 This is a web application:
 
-* Backend: C#, ASP.NET 6.  Currently extremely trivial CRUD backend
+* Backend: C#, ASP.NET 9.  Currently extremely trivial CRUD backend
 * Database: SQLite.  This won't be a multi-user project, I don't need anything special from the database,
   and SQLite is nice for backups and moving around
 * Frontend: SPA application, TypeScript 4.8, React 18 with Tanstack Query for data layer, react-router for routing,
   Leaflet/react-leaflet for embedded map functionality, and plain old Bootstrap/Reactstrap as an UI library.
 
-Screenshots of initial version as of 12.8.2023:
-
-![](https://imgur.com/JB6Fwrw.jpg)
-![](https://imgur.com/UCQpy4o.jpg)
-![](https://imgur.com/kniN34O.jpg)
+Database and S3 code is contained in Holvi project (and used also by Fennica3).
 
 There are few comments and no docs or tests.  As I said, it is just a personal project.
 

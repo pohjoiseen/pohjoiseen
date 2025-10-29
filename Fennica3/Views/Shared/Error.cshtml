@@ -1,0 +1,15 @@
+﻿@model ErrorViewModel
+
+<main>
+    <h1 class="article-title">@Localizer.GetString("error")</h1>
+    <hr />
+    <article class="article-main">
+        <p><b>@Localizer.GetString("error-text")</b></p>
+        @if (Model.ShowRequestId)
+        {
+            <p>
+                <strong>Request ID:</strong> <code>@Model.RequestId</code>
+            </p>
+        }
+    </article>
+</main>

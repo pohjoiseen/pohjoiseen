@@ -1,0 +1,18 @@
+@model StatusCodeModel
+
+<main>
+    <h1 class="article-title">@Model.StatusCode</h1>
+    <hr />
+    <article class="article-main">
+        @if (Model.StatusCode == 404)
+        {
+            <p style="text-align: center;"><b>@Localizer.GetString("404-text")</b></p>
+        }
+        @if (Model.ShowRequestId)
+        {
+            <p>
+                <strong>Request ID:</strong> <code>@Model.RequestId</code>
+            </p>
+        }
+    </article>
+</main>

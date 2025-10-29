@@ -1,4 +1,4 @@
-﻿Remaining features:
+﻿Remaining features before Fennica3 migration:
 
 * "Database is locked"
 * Rethink or remove folder thumbnails, very slow, also empty folders look bad
@@ -16,3 +16,5 @@
 * Warn when leaving the upload page
 * Place autocomplete z-index issue in picture details when isPrivate=true
 * Fix all build warnings both on backend and frontend
+
+For Fennica3 obviously blog editing . . .
