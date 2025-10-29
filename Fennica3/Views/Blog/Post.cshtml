@@ -20,7 +20,7 @@
         <h1>@Model.Post.Title</h1>
         @if (!String.IsNullOrEmpty(Model.Post.DateDescription))
         {
-            <h4><span class="time"><time>@Model.Post.DateDescription</time></span></h4>
+            <h4><span class="time">@Model.Post.DateDescription</span></h4>
         }
         @if (!String.IsNullOrEmpty(Model.Post.LocationDescription))
         {
@@ -59,6 +59,6 @@
         {
             <p><b>@Localizer.GetString("public-transport")</b>: @Model.Post.PublicTransport</p>
         }
-        <p><b>@Localizer.GetString("published-on")</b>: <time>@Model.Post.Date.ToLongDateString()</time></p>
+        <p><b>@Localizer.GetString("published-on")</b>: <time datetime="@Model.Post.Date.ToString("yyyy-MM-dd")">@Model.Post.Date.ToLongDateString()</time></p>
     </div>
 </main>

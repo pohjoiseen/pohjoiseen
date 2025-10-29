@@ -16,7 +16,7 @@
 
     @* own CSS and JS, see Client *@
     <link rel="stylesheet" href="/css/style.css" asp-append-version="true" />
-    <script type="text/javascript" defer="defer" src="/js/bundle.js" asp-append-version="true"></script>
+    <script defer="defer" src="/js/bundle.js" asp-append-version="true"></script>
 
     @* <title>, meta description *@
     <title>@(layoutParams.Title.Length > 0 ? Localizer[layoutParams.Title] + " - " + Fennica3.MainTitle : Fennica3.MainTitle)</title>
@@ -83,7 +83,6 @@
     }
 
     @* Twitter meta *@
-    <meta itemprop="author" content="@Fennica3.Author" />
     @if (layoutParams.Title.Length > 0)
     {
         <meta name="twitter:title" content="@Localizer[layoutParams.Title]" />
@@ -107,7 +106,7 @@
 </head>
 
 <body class="@layoutParams.BodyClass">
-    <header role="banner" class="@(layoutParams.BigHeaderPage.Length > 0 ? "big" : "")">
+    <header class="@(layoutParams.BigHeaderPage.Length > 0 ? "big" : "")">
         <a class="title-link main-title" href="/@layoutParams.Language/">
             <img alt="Encyclopaedia Fennica" src="/logo.svg" />
         </a>

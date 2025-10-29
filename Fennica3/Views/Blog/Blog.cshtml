@@ -78,7 +78,7 @@
                     <div class="post-list-entry-top">
                         <div class="post-list-entry-title">
                             <h2><a href="@Helpers.PostLink(post)">@post.Title</a></h2>
-                            <h4><time>@post.Date.ToLongDateString()</time></h4>
+                            <h4><time datetime="@post.Date.ToString("yyyy-MM-dd")">@post.Date.ToLongDateString()</time></h4>
                         </div>
                         @if (post.CoatsOfArms is { Count: > 0 })
                         {
@@ -93,7 +93,7 @@
                     @if (post.Description.Length > 0)
                     {
                         <p class="post-list-entry-description">
-                            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(post.Description))
+                            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(post.Description, true))
                         </p>
                     }
                 @Html.Raw("</div>")
@@ -107,7 +107,7 @@
 
     @if (Model.TotalPages > 1)
     {
-        <nav class="navigation pagination" role="navigation">
+        <nav class="navigation pagination">
             <h2 class="screen-reader-text">Pages</h2>
             <div class="nav-links">
                 @if (Model.Page != 1)

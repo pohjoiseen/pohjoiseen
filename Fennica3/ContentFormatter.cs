@@ -21,10 +21,27 @@ namespace Fennica3;
 public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpload,
                               Helpers helpers, ILogger<ContentFormatter> logger)
 {
-    public async Task<string> FormatMarkdownAsync(string markdown)
+    public async Task<string> FormatMarkdownAsync(string markdown, bool singlePara = false)
     {
         // we just go ahead with Markdig defaults
-        return await FormatHTMLAsync(Markdown.ToHtml(markdown));
+        var html = await FormatHTMLAsync(Markdown.ToHtml(markdown));
+        
+        // unwrap from "<p>...</p>" if that was supposed to be only one paragraph
+        if (singlePara)
+        {
+            html = html.Trim();
+            if (html.StartsWith("<p>"))
+            {
+                html = html.Substring(3);
+            }
+
+            if (html.EndsWith("</p>"))
+            {
+                html = html.Substring(0, html.Length - 4);
+            }
+        }
+
+        return html;
     }
     
     public async Task<string> FormatHTMLAsync(string html)
@@ -188,14 +205,29 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             image.SetAttributeValue("width", w > 0 ? w : picture.Width);
             image.SetAttributeValue("height", h > 0 ? h : picture.Height);
             
+            // always lazy load
+            image.SetAttributeValue("loading", "lazy");
+
+            // wrap into link to original image, if using downscaled image
+            XElement imageOrLink = image;
+            if (picture.Website1xUrl != null)
+            {
+                var link = new XElement("a");
+                link.SetAttributeValue("href", picture.Url);
+                image.ReplaceWith(link);
+                link.Add(image);
+                imageOrLink = link;
+            }
+
             // wrap into <figure>, unless requested otherwise with custom attribute
             if (image.Attribute("nofigure") == null)
             {
                 var figure = new XElement("figure");
-                image.ReplaceWith(figure);
-                figure.Add(image);
+                imageOrLink.ReplaceWith(figure);
+                figure.Add(imageOrLink);
                 
                 // move alt text to <figcaption>
+
                 var alt = image.Attribute("alt");
                 if (alt != null && alt.Value.Length > 0)
                 {
@@ -204,25 +236,11 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     figure.Add(figcaption);
                 }
 
-                // TODO: unwrap from <p>
-                // This leads to null reference crashes in the outermost foreach from...in,
-                // presumably because the document structure is changed too much
-                // if (figure.Parent != null && figure.Parent.Name == "p" && figure.Parent.Elements().Count() == 1)
-                // {
-                //    figure.Parent.ReplaceWith(figure);
-                // }
-            }
-            
-            // always lazy load
-            image.SetAttributeValue("loading", "lazy");
-
-            // wrap into link to original image, if using downscaled image
-            if (picture.Website1xUrl != null)
-            {
-                var link = new XElement("a");
-                link.SetAttributeValue("href", picture.Url);
-                image.ReplaceWith(link);
-                link.Add(image);
+                // unwrap from <p>
+                if (figure.Parent != null && figure.Parent.Name == "p" && figure.Parent.Elements().Count() == 1)
+                {
+                   figure.Parent.ReplaceWith(figure);
+                }
             }
         }
     }
