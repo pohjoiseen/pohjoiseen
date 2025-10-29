@@ -29,3 +29,21 @@ document.querySelectorAll('.glider-contain').forEach(galleryRoot => {
 // Init maps
 document.querySelectorAll('.leaflet-container')
     .forEach(leafletRoot => initMap(leafletRoot as HTMLElement, (leafletRoot as HTMLElement).dataset['map'] as any));
+
+// keyboard navigation through blog pages or individual posts by Ctrl-Left/Ctrl-Right
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowLeft') {
+        const prevLink = document.querySelector('a.prev.page-numbers') ?? document.querySelector('h4 .prev a');
+        if (prevLink) {
+            e.preventDefault();
+            (prevLink as HTMLElement).click();
+        }         
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowRight') {
+        const nextLink = document.querySelector('a.next.page-numbers') ?? document.querySelector('h4 .next a');
+        if (nextLink) {
+            e.preventDefault();
+            (nextLink as HTMLElement).click();
+        }
+    }
+});
