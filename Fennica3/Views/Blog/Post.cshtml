@@ -45,7 +45,7 @@
         <hr />
         @if ((Model.Post.TitleImageInText ?? false) && Model.Post.TitlePicture != null)
         {
-            @Html.Raw(await ContentFormatter.FormatHTMLAsync($"<p><img alt=\"{Model.Post.TitleImageCaption ?? ""}\" src=\"{Model.Post.TitlePicture.Url}\" /></p>"))
+            @Html.Raw(await ContentFormatter.FormatHTMLAsync($"<p><img alt=\"{Model.Post.TitleImageCaption ?? ""}\" src=\"picture:{Model.Post.TitlePictureId}\" /></p>"))
         }
         @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.Post.ContentMD))
         <hr />
