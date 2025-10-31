@@ -25,6 +25,7 @@ public class HomeController : ControllerBase
             TotalPictures = await _context.Pictures.CountAsync(),
             TotalPicturesWithNoLocation = await _context.Pictures.Where(p => p.PlaceId == null).CountAsync(),
             TotalPlaces = await _context.Places.CountAsync(),
+            TotalPosts = await _context.Posts.CountAsync(),
         };
     }
 }

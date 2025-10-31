@@ -35,7 +35,19 @@ const Home = () => {
                     non-geolocated: <b className="fs-4">{stats.data.totalPicturesWithNoLocation}</b>, 
                     total places: <b className="fs-4">{stats.data.totalPlaces}</b>
                 </p>}
-                <h3>Browse pictures:</h3>
+                <h3>Blog:</h3>
+                <div className="d-flex flex-wrap">
+                    <div className="w-25 pb-1 pe-1">
+                        <Card><CardBody><CardTitle>
+                            <h2>
+                                <i className="bi bi-file-earmark-richtext"/>
+                                &nbsp;
+                                <Link to="/blog">{stats.data ? `${stats.data.totalPosts} post(s)` : 'Loading...'}</Link>
+                            </h2>
+                        </CardTitle></CardBody></Card>
+                    </div>
+                </div>
+                <h3 className="mt-3">Browse pictures:</h3>
                 <div className="d-flex flex-wrap">
                     <div className="w-25 pb-1 pe-1">
                         <Card><CardBody><CardTitle>

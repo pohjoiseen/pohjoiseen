@@ -13,6 +13,7 @@ import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
 import Search from './pages/Search';
 import PlaceRedirect from './pages/PlaceRedirect';
+import Blog from './pages/Blog';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -43,6 +44,8 @@ const App = () => {
                         <Route path="/pictures/all" element={<Pictures sets={false} />} />
                         <Route path="/pictures/folders" element={<Pictures sets={true} />} />
                         <Route path="/pictures/upload" element={<PicturesUpload />} />
+
+                        <Route path="/blog" element={<Blog />} />
                         
                         <Route path="/search" element={<Search />} />
                     </Routes>

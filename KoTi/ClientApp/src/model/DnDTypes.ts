@@ -1,7 +1,8 @@
 ﻿const DnDTypes = {
     REGION: 'region',
     AREA: 'area',
-    PLACE: 'place'
+    PLACE: 'place',
+    POST: 'post',
 };
 
 export default DnDTypes;

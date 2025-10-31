@@ -1,6 +1,7 @@
 ﻿import Area from '../model/Area';
 import Picture from '../model/Picture';
 import Place from '../model/Place';
+import Post from '../model/Post';
 
 // TODO: do we need 'Z' or not?
 export const pictureToFrontend = (picture: any): Picture => {
@@ -24,4 +25,10 @@ export const placeToFrontend = (place: any): Place => {
 export const areaToFrontend = (area: any): Area => {
     area.updatedAt = new Date(area.updatedAt + 'Z');
     return area as Area;
+};
+
+export const postToFrontend = (post: any): Post => {
+    post.date = new Date(post.date + 'Z');
+    post.updatedAt = new Date(post.updatedAt + 'Z');
+    return post as Post;
 };

@@ -10,6 +10,7 @@ import PictureSet from '../model/PictureSet';
 import { getPictureSet, getPictureSets } from '../api/pictureSets';
 import { getStats } from '../api/home';
 import { getTags } from '../api/tags';
+import { getPost, getPosts } from '../api/posts';
 
 export enum QueryKeys {
     STATS = 'stats',
@@ -24,6 +25,8 @@ export enum QueryKeys {
     SETS = 'sets',
     SEARCH = 'search',
     TAGS = 'tags',
+    POST = 'post',
+    POSTS = 'posts',
 }
 
 export const PICTURE_PREVIEW_NUMBER = 10;
@@ -159,4 +162,27 @@ export const useSearchQuery = (options: SearchOptions) => useQuery({
 export const useTagsQuery = (q: string) => useQuery({
     queryKey: [QueryKeys.TAGS, q],
     queryFn: () => q ? getTags(q) : []
+});
+
+export const usePostsQuery = (limit: number, offset: number, searchQuery?: string) => {
+    const queryClient = useQueryClient();
+    return useQuery<ListWithTotal<number>>({
+        queryKey: [QueryKeys.POSTS, { limit, offset, searchQuery }],
+        queryFn: async () => {
+            const result = await getPosts(limit, offset, searchQuery);
+            // store each picture as individual query
+            for (const p of result.data) {
+                queryClient.setQueryData([QueryKeys.POST, p.id], p);
+            }
+            return {
+                total: result.total,
+                data: result.data.map(p => p.id!)
+            };
+        }
+    });
+};
+
+export const usePostQuery = (id: number) => useQuery({
+    queryKey: [QueryKeys.POST, id],
+    queryFn: () => getPost(id),
 });
