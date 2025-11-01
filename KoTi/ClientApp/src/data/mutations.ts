@@ -14,6 +14,8 @@ import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 import Tag from '../model/Tag';
 import { postTag } from '../api/tags';
+import Post from '../model/Post';
+import { deletePost, postPost, putPost } from '../api/posts';
 
 export const useReorderRegionsMutation = () => {
     const queryClient = useQueryClient();
@@ -324,4 +326,38 @@ export const useCreateTagMutation = () => {
             return tag;
         },
     })
+};
+
+export const useCreatePostMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (post: Post) => {
+            post = await postPost(post);
+            await queryClient.invalidateQueries([QueryKeys.POSTS]);
+            return post;
+        },
+    })
+};
+
+export const useUpdatePostMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (post: Post) => {
+            await putPost(post.id, post);
+            await queryClient.invalidateQueries([QueryKeys.POSTS]);
+            await queryClient.invalidateQueries([QueryKeys.POST, post.id]);
+            return post;
+        }
+    });
+};
+
+export const useDeletePostMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (post: Post) => {
+            await deletePost(post.id);
+            await queryClient.invalidateQueries([QueryKeys.POSTS]);
+            await queryClient.invalidateQueries([QueryKeys.POST, post.id]);
+        }
+    });
 };

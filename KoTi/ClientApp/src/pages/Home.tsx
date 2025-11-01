@@ -24,17 +24,12 @@ const Home = () => {
         <Container>
             <p className="text-center">
                 This is <b>KoTi</b> <i>(Kohteiden tietokanta, Finn. Place database)</i>,
-                a geotagged picture library application tailored especially for mapping out Finland.
+                the backoffice application for <code>pohjoiseen.fi</code> and a personal photo and PoI database.
             </p>
             <SearchString onSearch={search} initialTables="Places,Areas,Regions,Countries,PictureSets" />
             {stats.isError && <Alert color="danger">Loading stats: {errorMessage(countries.error)}</Alert>}
             {stats.isLoading && <div className="text-center"><Spinner type="grow" size="sm"/> Loading...</div>}
             {!stats.isLoading && <>
-                {stats.data && <p className="fs-5 text-center">
-                    Total pictures: <b className="fs-4">{stats.data.totalPictures}</b>, 
-                    non-geolocated: <b className="fs-4">{stats.data.totalPicturesWithNoLocation}</b>, 
-                    total places: <b className="fs-4">{stats.data.totalPlaces}</b>
-                </p>}
                 <h3>Blog:</h3>
                 <div className="d-flex flex-wrap">
                     <div className="w-25 pb-1 pe-1">
@@ -47,7 +42,10 @@ const Home = () => {
                         </CardTitle></CardBody></Card>
                     </div>
                 </div>
-                <h3 className="mt-3">Browse pictures:</h3>
+                <h3 className="mt-3">Pictures{stats.data && <>
+                    {' '}(total: <b>{stats.data.totalPictures}</b>,
+                    non-geolocated: <b>{stats.data.totalPicturesWithNoLocation}</b>)
+                </>}</h3>
                 <div className="d-flex flex-wrap">
                     <div className="w-25 pb-1 pe-1">
                         <Card><CardBody><CardTitle>
@@ -68,7 +66,7 @@ const Home = () => {
                         </CardTitle></CardBody></Card>
                     </div>
                     <div className="w-25 pb-1 pe-1">
-                        <Card className="overflow-hidden"><CardBody className="bg-body-secondary"><CardTitle>
+                        <Card className="overflow-hidden"><CardBody><CardTitle>
                             <h2>
                                 <i className="bi bi-upload"/>
                                 &nbsp;
@@ -77,7 +75,9 @@ const Home = () => {
                         </CardTitle></CardBody></Card>
                     </div>
                 </div>
-                <h3 className="mt-3">Browse places:</h3>
+                <h3 className="mt-3">Places{stats.data && <>
+                    {' '}(<b>{stats.data.totalPlaces}</b>)
+                </>}:</h3>
                 {countries.isError && <Alert color="danger">{errorMessage(countries.error)}</Alert>}
                 {countries.isLoading && <div><Spinner type="grow" size="sm"/> Loading...</div>}
                 {countries.isSuccess && <div className="d-flex flex-wrap">

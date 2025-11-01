@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Holvi.Models;
 
@@ -47,6 +49,7 @@ public class Post
     [StringLength(255)]
     public string Name { get; set; } = "";
 
+    [JsonConverter(typeof(DateOnlyJsonConverter))]
     public DateOnly Date { get; set; }
 
     public string ContentMD { get; set; } = "";
@@ -116,5 +119,19 @@ public class Post
     public override string ToString()
     {
         return $"{Date.ToString("yyyy-MM-dd")}-{Name}";
+    }
+    
+    public sealed class DateOnlyJsonConverter : JsonConverter<DateOnly>
+    {
+        public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return DateOnly.FromDateTime(reader.GetDateTime());
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
+        {
+            var isoDate = value.ToString("O");
+            writer.WriteStringValue(isoDate);
+        }
     }
 }

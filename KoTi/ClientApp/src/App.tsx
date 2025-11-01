@@ -14,6 +14,7 @@ import Pictures from './pages/Pictures';
 import Search from './pages/Search';
 import PlaceRedirect from './pages/PlaceRedirect';
 import Blog from './pages/Blog';
+import Post from './pages/Post';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -46,6 +47,7 @@ const App = () => {
                         <Route path="/pictures/upload" element={<PicturesUpload />} />
 
                         <Route path="/blog" element={<Blog />} />
+                        <Route path="/post/:postId" element={<Post />} />
                         
                         <Route path="/search" element={<Search />} />
                     </Routes>
