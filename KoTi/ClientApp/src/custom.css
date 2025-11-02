@@ -437,7 +437,7 @@ header {
 
 /* Insert pane */
 
-.insert-pane {
+.content-editor-pane {
   display: grid;
   grid-template-rows: max-content 1fr;
   height: 100%;

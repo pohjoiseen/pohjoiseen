@@ -1,15 +1,23 @@
+using Fennica3;
 using Holvi;
-using KoTi;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddHolviServices(builder.Configuration);
+builder.Services.AddFennicaServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// KoTi fully includes Fennica3 (for post previews)
+var f3Assembly = typeof(Fennica3.Fennica3).Assembly;
+var part = new AssemblyPart(f3Assembly);
+builder.Services.AddControllersWithViews().ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
 
 var app = builder.Build();
 
@@ -44,8 +52,14 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new CompositeFileProvider(
+        app.Environment.WebRootFileProvider,
+        new PhysicalFileProvider(Path.GetFullPath("../Fennica3/wwwroot")))
+});
 app.UseRouting();
+app.UseRequestLocalization();
 
 app.MapControllerRoute(
     name: "default",

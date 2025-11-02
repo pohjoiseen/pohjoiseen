@@ -47,3 +47,10 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// reload ourselves when requested, used in post preview
+window.addEventListener('message', (e) => {
+    if (e.data === 'reload') {
+        window.location.reload();
+    } 
+});

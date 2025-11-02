@@ -10,6 +10,7 @@ import InsertUpload from './InsertUpload';
 import InsertPostLink from './InsertPostLink';
 
 interface InsertPaneProps {
+    isActive: boolean;
     onInsertText: (text: string) => void;
 }
 
@@ -19,7 +20,7 @@ enum InsertPaneMode {
     PostLink
 }
 
-const InsertPane = ({ onInsertText }: InsertPaneProps) => {
+const InsertPane = ({ isActive, onInsertText }: InsertPaneProps) => {
     const [mode, setMode] = useState(InsertPaneMode.Picture);
     const [insertText, setInsertText] = React.useState('');
     
@@ -39,7 +40,7 @@ const InsertPane = ({ onInsertText }: InsertPaneProps) => {
         }
     }, [setInsertText, onInsertText]);
 
-    return <div className="insert-pane">
+    return <div className={`content-editor-pane ${!isActive ? 'd-none' : ''}`}>
         <Nav pills className="mb-2">
             <NavItem>
                 <NavLink className="cursor-pointer" 

@@ -9,10 +9,12 @@ import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap';
 import { getPicture } from '../api/pictures';
 import { getPost } from '../api/posts';
 import InsertPane from './InsertPane';
+import PreviewPane from './PreviewPane';
 
 interface ContentEditorProps {
     initialValue: string;
     metaTabName: string;
+    previewUrl: string;
     onSave: () => void;
 }
 
@@ -72,10 +74,11 @@ const matchContentLink = (model: monaco.editor.ITextModel, position: monaco.Posi
 }
 
 enum ContentEditorTab {
-    Insert
+    Insert,
+    Preview
 }
 
-const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, metaTabName, onSave }, ref) => {
+const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, metaTabName, previewUrl, onSave }, ref) => {
     const editorElRef = useRef<HTMLDivElement>(null);
     const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const callbacksRef = useRef<Partial<ContentEditorProps>>({});
@@ -200,15 +203,22 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             <Col xs="6"><div className="h-100" ref={editorElRef} /></Col>
             <Col xs="6" className="h-100 overflow-y-auto">
                 <div className="d-flex flex-column h-100">
-                    <Nav tabs className="mb-2">
+                    <Nav tabs className="mb-2 cursor-pointer">
                         <NavItem><NavLink 
                             active={currentTab === ContentEditorTab.Insert}
                             onClick={() => setCurrentTab(ContentEditorTab.Insert)}>
                             Insert
                         </NavLink></NavItem>
+                        <NavItem><NavLink
+                            active={currentTab === ContentEditorTab.Preview}
+                            onClick={() => setCurrentTab(ContentEditorTab.Preview)}>
+                            Preview
+                        </NavLink></NavItem>
                     </Nav>
                     <div className="flex-grow-1 overflow-y-auto">
-                        {currentTab === ContentEditorTab.Insert && <InsertPane onInsertText={insertText} />}
+                        <InsertPane onInsertText={insertText} isActive={currentTab === ContentEditorTab.Insert} />
+                        {/* Preview tab can be just destroyed and recreated when switched to and from, this is even desirable with the big iframe in it */}
+                        {currentTab === ContentEditorTab.Preview && <PreviewPane previewUrl={previewUrl} />}
                     </div>
                 </div>
             </Col>

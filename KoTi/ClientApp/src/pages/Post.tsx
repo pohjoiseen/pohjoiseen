@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback, useRef } from 'react';
 import { Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useParams } from 'react-router-dom';
 import { usePostQuery } from '../data/queries';
@@ -7,7 +8,6 @@ import { errorMessage } from '../util';
 import useTitle from '../hooks/useTitle';
 import ContentEditor, { ContentEditorRef } from '../components/ContentEditor';
 import { useUpdatePostMutation } from '../data/mutations';
-import { useCallback, useRef } from 'react';
 
 const Post = () => {
     // post id from route
@@ -25,6 +25,12 @@ const Post = () => {
     const save = useCallback(async () => {
         await updatePostMutation.mutateAsync({ ...post!, contentMD: editorRef.current!.getValue() });
     }, [updatePostMutation, post]);
+    
+    const previewUrl = post ?
+        `/${post.language}/${post.date.getFullYear()}` + 
+        `/${post.date.getMonth() < 9 ? '0' : ''}${post.date.getMonth() + 1}` +
+        `/${post.date.getDate() < 10 ? '0' : ''}${post.date.getDate()}` +
+        `/${post.name}/` : '';
 
     return <div className="vh-100 d-flex flex-column">
         <NavBar>
@@ -44,6 +50,7 @@ const Post = () => {
         {post && <ContentEditor
             initialValue={post.contentMD}
             metaTabName="Post"
+            previewUrl={previewUrl}
             onSave={save}
             ref={editorRef}
         />}
