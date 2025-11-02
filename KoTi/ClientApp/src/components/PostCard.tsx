@@ -2,41 +2,48 @@
  * Post card for post lists.  Can be dragged but cannot be a drop target.
  */
 import * as React from 'react';
-import { useRef } from 'react';
+import { useRef, MouseEvent, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDrag } from 'react-dnd';
 import { Alert, Card, CardBody, CardTitle, Spinner } from 'reactstrap';
-import DnDTypes from '../model/DnDTypes';
 import { usePostQuery } from '../data/queries';
 
 interface PostCardProps {
     id: number;
+    selected?: boolean;
+    onSelect?: (id: number, ctrlKey: boolean) => void;
 }
 
-const PostCard = ({ id }: PostCardProps) => {
+const PostCard = ({ id, selected, onSelect }: PostCardProps) => {
     const ref = useRef<HTMLDivElement>(null);
-    
-    const [{ isDragging }, drag] = useDrag({
-        type: DnDTypes.POST,
-        item: () => ({ id }),
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging()
-        })
-    });
 
-    drag(ref);
-    
+    useEffect(() => {
+        const onDragStart = (e: DragEvent) => {
+            e.dataTransfer?.clearData();
+            e.dataTransfer?.setData('text/plain', `post:${id}`);
+            e.stopPropagation();
+        };
+        ref.current?.addEventListener('dragstart', onDragStart);
+        return () => ref.current?.removeEventListener('dragstart', onDragStart);
+    }, [id, ref.current]);
+
     const postQuery = usePostQuery(id);
     const post = postQuery.data;
+    
+    const onClick = (e: MouseEvent) => {
+        if (onSelect) {
+            e.preventDefault();
+            onSelect(id, e.ctrlKey);
+        }
+    };
 
     /// render ///
 
-    return <div key={id} ref={ref} className={`w-25 pb-1 pe-1 ${isDragging ? 'is-dragging' : ''}`}>
-        <Card>
+    return <div key={id} className="w-25 pb-1 pe-1">
+        <Card className={selected ? 'shadow-inset': ''} draggable={true} innerRef={ref}>
             <CardBody>
                 {post && <>
-                    {post.titlePicture && <Link to={`/post/${id}`}><img alt="" className="w-100 mb-1" src={post.titlePicture.thumbnailUrl} /></Link>}
-                    <CardTitle tag="h5"><Link to={`/post/${id}`}>{post.title}</Link></CardTitle>
+                    {post.titlePicture && <Link to={`/post/${id}`} onClick={onClick} draggable={false}><img draggable={false} alt="" className="w-100 mb-1" src={post.titlePicture.thumbnailUrl} /></Link>}
+                    <CardTitle tag="h5"><Link to={`/post/${id}`} onClick={onClick} draggable={false}>{post.title}</Link></CardTitle>
                     <p className="small m-0">{post.date.toISOString().substring(0, 10)}-{post.name}</p>
                 </>}
                 {postQuery.isLoading && <Spinner size="sm" />}

@@ -352,7 +352,7 @@ header {
   pointer-events: none;
 }
 
-.picture-upload-overlay.selected {
+.picture-upload-overlay.selected, .shadow-inset {
   box-shadow: rgba(0, 0, 0, 0.9) 0 0 3px 3px inset;
 }
 

@@ -150,7 +150,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         // still results in "Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!" though...
         editor.getContainerDomNode().addEventListener('drop', e => {
             const data = e.dataTransfer?.getData('text/plain');
-            if (data?.startsWith('picture:')) {
+            if (data?.startsWith('picture:') || data?.startsWith('post:')) {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();

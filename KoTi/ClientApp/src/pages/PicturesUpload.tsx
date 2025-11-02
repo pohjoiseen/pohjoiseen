@@ -2,8 +2,8 @@
  * <PicturesUpload>: global picture upload page.  Wraps <Upload> component.
  */
 import * as React from 'react';
-import { FormEvent, useCallback, useRef, useState } from 'react';
-import { Button, Container } from 'reactstrap';
+import { useCallback, useState } from 'react';
+import { Container } from 'reactstrap';
 import NavBar from '../components/NavBar';
 import { PicturesViewMode } from '../components/pictureViewCommon';
 import ViewModeSwitcher from '../components/ViewModeSwitcher';

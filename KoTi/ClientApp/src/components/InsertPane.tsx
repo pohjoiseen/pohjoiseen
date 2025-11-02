@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 import { Button, Nav, NavItem, NavLink } from 'reactstrap';
 import InsertPicture from './InsertPicture';
 import InsertUpload from './InsertUpload';
+import InsertPostLink from './InsertPostLink';
 
 interface InsertPaneProps {
     onInsertText: (text: string) => void;
@@ -14,7 +15,8 @@ interface InsertPaneProps {
 
 enum InsertPaneMode {
     Picture,
-    Upload
+    Upload,
+    PostLink
 }
 
 const InsertPane = ({ onInsertText }: InsertPaneProps) => {
@@ -28,7 +30,15 @@ const InsertPane = ({ onInsertText }: InsertPaneProps) => {
            onInsertText(text);
        }
     }, [setInsertText, onInsertText]);
-    
+
+    const selectPost = useCallback((postId: number | null, insertImmediately?: boolean) => {
+        const text = postId ? "post:" + postId : '';
+        setInsertText(text);
+        if (insertImmediately && postId) {
+            onInsertText(text);
+        }
+    }, [setInsertText, onInsertText]);
+
     return <div className="insert-pane">
         <Nav pills className="mb-2">
             <NavItem>
@@ -45,6 +55,13 @@ const InsertPane = ({ onInsertText }: InsertPaneProps) => {
                     Upload picture
                 </NavLink>
             </NavItem>
+            <NavItem>
+                <NavLink className="cursor-pointer"
+                         active={mode === InsertPaneMode.PostLink}
+                         onClick={() => setMode(InsertPaneMode.PostLink)}>
+                    Post link
+                </NavLink>
+            </NavItem>
             <div className="flex-grow-1" />
             <Button disabled={!insertText} onClick={() => onInsertText(insertText)}>
                 {insertText ? `Insert: ${insertText}` : 'Select an item'}
@@ -52,6 +69,7 @@ const InsertPane = ({ onInsertText }: InsertPaneProps) => {
         </Nav>
         <InsertPicture isActive={mode === InsertPaneMode.Picture} onSelect={selectPicture} />
         <InsertUpload isActive={mode === InsertPaneMode.Upload} onSelect={selectPicture} />
+        <InsertPostLink isActive={mode === InsertPaneMode.PostLink} onSelect={selectPost} />
     </div>;
 };
 
