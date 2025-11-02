@@ -1,4 +1,5 @@
 ﻿import * as React from 'react';
+import { useEffect, useRef } from 'react';
 import Picture, { PICTURE_SIZE_THUMBNAIL } from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
@@ -7,7 +8,7 @@ interface PictureThumbnailProps {
     picture?: Picture;
     isSelected: boolean;
     link?: string;
-    onOpen: () => void;
+    onOpen: (ctrlKey: boolean) => void;
     onRetryUpload: () => void;
     onClick: (isCtrl: boolean, isShift: boolean) => void;
     isError?: boolean;
@@ -28,6 +29,7 @@ interface PictureThumbnailProps {
  * @param isLoading  Display loading spinner
  */
 const PictureThumbnail = ({ picture, isSelected, link, onOpen, onClick, onRetryUpload, isError, isLoading }: PictureThumbnailProps) => {
+    const ref = useRef<HTMLImageElement>(null);
     let title: string = '';
     if (picture) {
         title = picture.photographedAt.toLocaleDateString('fi') + '\n' + (picture.title || picture.filename);
@@ -36,21 +38,36 @@ const PictureThumbnail = ({ picture, isSelected, link, onOpen, onClick, onRetryU
         }
     }
     
+    // pictures must be draggable for <InsertPicture>
+    // but instead of react-dnd machinery, add a simple hanlder ourselves
+    // setting dataTransfer = "picture:XXX".  This way monaco-editor
+    // can understand it
+    useEffect(() => {
+        const onDragStart = (e: DragEvent) => {
+            e.dataTransfer?.clearData();
+            e.dataTransfer?.setData('text/plain', `picture:${picture?.id}`);
+        };
+        ref.current?.addEventListener('dragstart', onDragStart);
+        return () => ref.current?.removeEventListener('dragstart', onDragStart);
+    }, [picture, ref.current]);
+
     const pictureElem = <>
         <img
+            ref={ref}
             height={PICTURE_SIZE_THUMBNAIL}
             width={picture ? Math.round(picture.width / (picture.height / PICTURE_SIZE_THUMBNAIL)) : undefined}
             src={picture?.thumbnailUrl || dummyImageURL}
             alt=""
+            draggable={true}
             tabIndex={0}
             onClick={(e) => {
                 onClick(e.ctrlKey, e.shiftKey);
                 e.stopPropagation();
             }}
-            onDoubleClick={onOpen}
+            onDoubleClick={(e) => onOpen(e.ctrlKey)}
             onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                    onOpen();
+                    onOpen(e.ctrlKey);
                 }
                 if (e.key === ' ') {
                     onClick(e.ctrlKey, e.shiftKey);

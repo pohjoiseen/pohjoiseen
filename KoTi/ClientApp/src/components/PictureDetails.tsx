@@ -20,7 +20,7 @@ import Tag from '../model/Tag';
 interface PictureDetailsProps {
     picture?: Picture;
     isSelected: boolean;
-    onOpen: () => void;
+    onOpen: (ctrlKey: boolean) => void;
     onRetryUpload: () => void;
     onEditPlace?: (placeId: number) => void;
     onClick: (isCtrl: boolean, isShift: boolean) => void;
@@ -164,10 +164,10 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         onClick(e.ctrlKey, e.shiftKey);
                         e.stopPropagation();
                     }}
-                    onDoubleClick={onOpen}
+                    onDoubleClick={(e) => onOpen(e.ctrlKey)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                            onOpen();
+                            onOpen(e.ctrlKey);
                         }
                     }}
                 />

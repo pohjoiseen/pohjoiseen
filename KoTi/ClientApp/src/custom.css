@@ -304,6 +304,7 @@ header {
 
 .picture-thumbnail img {
   cursor: pointer;
+  outline: none;
 }
 
 /* Fullscreen picture */
@@ -347,7 +348,7 @@ header {
 }
 
 .picture-upload-overlay.selected {
-  box-shadow: rgba(0, 0, 0, 0.9) 0 0 3px 3px;
+  box-shadow: rgba(0, 0, 0, 0.9) 0 0 3px 3px inset;
 }
 
 .picture-upload-overlay.shaded {
@@ -427,4 +428,12 @@ header {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Insert pane */
+
+.insert-pane {
+  display: grid;
+  grid-template-rows: max-content 1fr;
+  height: 100%;
 }

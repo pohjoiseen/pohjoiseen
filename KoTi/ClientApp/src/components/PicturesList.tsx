@@ -21,9 +21,9 @@ interface PicturesListProps {
     showMore?: boolean;  // currently only for thumbnails
     pictures: (Picture | number)[];
     currentIndex: number;
-    selection: boolean[];
+    selection: boolean[] | number;
     link?: string;
-    onOpen: (index: number) => void;
+    onOpen: (index: number, ctrlKey: boolean) => void;
     onRetryUpload?: (index: number) => void;
     onSetSelection: (selection: boolean[]) => void;
 }
@@ -32,14 +32,21 @@ interface PictureByIdProps {
     id: number;
     isSelected: boolean;
     link?: string;
-    onOpen?: () => void;
+    onOpen?: (ctrlKey: boolean) => void;
     onClick: (ctrlKey: boolean, shiftKey: boolean) => void;
     onCopy?: (details: PictureDetailsCopyPaste) => void;
     onRetryUpload: () => void;
     onEditPlace?: (placeId: number) => void;
 }
 
-const handleClick = (index: number, lastIndex: number, ctrlKey: boolean, shiftKey: boolean, selection: boolean[], onSetSelection: (selection: boolean[]) => void) => {
+const handleClick = (index: number, lastIndex: number, ctrlKey: boolean, shiftKey: boolean, selection: number | boolean[], onSetSelection: (selection: boolean[]) => void) => {
+    if (typeof selection === 'number') {
+        const newSelection: boolean[] = [];
+        newSelection[index] = true;
+        onSetSelection(newSelection);
+        return;
+    }
+    
     if (shiftKey) {
         const newSelection = [...selection];
         if (index < lastIndex) {
@@ -94,9 +101,9 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRe
             {typeof p === 'number'
                 ? <PictureThumbnailById
                     id={p}
-                    isSelected={selection[key]}
+                    isSelected={typeof selection === 'number' ? selection === key : selection[key]}
                     link={link}
-                    onOpen={() => onOpen(key)}
+                    onOpen={(ctrlKey) => onOpen(key, ctrlKey)}
                     onClick={(ctrlKey, shiftKey) => {
                         handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
                         lastIndex.current = key;
@@ -105,9 +112,9 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRe
                 />
                 : <PictureThumbnail
                     picture={p}
-                    isSelected={selection[key]}
+                    isSelected={typeof selection === 'number' ? selection === key : selection[key]}
                     link={link}
-                    onOpen={() => onOpen(key)}
+                    onOpen={(ctrlKey) => onOpen(key, ctrlKey)}
                     onClick={(ctrlKey, shiftKey) => {
                         handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
                         lastIndex.current = key;
@@ -116,7 +123,7 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRe
                 />
             }
         </Fragment>)}
-        {showMore && <div className="me-2 mb-2 position-relative picture-thumbnail" onClick={() => onOpen(-1)}>
+        {showMore && <div className="me-2 mb-2 position-relative picture-thumbnail" onClick={() => onOpen(-1, false)}>
             <img src={dummyImageURL} height={PICTURE_SIZE_THUMBNAIL} width={PICTURE_SIZE_THUMBNAIL * 3 / 2} alt="" />
             <div className="picture-upload-overlay shaded">
                 <i className="bi bi-three-dots" />
@@ -169,8 +176,8 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSet
                 {typeof p === 'number'
                     ? <PictureDetailsById
                         id={p}
-                        isSelected={selection[key]}
-                        onOpen={() => onOpen(key)}
+                        isSelected={typeof selection === 'number' ? selection === key : selection[key]}
+                        onOpen={(ctrlKey) => onOpen(key, ctrlKey)}
                         onClick={(ctrlKey, shiftKey) => {
                             handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
                             lastIndex.current = key;
@@ -181,9 +188,9 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSet
                     />
                     : <PictureDetails
                         isNotYetUploaded
-                        isSelected={selection[key]}
+                        isSelected={typeof selection === 'number' ? selection === key : selection[key]}
                         picture={p}
-                        onOpen={() => onOpen(key)}
+                        onOpen={(ctrlKey) => onOpen(key, ctrlKey)}
                         onClick={(ctrlKey, shiftKey) => {
                             handleClick(key, lastIndex.current, ctrlKey, shiftKey, selection, onSetSelection);
                             lastIndex.current = key;

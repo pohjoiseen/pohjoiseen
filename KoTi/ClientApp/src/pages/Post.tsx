@@ -41,17 +41,12 @@ const Post = () => {
             {postQuery.isError && <Alert color="danger">Loading post: {errorMessage(postQuery.error)}</Alert>}
             {updatePostMutation.isError && <Alert color="danger">Saving post: {errorMessage(updatePostMutation.error)}</Alert>}
         </Container>
-        <Container fluid className="flex-grow-1">
-            {post && <>
-                <div className="w-50 h-100 m-auto">
-                    <ContentEditor
-                        initialValue={post.contentMD}
-                        onSave={save}
-                        ref={editorRef}
-                    />
-                </div>
-            </>}
-        </Container>
+        {post && <ContentEditor
+            initialValue={post.contentMD}
+            metaTabName="Post"
+            onSave={save}
+            ref={editorRef}
+        />}
     </div>;
 };
 

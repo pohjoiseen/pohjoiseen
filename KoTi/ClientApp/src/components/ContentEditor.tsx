@@ -1,14 +1,18 @@
 /**
- * <ContentEditor>: wrapper for Monaco editor core, customized for editing Markdown content for KoTi/Fennica3.
+ * <ContentEditor>: wrapper for Monaco editor core, customized for editing Markdown content for KoTi/Fennica3,
+ * with side panes for inserting stuff, previewing and editing metadata.
  */
 import * as React from 'react';
 import * as monaco from 'monaco-editor';
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap';
 import { getPicture } from '../api/pictures';
 import { getPost } from '../api/posts';
+import InsertPane from './InsertPane';
 
 interface ContentEditorProps {
     initialValue: string;
+    metaTabName: string;
     onSave: () => void;
 }
 
@@ -67,8 +71,12 @@ const matchContentLink = (model: monaco.editor.ITextModel, position: monaco.Posi
     return 0;
 }
 
-const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, onSave }, ref) => {
-    const elRef = useRef<HTMLDivElement>(null);
+enum ContentEditorTab {
+    Insert
+}
+
+const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, metaTabName, onSave }, ref) => {
+    const editorElRef = useRef<HTMLDivElement>(null);
     const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const callbacksRef = useRef<Partial<ContentEditorProps>>({});
     
@@ -77,7 +85,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
     }, [onSave])
     
     useEffect(() => {
-        monacoRef.current = monaco.editor.create(elRef.current!, {
+        const editor = monaco.editor.create(editorElRef.current!, {
             value: initialValue,
             language: 'markdown',
             wordWrap: 'on',
@@ -85,9 +93,12 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
                 ambiguousCharacters: false
             },
             lineNumbers: 'off',
+            dropIntoEditor: {
+                enabled: true
+            }
         });
         
-        monacoRef.current.addAction({
+        editor.addAction({
             id: 'save',
             label: 'Save',
             keybindings: [
@@ -96,6 +107,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             contextMenuGroupId: "navigation",
             run: () => (callbacksRef.current!.onSave!)()
         });
+        
 
         // picture popups
         monaco.languages.registerHoverProvider('markdown', {
@@ -133,14 +145,42 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             }
         });
 
+        // workaround for "$0" appended to plain text paste data erroneously,
+        // see https://github.com/microsoft/monaco-editor/issues/4386,
+        // workaround from https://github.com/microsoft/monaco-editor/issues/4386#issuecomment-3436268354 there
+        editor.getContainerDomNode().addEventListener('drop', e => {
+            const data = e.dataTransfer?.getData('text/plain');
+            if (data?.startsWith('picture:')) {
+                e.preventDefault();
+                // Handle the drop data yourself
+                const position = editor.getTargetAtClientPoint(e.clientX, e.clientY);
+                if (position?.range && data) {
+                    editor.executeEdits('drop', [
+                        {
+                            range: position.range,
+                            text: data,
+                            forceMoveMarkers: true,
+                        },
+                    ]);
+                }
+            }
+        });
+
         const onWindowResize = () => monacoRef.current!.layout();
         window.addEventListener('resize', onWindowResize);
 
+        monacoRef.current = editor;
+        
         return () => {
             window.removeEventListener('resize', onWindowResize);
             monacoRef.current!.dispose();
         }
     }, []);
+    
+    const insertText = useCallback((text: string) => {
+        const selection = monacoRef.current!.getSelection();
+        monacoRef.current!.executeEdits(null, [{ range: selection!, text, forceMoveMarkers: true }]);
+    }, [monacoRef.current]);
     
     useImperativeHandle(ref, () => ({
         getValue() {
@@ -148,7 +188,27 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         }
     }), []);
     
-    return <div className="w-100 h-100" ref={elRef} />;
+    const [currentTab, setCurrentTab] = useState(ContentEditorTab.Insert);
+    
+    return <Container fluid className="flex-grow-1 overflow-y-auto">
+        <Row className="h-100 overflow-y-auto"> 
+            <Col xs="6"><div className="h-100" ref={editorElRef} /></Col>
+            <Col xs="6" className="h-100 overflow-y-auto">
+                <div className="d-flex flex-column h-100">
+                    <Nav tabs className="mb-2">
+                        <NavItem><NavLink 
+                            active={currentTab === ContentEditorTab.Insert}
+                            onClick={() => setCurrentTab(ContentEditorTab.Insert)}>
+                            Insert
+                        </NavLink></NavItem>
+                    </Nav>
+                    <div className="flex-grow-1 overflow-y-auto">
+                        {currentTab === ContentEditorTab.Insert && <InsertPane onInsertText={insertText} />}
+                    </div>
+                </div>
+            </Col>
+        </Row>
+    </Container>;
 });
 
 export default ContentEditor;
