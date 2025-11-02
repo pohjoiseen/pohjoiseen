@@ -7,7 +7,7 @@ import { search, SearchOptions } from '../api/search';
 import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
 import PictureSet from '../model/PictureSet';
-import { getPictureSet, getPictureSets } from '../api/pictureSets';
+import { getPictureSet, getPictureSetByName, getPictureSets } from '../api/pictureSets';
 import { getStats } from '../api/home';
 import { getTags } from '../api/tags';
 import { getPost, getPosts } from '../api/posts';
@@ -147,6 +147,11 @@ export const usePictureSetQuery = (id: number | null) => useQuery({
         }
         return await getPictureSet(id);
     }
+});
+
+export const usePictureSetByNameQuery = (name: string) => useQuery({
+    queryKey: [QueryKeys.SETS, 'name', name],
+    queryFn: async (): Promise<PictureSet | null> => await getPictureSetByName(name)
 });
 
 export const useSearchQuery = (options: SearchOptions) => useQuery({

@@ -45,6 +45,11 @@ const PictureThumbnail = ({ picture, isSelected, link, onOpen, onClick, onRetryU
     useEffect(() => {
         const onDragStart = (e: DragEvent) => {
             e.dataTransfer?.clearData();
+            e.dataTransfer?.items.clear();
+            if (!picture?.id) {
+                e.preventDefault();
+                return;
+            }
             e.dataTransfer?.setData('text/plain', `picture:${picture?.id}`);
         };
         ref.current?.addEventListener('dragstart', onDragStart);

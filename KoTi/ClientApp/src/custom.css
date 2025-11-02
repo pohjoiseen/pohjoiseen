@@ -37,9 +37,14 @@ header {
   text-decoration: none;
 }
 
-/* Generic cursor: pointer class (why doesn't Bootstrap have it) */
+/* Generic cursor: pointer class (why doesn't Bootstrap have it) and others*/
+
 .cursor-pointer {
   cursor: pointer;
+}
+
+.mvh-100 {
+  min-height: 100vh;
 }
 
 /* Silly "logo" */
@@ -279,8 +284,8 @@ header {
 /* File drop box component */
 
 .filedropbox {
-  position: fixed;
-  top: 65px;
+  position: absolute;
+  top: 10px;
   left: 10px;
   right: 10px;
   bottom: 10px;

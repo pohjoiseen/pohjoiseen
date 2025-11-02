@@ -6,13 +6,15 @@ import * as React from 'react';
 import { useCallback, useState } from 'react';
 import { Button, Nav, NavItem, NavLink } from 'reactstrap';
 import InsertPicture from './InsertPicture';
+import InsertUpload from './InsertUpload';
 
 interface InsertPaneProps {
     onInsertText: (text: string) => void;
 }
 
 enum InsertPaneMode {
-    Picture
+    Picture,
+    Upload
 }
 
 const InsertPane = ({ onInsertText }: InsertPaneProps) => {
@@ -22,22 +24,34 @@ const InsertPane = ({ onInsertText }: InsertPaneProps) => {
     const selectPicture = useCallback((pictureId: number | null, insertImmediately?: boolean) => {
        const text = pictureId ? "picture:" + pictureId : '';
        setInsertText(text);
-       if (insertImmediately) {
+       if (insertImmediately && pictureId) {
            onInsertText(text);
        }
     }, [setInsertText, onInsertText]);
     
     return <div className="insert-pane">
         <Nav pills className="mb-2">
-            <NavItem><NavLink active={mode === InsertPaneMode.Picture} onClick={() => setMode(InsertPaneMode.Picture)}>
-                Photo
-            </NavLink></NavItem>
+            <NavItem>
+                <NavLink className="cursor-pointer" 
+                         active={mode === InsertPaneMode.Picture} 
+                         onClick={() => setMode(InsertPaneMode.Picture)}>
+                    Photo
+                </NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink className="cursor-pointer"
+                         active={mode === InsertPaneMode.Upload} 
+                         onClick={() => setMode(InsertPaneMode.Upload)}>
+                    Upload picture
+                </NavLink>
+            </NavItem>
             <div className="flex-grow-1" />
             <Button disabled={!insertText} onClick={() => onInsertText(insertText)}>
                 {insertText ? `Insert: ${insertText}` : 'Select an item'}
             </Button>
         </Nav>
-        {mode === InsertPaneMode.Picture && <InsertPicture onSelect={selectPicture} />}
+        <InsertPicture isActive={mode === InsertPaneMode.Picture} onSelect={selectPicture} />
+        <InsertUpload isActive={mode === InsertPaneMode.Upload} onSelect={selectPicture} />
     </div>;
 };
 

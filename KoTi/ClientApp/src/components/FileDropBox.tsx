@@ -9,9 +9,10 @@ interface FileDropBoxProps {
 const FileDropBox = ({ onDrop }: FileDropBoxProps) => {
     const [{ isOver }, drop] = useDrop({
         accept: NativeTypes.FILE,
-        collect: (monitor) => ({ isOver: monitor.canDrop() }),
+        collect: (monitor) =>
+            ({ isOver: monitor.canDrop() && monitor.getItemType() === NativeTypes.FILE }),
         drop: (item: { files: FileList }) => { onDrop(item.files) },
-    });
+    }, [onDrop]);
     
     return <div className={'filedropbox ' + (isOver ? 'active' : '')} ref={drop}>
         <h2>Drop file(s) here to upload</h2>

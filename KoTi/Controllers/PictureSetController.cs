@@ -46,7 +46,26 @@ public class PictureSetsController : ControllerBase
         return PictureSetResponseDTO.FromModel(pictureSet, new List<string>(),
             await CreateResponseWithThumbnails(pictureSet.Children));
     }
+    
+    // GET: api/PictureSets/ByName?name=picture-set-name
+    [HttpGet("ByName")]
+    public async Task<ActionResult<PictureSetResponseDTO>> GetPictureSetByName([FromQuery] string name)
+    {
+        // Gets top-level picture set with this name, used to retrieve ids of "special" picture sets 
+        var pictureSet = await _context.PictureSets
+            .Include(ps => ps.Children)
+            .Where(ps => ps.Name == name)
+            .Where(ps => ps.ParentId == null)
+            .FirstOrDefaultAsync();
+        if (pictureSet == null)
+        {
+            return NotFound();
+        }
 
+        return PictureSetResponseDTO.FromModel(pictureSet, new List<string>(),
+            await CreateResponseWithThumbnails(pictureSet.Children));
+    }
+    
     // PUT: api/PictureSets/5
     [HttpPut("{id}")]
     public async Task<IActionResult> PutPictureSet(int id, PictureSetRequestDTO dto)

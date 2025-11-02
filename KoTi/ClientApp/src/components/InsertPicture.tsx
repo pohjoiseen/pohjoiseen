@@ -16,12 +16,13 @@ import PicturesList from './PicturesList';
 import { PicturesViewMode } from './pictureViewCommon';
 
 interface InsertPictureProps {
+    isActive: boolean;
     onSelect: (pictureId: number | null, insertImmediately?: boolean) => void;
 }
 
 const PAGE_SIZE = 100;
 
-const InsertPicture = ({ onSelect }: InsertPictureProps) => {
+const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(0);
     const [currentFullscreen, setCurrentFullscreen] = useState(-1);
@@ -148,8 +149,8 @@ const InsertPicture = ({ onSelect }: InsertPictureProps) => {
     }, [picturesQuery.data, enterFullscreen, onSelect]);
     
     /// render ///
-    
-    return <div className="overflow-y-auto overflow-x-hidden pt-2">
+
+    return <div className={`overflow-y-auto overflow-x-hidden pt-2 ${!isActive ? 'd-none' : ''}`}>
         {picturesQuery.isError && <Alert color="danger">Loading pictures: {errorMessage(picturesQuery.error)}</Alert>}
         {pictureSetQuery.data && <PictureSetList
             pictureSet={pictureSetQuery.data}

@@ -6,3 +6,6 @@
     children?: PictureSet[];
     thumbnailUrls: string[];
 }
+
+export const BLOG_PICTURES_SET = 'Blog Pictures';
+export const COATS_OF_ARMS_SET = 'Coats of Arms';

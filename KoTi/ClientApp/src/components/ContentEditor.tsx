@@ -107,7 +107,6 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             contextMenuGroupId: "navigation",
             run: () => (callbacksRef.current!.onSave!)()
         });
-        
 
         // picture popups
         monaco.languages.registerHoverProvider('markdown', {
@@ -148,10 +147,16 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         // workaround for "$0" appended to plain text paste data erroneously,
         // see https://github.com/microsoft/monaco-editor/issues/4386,
         // workaround from https://github.com/microsoft/monaco-editor/issues/4386#issuecomment-3436268354 there
+        // still results in "Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!" though...
         editor.getContainerDomNode().addEventListener('drop', e => {
             const data = e.dataTransfer?.getData('text/plain');
             if (data?.startsWith('picture:')) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                if (data?.endsWith(':null')) {
+                    return;
+                }
                 // Handle the drop data yourself
                 const position = editor.getTargetAtClientPoint(e.clientX, e.clientY);
                 if (position?.range && data) {
