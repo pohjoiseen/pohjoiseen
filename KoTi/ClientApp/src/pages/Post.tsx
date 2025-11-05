@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Alert, Button, Container, Spinner } from 'reactstrap';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useBlocker, useParams } from 'react-router-dom';
 import { usePostQuery } from '../data/queries';
 import NavBar from '../components/NavBar';
 import { errorMessage } from '../util';
@@ -10,6 +10,7 @@ import ContentEditor, { ContentEditorRef } from '../components/ContentEditor';
 import PostModel from '../model/Post';
 import { useUpdatePostMutation } from '../data/mutations';
 import PostMetaPane from '../components/PostMetaPane';
+import ConfirmModal from '../components/ConfirmModal';
 
 const Post = () => {
     // post id from route
@@ -34,6 +35,19 @@ const Post = () => {
         `/${post.date.getDate() < 10 ? '0' : ''}${post.date.getDate()}` +
         `/${post.name}/` : '';
 
+    // detect unsaved changes both on browser and react-router level
+    useEffect(() =>  {
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (post?.contentMD !== editorRef.current?.getValue()) {
+                e.preventDefault();
+                return 'prevent';
+            }
+        };
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, [post, editorRef]);
+    const blocker = useBlocker(useCallback(() => post?.contentMD !== editorRef.current?.getValue(), [post, editorRef]));
+
     return <div className="vh-100 d-flex flex-column">
         <NavBar>
             <h3>
@@ -57,6 +71,11 @@ const Post = () => {
             onSave={save}
             ref={editorRef}
         />}
+        {blocker.state === 'blocked' && <ConfirmModal 
+            message="You have unsaved changed to the post.  Really navigate away?"
+            isOpen={true}
+            onYes={blocker.proceed} 
+            onNo={blocker.reset} />}
     </div>;
 };
 

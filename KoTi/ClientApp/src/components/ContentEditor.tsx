@@ -179,11 +179,19 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
 
         const onWindowResize = () => monacoRef.current!.layout();
         window.addEventListener('resize', onWindowResize);
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+                callbacksRef.current.onSave?.();
+                e.preventDefault();
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
 
         monacoRef.current = editor;
         
         return () => {
             window.removeEventListener('resize', onWindowResize);
+            window.removeEventListener('keydown', onKeyDown);
             monacoRef.current!.dispose();
         }
     }, []);

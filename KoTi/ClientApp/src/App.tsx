@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -27,30 +27,32 @@ const queryClient = new QueryClient({
     }
 });
 
+const router = createBrowserRouter([
+    { index: true, element: <Home /> },
+    
+    { path: '/country/:countryId', element: <Country /> },
+    { path: '/country/:countryId/region/:regionId', element: <Region /> },
+    { path: '/country/:countryId/region/:regionId/area/new', element: <Area /> },
+    { path: '/country/:countryId/region/:regionId/area/:areaId', element: <Area /> },
+
+    { path: '/place/:placeId', element: <PlaceRedirect /> },
+
+    { path: '/pictures/all', element: <Pictures sets={false} /> },
+    { path: '/pictures/folders', element: <Pictures sets={true} /> },
+    { path: '/pictures/upload', element: <PicturesUpload /> },
+
+    { path: '/blog', element: <Blog /> },
+    { path: '/post/:postId', element: <Post /> },
+
+    { path: '/search', element: <Search /> },
+]);
+
 const App = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <QueryClientProvider client={queryClient}>
                 <ModalContainer>
-                    <Routes>
-                        <Route index={true} element={<Home />} />
-                        
-                        <Route path="/country/:countryId" element={<Country />} />
-                        <Route path="/country/:countryId/region/:regionId" element={<Region />} />
-                        <Route path="/country/:countryId/region/:regionId/area/new" element={<Area />} />
-                        <Route path="/country/:countryId/region/:regionId/area/:areaId" element={<Area />} />
-                        
-                        <Route path="/place/:placeId" element={<PlaceRedirect />} />
-
-                        <Route path="/pictures/all" element={<Pictures sets={false} />} />
-                        <Route path="/pictures/folders" element={<Pictures sets={true} />} />
-                        <Route path="/pictures/upload" element={<PicturesUpload />} />
-
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/post/:postId" element={<Post />} />
-                        
-                        <Route path="/search" element={<Search />} />
-                    </Routes>
+                    <RouterProvider router={router} />
                 </ModalContainer>
             </QueryClientProvider>
         </DndProvider>

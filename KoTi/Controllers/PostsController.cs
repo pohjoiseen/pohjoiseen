@@ -110,7 +110,7 @@ public class PostsController(HolviDbContext dbContext) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var post = new Post();
+        var post = new Post { Language = Fennica3.Fennica3.Languages[0] };
         requestDto.ToModel(post);
         dbContext.Posts.Add(post);
         await dbContext.SaveChangesAsync();

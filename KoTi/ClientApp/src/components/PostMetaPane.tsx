@@ -21,6 +21,9 @@ import { MapType } from '../model/MapDefinitions';
 import GeoIconPicker from './GeoIconPicker';
 import PostCard from './PostCard';
 import InsertPostLink from './InsertPostLink';
+import { useDeletePostMutation } from '../data/mutations';
+import confirmModal from './ConfirmModal';
+import { useNavigate } from 'react-router-dom';
 
 interface PostMetaPaneProps {
     post: Post;
@@ -34,79 +37,95 @@ enum PostMetaPaneMode {
     Geo
 }
 
-const PostMetaMain = ({ post, onChange }: PostMetaPaneProps) => <>
-    <Row className="mb-4 d-flex align-items-center">
-        <Col xs={3}>
-            <Input type="date" value={post.date.toISOString().substring(0, 10)}
-                   onChange={(e) => onChange({ ...post, date: new Date(e.target.value) })}/>
-        </Col>
-        <Col xs={9}>
-            <EditableInline value={post.name}
-                            onChange={(value) => onChange({ ...post, name: value })}
-                            validation={{ required: true }} />
-        </Col>
-    </Row>
-    <EditableInline
-        value={post.title}
-        viewTag="h5"
-        viewClassName="m-0 d-flex align-items-center"
-        onChange={(value) => onChange({ ...post, title: value })}
-        validation={{ required: true }}
-    />
-    <div className="mb-4 mt-2">
-        <FormGroup check inline>
-            <input
-                type="checkbox"
-                className="form-check-input"
-                id="post-draft"
-                checked={post.draft}
-                onChange={(e) => onChange({ ...post, draft: e.target.checked })}
-            />
-            <Label htmlFor="post-draft" check>Draft</Label>
-        </FormGroup>
-        <FormGroup check inline>
-            <input
-                type="checkbox"
-                className="form-check-input"
-                id="post-mini"
-                checked={post.mini}
-                onChange={(e) => onChange({ ...post, mini: e.target.checked })}
-            />
-            <Label htmlFor="post-mini" check>Mini</Label>
-        </FormGroup>
-    </div>
+const PostMetaMain = ({ post, onChange }: PostMetaPaneProps) => {
+    const deletePostMutation = useDeletePostMutation();
+    const navigate = useNavigate();
     
-    <EditableTextarea
-        emptyValueString="Post description..."
-        value={post.description}
-        onChange={(value) => onChange({ ...post, description: value })}
-    />
+    const deletePost = async () => {
+        if (window.prompt('Really delete this post?  This cannot be undone!  Can it be moved to drafts instead?  ' +
+            'If you are really certain, type \'yes, delete it!\'.') === 'yes, delete it!') {
+            await deletePostMutation.mutateAsync(post);
+            navigate('/blog');
+        }
+    };
     
-    <EditableTextarea
-        titleString="Date description"
-        emptyValueString="(optional)"
-        value={post.dateDescription || ''}
-        onChange={(value) => onChange({ ...post, dateDescription: value })}
-    />
-    <EditableTextarea
-        titleString="Location description"
-        emptyValueString="(optional)"
-        value={post.locationDescription || ''}
-        onChange={(value) => onChange({ ...post, locationDescription: value })}
-    />
-    <EditableTextarea
-        titleString="Address"
-        emptyValueString="(optional)"
-        value={post.address || ''}
-        onChange={(value) => onChange({ ...post, address: value })}
-    />
-    <EditableTextarea
-        titleString="Public transport"
-        emptyValueString="(optional)"
-        value={post.publicTransport || ''}
-        onChange={(value) => onChange({ ...post, publicTransport: value })}
-    />
-</>;
+    return <>
+        {deletePostMutation.isError && <Alert color="danger">Deleting post: {errorMessage(deletePostMutation.error)}</Alert>}
+        <Row className="mb-4 d-flex align-items-center">
+            <Col xs={3}>
+                <Input type="date" value={post.date.toISOString().substring(0, 10)}
+                       onChange={(e) => onChange({...post, date: new Date(e.target.value)})}/>
+            </Col>
+            <Col xs={9}>
+                <EditableInline value={post.name}
+                                onChange={(value) => onChange({...post, name: value})}
+                                validation={{required: true}}/>
+            </Col>
+        </Row>
+        <EditableInline
+            value={post.title}
+            viewTag="h5"
+            viewClassName="m-0 d-flex align-items-center"
+            onChange={(value) => onChange({...post, title: value})}
+            validation={{required: true}}
+        />
+        <div className="mb-4 mt-2">
+            <FormGroup check inline>
+                <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id="post-draft"
+                    checked={post.draft}
+                    onChange={(e) => onChange({...post, draft: e.target.checked})}
+                />
+                <Label htmlFor="post-draft" check>Draft</Label>
+            </FormGroup>
+            <FormGroup check inline>
+                <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id="post-mini"
+                    checked={post.mini}
+                    onChange={(e) => onChange({...post, mini: e.target.checked})}
+                />
+                <Label htmlFor="post-mini" check>Mini</Label>
+            </FormGroup>
+        </div>
+
+        <EditableTextarea
+            emptyValueString="Post description..."
+            value={post.description}
+            onChange={(value) => onChange({...post, description: value})}
+        />
+
+        <EditableTextarea
+            titleString="Date description"
+            emptyValueString="(optional)"
+            value={post.dateDescription || ''}
+            onChange={(value) => onChange({...post, dateDescription: value})}
+        />
+        <EditableTextarea
+            titleString="Location description"
+            emptyValueString="(optional)"
+            value={post.locationDescription || ''}
+            onChange={(value) => onChange({...post, locationDescription: value})}
+        />
+        <EditableTextarea
+            titleString="Address"
+            emptyValueString="(optional)"
+            value={post.address || ''}
+            onChange={(value) => onChange({...post, address: value})}
+        />
+        <EditableTextarea
+            titleString="Public transport"
+            emptyValueString="(optional)"
+            value={post.publicTransport || ''}
+            onChange={(value) => onChange({...post, publicTransport: value})}
+        />
+        
+        <Button color="danger" onClick={deletePost}><i className="bi bi-x-lg" /> Delete</Button>
+    </>
+};
 
 const PostMetaTitlePicture = ({ post, onChange }: PostMetaPaneProps) => {
     const [showPicker, setShowPicker] = useState(false);

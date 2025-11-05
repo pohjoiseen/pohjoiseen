@@ -5,7 +5,6 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead.bs5.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
@@ -13,14 +12,9 @@ import reportWebVitals from './reportWebVitals';
 
 polyfillCountryFlagEmojis();
 
-const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement!);
-
-root.render(
-  <BrowserRouter basename={baseUrl!}>
-    <App />
-  </BrowserRouter>);
+root.render(<App />);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

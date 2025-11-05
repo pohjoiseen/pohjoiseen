@@ -39,7 +39,7 @@ const PostCard = ({ id, selected, onSelect }: PostCardProps) => {
     /// render ///
 
     return <div key={id} className="w-25 pb-1 pe-1">
-        <Card className={selected ? 'shadow-inset': ''} draggable={true} innerRef={ref}>
+        <Card className={(selected ? 'shadow-inset ' : '') + (post?.draft ? 'bg-warning-subtle' : '')} draggable={true} innerRef={ref}>
             <CardBody>
                 {post && <>
                     {post.titlePicture && <Link to={`/post/${id}`} onClick={onClick} draggable={false}><img draggable={false} alt="" className="w-100 mb-1" src={post.titlePicture.thumbnailUrl} /></Link>}
