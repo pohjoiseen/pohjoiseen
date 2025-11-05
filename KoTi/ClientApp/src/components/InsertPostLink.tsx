@@ -16,7 +16,7 @@ const POSTS_PER_PAGE = 24;
 const InsertPostLink = ({ isActive, onSelect }: InsertPostLinkProps) => {
     const [page, setPage] = useState(0);
     const [query, setQuery] = useState('');
-    const posts = usePostsQuery(POSTS_PER_PAGE, page * POSTS_PER_PAGE, query);
+    const posts = usePostsQuery(POSTS_PER_PAGE, page * POSTS_PER_PAGE, query, isActive);
     const totalPages = Math.ceil((posts.data?.total ?? 0) / POSTS_PER_PAGE);
     const filterInputRef = useRef<HTMLInputElement>(null);
     const [selectedId, setSelectedId] = useState(0);

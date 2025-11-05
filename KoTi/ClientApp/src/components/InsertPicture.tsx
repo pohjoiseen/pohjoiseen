@@ -178,7 +178,7 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
             </h4>}
             <Paginator page={page} setPage={changePage} totalPages={totalPages} disableKeyboardNav={true} />
             {isFullscreen && <PictureFullscreen
-                picture={fullscreenPictureQuery.data}
+                picture={fullscreenPictureQuery.data!}
                 isError={fullscreenPictureQuery.isError}
                 isLoading={fullscreenPictureQuery.isLoading}
             />}

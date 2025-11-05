@@ -82,7 +82,7 @@ const handleClick = (index: number, lastIndex: number, ctrlKey: boolean, shiftKe
 const PictureThumbnailById = ({ id, isSelected, link, onOpen, onClick, onRetryUpload }: PictureByIdProps) => {
     const pictureQuery = usePictureQuery(id);
     return <PictureThumbnail
-        picture={pictureQuery.data}
+        picture={pictureQuery.data!}
         isSelected={isSelected}
         isError={pictureQuery.isError}
         isLoading={pictureQuery.isLoading && !pictureQuery.isSuccess}
@@ -146,7 +146,7 @@ const PicturesListThumbnails = ({ pictures, noWrap, showMore, link, onOpen, onRe
 const PictureDetailsById = ({ id, isSelected, onOpen, onClick, onCopy, onRetryUpload, onEditPlace }: PictureByIdProps) => {
     const pictureQuery = usePictureQuery(id);
     return <PictureDetails
-        picture={pictureQuery.data}
+        picture={pictureQuery.data!}
         isSelected={isSelected}
         isError={pictureQuery.isError}
         isLoading={pictureQuery.isLoading && !pictureQuery.isSuccess}

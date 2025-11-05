@@ -68,9 +68,9 @@ const InsertPane = ({ isActive, onInsertText }: InsertPaneProps) => {
                 {insertText ? `Insert: ${insertText}` : 'Select an item'}
             </Button>
         </Nav>
-        <InsertPicture isActive={mode === InsertPaneMode.Picture} onSelect={selectPicture} />
-        <InsertUpload isActive={mode === InsertPaneMode.Upload} onSelect={selectPicture} />
-        <InsertPostLink isActive={mode === InsertPaneMode.PostLink} onSelect={selectPost} />
+        <InsertPicture isActive={isActive && mode === InsertPaneMode.Picture} onSelect={selectPicture} />
+        <InsertUpload isActive={isActive && mode === InsertPaneMode.Upload} onSelect={selectPicture} />
+        <InsertPostLink isActive={isActive && mode === InsertPaneMode.PostLink} onSelect={selectPost} />
     </div>;
 };
 

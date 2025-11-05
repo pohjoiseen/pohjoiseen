@@ -343,9 +343,9 @@ export const useUpdatePostMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (post: Post) => {
+            queryClient.setQueryData([QueryKeys.POST, post.id], post);
             await putPost(post.id, post);
             await queryClient.invalidateQueries([QueryKeys.POSTS]);
-            await queryClient.invalidateQueries([QueryKeys.POST, post.id]);
             return post;
         }
     });

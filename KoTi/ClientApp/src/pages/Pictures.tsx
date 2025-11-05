@@ -395,7 +395,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
                 </h4>}
                 <Paginator page={page} setPage={setPage} totalPages={totalPages} disableKeyboardNav={isFullscreen} />
                 {isFullscreen && <PictureFullscreen
-                    picture={fullscreenPictureQuery.data}
+                    picture={fullscreenPictureQuery.data!}
                     isError={fullscreenPictureQuery.isError}
                     isLoading={fullscreenPictureQuery.isLoading}
                 />}

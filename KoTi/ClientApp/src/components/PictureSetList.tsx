@@ -111,7 +111,7 @@ const PictureSetList = ({ pictureSet, onSelect, disableEdit, disableKeyboardNav 
                 .map(ps => <div className="w-25 pb-1 pe-1" key={ps.id}>
                     <Card className={ps.isPrivate ? 'is-private' : ''}>
                         <CardBody>
-                            <div className="picture-set-thumbnails mb-2">
+                            <div className={`picture-set-thumbnails ${ps.thumbnailUrls.length ? 'mb-2' : ''}`}>
                                 {ps.thumbnailUrls.map(url => <a
                                     className="cursor-pointer"
                                     href={`/pictures/folders?folderId=${ps.id}`}

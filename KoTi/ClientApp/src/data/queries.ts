@@ -61,9 +61,9 @@ export const usePlacesQuery = (areaId: number) => useQuery({
     }
 });
 
-export const usePictureQuery = (id: number, disabled?: boolean) => useQuery({
+export const usePictureQuery = (id: number | null | undefined, disabled?: boolean) => useQuery({
     queryKey: [QueryKeys.PICTURE, id],
-    queryFn: () => getPicture(id),
+    queryFn: () => id ? getPicture(id) : null,
     enabled: !disabled
 });
 
@@ -169,7 +169,7 @@ export const useTagsQuery = (q: string) => useQuery({
     queryFn: () => q ? getTags(q) : []
 });
 
-export const usePostsQuery = (limit: number, offset: number, searchQuery?: string) => {
+export const usePostsQuery = (limit: number, offset: number, searchQuery?: string, enabled?: boolean) => {
     const queryClient = useQueryClient();
     return useQuery<ListWithTotal<number>>({
         queryKey: [QueryKeys.POSTS, { limit, offset, searchQuery }],
@@ -183,7 +183,8 @@ export const usePostsQuery = (limit: number, offset: number, searchQuery?: strin
                 total: result.total,
                 data: result.data.map(p => p.id!)
             };
-        }
+        },
+        enabled
     });
 };
 

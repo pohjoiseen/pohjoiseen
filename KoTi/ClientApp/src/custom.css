@@ -223,6 +223,12 @@ header {
   z-index: 0;
 }
 
+.content-editor-pane .mappointpicker {
+  float: none;
+  margin-left: 0;
+  margin-bottom: 8px;
+}
+
 .mappointpicker .mappointpicker-map {
   width: 501px;
   height: 501px;

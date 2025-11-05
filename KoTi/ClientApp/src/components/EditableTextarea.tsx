@@ -11,6 +11,7 @@ interface EditableTextareaProps {
     viewTag?: keyof JSX.IntrinsicElements;
     titleString?: string;
     emptyValueString?: string;
+    viewClassName?: string;
     inputClassName?: string;
     validation?: RegisterOptions;
     editableRef?: Ref<EditableHandle>;
@@ -27,13 +28,14 @@ const nl2br = (value: string): string => {
 }
 
 const EditableTextarea = ({ value, onChange, onStateChange, viewTag,
-                            titleString, emptyValueString, inputClassName, validation, editableRef }: EditableTextareaProps) => {
+                            titleString, emptyValueString, viewClassName, inputClassName, validation, editableRef }: EditableTextareaProps) => {
     return <Editable
         className="d-flex align-items-start"
         viewUI={<EditableTextareaView
             value={value}
             viewTag={viewTag}
             emptyValueString={emptyValueString}
+            viewClassName={viewClassName}
             titleString={titleString}
         />}
         editUI={<EditableTextareaForm
@@ -51,16 +53,18 @@ const EditableTextarea = ({ value, onChange, onStateChange, viewTag,
 interface EditableTextareaViewProps {
     value: string;
     viewTag?: keyof JSX.IntrinsicElements;
+    viewClassName?: string;
     emptyValueString?: string;
     titleString?: string;
 }
 
-const EditableTextareaView = ({ value, viewTag, emptyValueString, titleString }: EditableTextareaViewProps) => {
+const EditableTextareaView = ({ value, viewTag, viewClassName, emptyValueString, titleString }: EditableTextareaViewProps) => {
     const ViewTag = viewTag || 'p';
     const editableContext = useContext(EditableContext);
     return <>
         {(value || emptyValueString) &&
             <ViewTag
+                className={viewClassName}
                 tabIndex={0}
                  onFocus={() => editableContext.onStartEdit()}
             >

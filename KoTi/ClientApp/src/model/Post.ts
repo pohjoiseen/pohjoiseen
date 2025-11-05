@@ -1,6 +1,6 @@
 import Picture from "./Picture";
 
-interface GeoPoint {
+export interface GeoPoint {
     title?: string;
     subtitle?: string;
     description?: string;
@@ -14,12 +14,12 @@ interface GeoPoint {
     links?: Link[];
 }
 
-interface Link {
+export interface Link {
     label: string;
     path: string;
 }
 
-interface CoatOfArms {
+export interface CoatOfArms {
     url: string;
     size?: number;
 }
@@ -34,7 +34,7 @@ interface Post {
     title: string;
     description: string;
     mini: boolean;
-    titlePictureId?: string;
+    titlePictureId?: number;
     titlePicture?: Picture;
     titleImageOffsetY?: number;
     titleImageInText?: boolean;

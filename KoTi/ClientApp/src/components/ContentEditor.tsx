@@ -4,7 +4,7 @@
  */
 import * as React from 'react';
 import * as monaco from 'monaco-editor';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, ReactNode, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap';
 import { getPicture } from '../api/pictures';
 import { getPost } from '../api/posts';
@@ -14,6 +14,7 @@ import PreviewPane from './PreviewPane';
 interface ContentEditorProps {
     initialValue: string;
     metaTabName: string;
+    metaTab: ReactNode;
     previewUrl: string;
     onSave: () => void;
 }
@@ -74,11 +75,12 @@ const matchContentLink = (model: monaco.editor.ITextModel, position: monaco.Posi
 }
 
 enum ContentEditorTab {
+    Meta,
     Insert,
     Preview
 }
 
-const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, metaTabName, previewUrl, onSave }, ref) => {
+const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initialValue, metaTabName, metaTab, previewUrl, onSave }, ref) => {
     const editorElRef = useRef<HTMLDivElement>(null);
     const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const callbacksRef = useRef<Partial<ContentEditorProps>>({});
@@ -98,7 +100,8 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             lineNumbers: 'off',
             dropIntoEditor: {
                 enabled: true
-            }
+            },
+            wordBasedSuggestions: 'off'
         });
         
         editor.addAction({
@@ -113,7 +116,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
 
         // picture popups
         monaco.languages.registerHoverProvider('markdown', {
-            provideHover: async (model, position, token) => {
+            provideHover: async (model, position) => {
                 const pictureId = matchContentLink(model, position, 'picture');
                 if (pictureId) {
                     const picture = await getPicture(pictureId);
@@ -131,7 +134,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
 
         // post popups
         monaco.languages.registerHoverProvider('markdown', {
-            provideHover: async (model, position, token) => {
+            provideHover: async (model, position) => {
                 const postId = matchContentLink(model, position, 'post');
                 if (postId) {
                     const post = await getPost(postId);
@@ -196,7 +199,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         }
     }), []);
     
-    const [currentTab, setCurrentTab] = useState(ContentEditorTab.Insert);
+    const [currentTab, setCurrentTab] = useState(ContentEditorTab.Meta);
     
     return <Container fluid className="flex-grow-1 overflow-y-auto">
         <Row className="h-100 overflow-y-auto"> 
@@ -204,6 +207,11 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             <Col xs="6" className="h-100 overflow-y-auto">
                 <div className="d-flex flex-column h-100">
                     <Nav tabs className="mb-2 cursor-pointer">
+                        <NavItem><NavLink
+                            active={currentTab === ContentEditorTab.Meta}
+                            onClick={() => setCurrentTab(ContentEditorTab.Meta)}>
+                            {metaTabName}
+                        </NavLink></NavItem>
                         <NavItem><NavLink 
                             active={currentTab === ContentEditorTab.Insert}
                             onClick={() => setCurrentTab(ContentEditorTab.Insert)}>
@@ -216,6 +224,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
                         </NavLink></NavItem>
                     </Nav>
                     <div className="flex-grow-1 overflow-y-auto">
+                        <div className={currentTab === ContentEditorTab.Meta ? 'content-editor-pane p-2' : 'd-none'}>{metaTab}</div>
                         <InsertPane onInsertText={insertText} isActive={currentTab === ContentEditorTab.Insert} />
                         {/* Preview tab can be just destroyed and recreated when switched to and from, this is even desirable with the big iframe in it */}
                         {currentTab === ContentEditorTab.Preview && <PreviewPane previewUrl={previewUrl} />}
