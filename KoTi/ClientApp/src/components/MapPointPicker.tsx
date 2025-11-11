@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react';
 import { confirmModal } from './ModalContainer';
 
 // default point to start the map with is approximately Vaasa coordinates because I live there :)
-const DEFAULT_LAT = 63.1;
-const DEFAULT_LNG = 21.6;
-const DEFAULT_ZOOM = 3;
+export const DEFAULT_LAT = 63.1;
+export const DEFAULT_LNG = 21.6;
+export const DEFAULT_ZOOM = 3;
 
 
 interface MapPointPickerProps {

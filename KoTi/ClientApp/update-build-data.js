@@ -1,5 +1,4 @@
 ﻿// adapted from https://stackoverflow.com/a/62879437
-// cannot do it right in package.json because I normally build the project on Windows
 
 const childProcess = require("child_process");
 const fs = require("fs");
@@ -8,7 +7,8 @@ function writeToEnv(key, value) {
     const empty = !key;
 
     if (empty) {
-        fs.writeFileSync(".env", "");
+        // TODO: this needs to be configurable of course
+        fs.writeFileSync(".env", "REACT_APP_PREVIEW_HOST=https://koti.pohjoiseen.fi\n");
     } else {
         fs.appendFileSync(".env", `${key}='${value.trim()}'\n`);
     }

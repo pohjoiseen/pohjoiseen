@@ -156,6 +156,7 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
             pictureSet={pictureSetQuery.data}
             onSelect={(setId) => {
                 setSetId(setId);
+                setPage(0);
                 select(-1);
             }}
             disableKeyboardNav={true}

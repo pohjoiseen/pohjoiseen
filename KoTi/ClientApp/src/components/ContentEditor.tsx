@@ -8,6 +8,7 @@ import { forwardRef, ReactNode, useCallback, useEffect, useImperativeHandle, use
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap';
 import { getPicture } from '../api/pictures';
 import { getPost } from '../api/posts';
+import { useEnsurePictureWebSizesMutation } from '../data/mutations';
 import InsertPane from './InsertPane';
 import PreviewPane from './PreviewPane';
 
@@ -84,16 +85,49 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
     const editorElRef = useRef<HTMLDivElement>(null);
     const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const callbacksRef = useRef<Partial<ContentEditorProps>>({});
+    const ensurePictureWebSizesMutation = useEnsurePictureWebSizesMutation();
     
+    // store onSave into a ref, so that editor as initialized only once in useEffect() below can still always use the current onSave
     useEffect(() => {
         callbacksRef.current = { onSave };
     }, [onSave])
     
+    // performs all possible postprocessing on text that is programmatically inserted (normally internal links to some content)
+    const handleTextInsertion = useCallback((text: string, model: monaco.editor.ITextModel, range: monaco.Range) => {
+        // ensure web size images are created for all inserted picture links
+        if (text.startsWith('picture:')) {
+            const match = text.match(/picture:([0-9]+)/);
+            if (match) {
+                const id = parseInt(match[1]);
+                ensurePictureWebSizesMutation.mutateAsync(id);  // fire and forget
+            }
+
+            // insert full image Markdown markup, unless we are already between brackets
+            if (model.getValueInRange(monaco.Range.fromPositions(range.getStartPosition(), range.getStartPosition().delta(undefined, -1))) !== '(' ||
+                model.getValueInRange(monaco.Range.fromPositions(range.getEndPosition(), range.getEndPosition().delta(undefined, 1))) !== ')') {
+                return `![](${text})`;
+            }
+        }
+
+        // insert full link Markdown markup, unless we are already between brackets
+        if (text.startsWith('post:') || text.startsWith('article')) {
+            if (model.getValueInRange(monaco.Range.fromPositions(range.getStartPosition(), range.getStartPosition().delta(undefined, -1))) !== '(' ||
+                model.getValueInRange(monaco.Range.fromPositions(range.getEndPosition(), range.getEndPosition().delta(undefined, 1))) !== ')') {
+                return `[](${text})`;
+            }
+        }
+        
+        return text;
+    }, [ensurePictureWebSizesMutation]);
+    
+    // actual Monaco initialization
+    // empty dependency array, run this only once, monaco is effectively "uncontrolled input" as far as React parts are concerned
     useEffect(() => {
         const editor = monaco.editor.create(editorElRef.current!, {
             value: initialValue,
             language: 'markdown',
             wordWrap: 'on',
+            // this removes annoying highlighting on short Russian words
             unicodeHighlight: {
                 ambiguousCharacters: false
             },
@@ -101,9 +135,11 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             dropIntoEditor: {
                 enabled: true
             },
+            // this is more annoying than useful in my experience
             wordBasedSuggestions: 'off'
         });
         
+        // add Ctrl-S action
         editor.addAction({
             id: 'save',
             label: 'Save',
@@ -114,7 +150,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             run: () => (callbacksRef.current!.onSave!)()
         });
 
-        // picture popups
+        // picture preview popups
         monaco.languages.registerHoverProvider('markdown', {
             provideHover: async (model, position) => {
                 const pictureId = matchContentLink(model, position, 'picture');
@@ -132,7 +168,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             }
         });
 
-        // post popups
+        // post preview popups
         monaco.languages.registerHoverProvider('markdown', {
             provideHover: async (model, position) => {
                 const postId = matchContentLink(model, position, 'post');
@@ -166,10 +202,11 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
                 // Handle the drop data yourself
                 const position = editor.getTargetAtClientPoint(e.clientX, e.clientY);
                 if (position?.range && data) {
+                    const text = handleTextInsertion(data, editor.getModel()!, position.range);
                     editor.executeEdits('drop', [
                         {
                             range: position.range,
-                            text: data,
+                            text,
                             forceMoveMarkers: true,
                         },
                     ]);
@@ -177,11 +214,19 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             }
         });
 
+        // for some reason explicit resize handling seems to work more reliably
         const onWindowResize = () => monacoRef.current!.layout();
         window.addEventListener('resize', onWindowResize);
+        
         const onKeyDown = (e: KeyboardEvent) => {
+            // handle Ctrl-S also if the editor itself is not focused
             if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
                 callbacksRef.current.onSave?.();
+                e.preventDefault();
+            }
+
+            // prevent accidental Ctrl-Left/Right navigation 
+            if (e.ctrlKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
                 e.preventDefault();
             }
         };
@@ -196,10 +241,12 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         }
     }, []);
     
+    // programmatically insert text into editor
     const insertText = useCallback((text: string) => {
         const selection = monacoRef.current!.getSelection();
+        text = handleTextInsertion(text, monacoRef.current!.getModel()!, selection!);
         monacoRef.current!.executeEdits(null, [{ range: selection!, text, forceMoveMarkers: true }]);
-    }, [monacoRef.current]);
+    }, [monacoRef.current, handleTextInsertion]);
     
     useImperativeHandle(ref, () => ({
         getValue() {

@@ -9,17 +9,8 @@ namespace KoTi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PicturesController : ControllerBase
+public class PicturesController(HolviDbContext dbContext, PictureStorage pictureStorage, PictureUpload pictureUpload) : ControllerBase
 {
-    private readonly HolviDbContext _context;
-    private readonly PictureStorage _pictureStorage;
-
-    public PicturesController(HolviDbContext context, PictureStorage pictureStorage)
-    {
-        _context = context;
-        _pictureStorage = pictureStorage;
-    }
-    
     // GET: api/Pictures
     [HttpGet]
     public async Task<ActionResult<ListWithTotal<PictureResponseDTO>>> GetPictures(
@@ -33,7 +24,7 @@ public class PicturesController : ControllerBase
         [FromQuery(Name = "tagIds")] IList<int>? tagIds,
         [FromQuery] int? minRating)
     {
-        var query = _context.Pictures
+        var query = dbContext.Pictures
             .Include(p => p.Place)
             .ThenInclude(pl => pl!.Area)
             .ThenInclude(a => a.Region)
@@ -108,7 +99,7 @@ public class PicturesController : ControllerBase
     [HttpGet("ForPlace/{placeId}")]
     public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForPlace(int placeId, [FromQuery] int limit)
     {
-        var pictures = await _context.Pictures
+        var pictures = await dbContext.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
@@ -124,7 +115,7 @@ public class PicturesController : ControllerBase
     [HttpGet("ForArea/{areaId}")]
     public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForArea(int areaId, [FromQuery] int limit)
     {
-        var pictures = await _context.Pictures
+        var pictures = await dbContext.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
@@ -140,7 +131,7 @@ public class PicturesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<PictureResponseDTO>> GetPicture(int id)
     {
-        var picture = await _context.Pictures
+        var picture = await dbContext.Pictures
             .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
@@ -159,7 +150,7 @@ public class PicturesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutPicture(int id, PictureRequestDTO dto)
     {
-        var picture = await _context.Pictures
+        var picture = await dbContext.Pictures
             .Include(p => p.Tags)
             .Where(p => p.Id == id)
             .FirstOrDefaultAsync();
@@ -173,13 +164,13 @@ public class PicturesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        dto.ToModel(picture, _context);
+        dto.ToModel(picture, dbContext);
         
-        _context.Entry(picture).State = EntityState.Modified;
+        dbContext.Entry(picture).State = EntityState.Modified;
 
         try
         {
-            await _context.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -206,10 +197,10 @@ public class PicturesController : ControllerBase
         }
 
         var picture = new Picture();
-        dto.ToModel(picture, _context);
+        dto.ToModel(picture, dbContext);
 
-        _context.Pictures.Add(picture);
-        await _context.SaveChangesAsync();
+        dbContext.Pictures.Add(picture);
+        await dbContext.SaveChangesAsync();
 
         return CreatedAtAction("GetPicture", new { id = picture.Id }, picture);
     }
@@ -218,26 +209,26 @@ public class PicturesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePicture(int id)
     {
-        var picture = await _context.Pictures.FindAsync(id);
+        var picture = await dbContext.Pictures.FindAsync(id);
         if (picture == null)
         {
             return NotFound();
         }
 
-        _context.Pictures.Remove(picture);
-        await _context.SaveChangesAsync();
+        dbContext.Pictures.Remove(picture);
+        await dbContext.SaveChangesAsync();
 
         if (!picture.ThumbnailUrl.Equals(picture.Url))
         {
-            await _pictureStorage.DeletePictureAsync(picture.ThumbnailUrl);
+            await pictureStorage.DeletePictureAsync(picture.ThumbnailUrl);
         }
 
         if (!picture.DetailsUrl.Equals(picture.Url))
         {
-            await _pictureStorage.DeletePictureAsync(picture.DetailsUrl);
+            await pictureStorage.DeletePictureAsync(picture.DetailsUrl);
         }
 
-        await _pictureStorage.DeletePictureAsync(picture.Url.Replace(_pictureStorage.PublicUrl, ""));
+        await pictureStorage.DeletePictureAsync(picture.Url.Replace(pictureStorage.PublicUrl, ""));
 
         return NoContent();
     }
@@ -248,35 +239,47 @@ public class PicturesController : ControllerBase
     {
         foreach (var id in ids.Ids)
         {
-            var picture = await _context.Pictures.FindAsync(id);
+            var picture = await dbContext.Pictures.FindAsync(id);
             if (picture == null)
             {
                 continue;
             }
 
-            _context.Pictures.Remove(picture);
+            dbContext.Pictures.Remove(picture);
             // sync after every picture, yes
-            await _context.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
             if (!picture.ThumbnailUrl.Equals(picture.Url))
             {
-                await _pictureStorage.DeletePictureAsync(picture.ThumbnailUrl.Replace(_pictureStorage.PublicUrl, ""));
+                await pictureStorage.DeletePictureAsync(picture.ThumbnailUrl.Replace(pictureStorage.PublicUrl, ""));
             }
 
             if (!picture.DetailsUrl.Equals(picture.Url))
             {
-                await _pictureStorage.DeletePictureAsync(picture.DetailsUrl.Replace(_pictureStorage.PublicUrl, ""));
+                await pictureStorage.DeletePictureAsync(picture.DetailsUrl.Replace(pictureStorage.PublicUrl, ""));
             }
 
-            await _pictureStorage.DeletePictureAsync(picture.Url.Replace(_pictureStorage.PublicUrl, ""));
+            await pictureStorage.DeletePictureAsync(picture.Url.Replace(pictureStorage.PublicUrl, ""));
         }
 
         return NoContent();
     }
 
+    [HttpPost("{id}/WebSizes")]
+    public async Task<IActionResult> EnsureWebSizes(int id)
+    {
+        var picture = await dbContext.Pictures.FindAsync(id);
+        if (picture == null)
+        {
+            return NotFound();
+        }
+
+        await pictureUpload.EnsureWebsiteVersionsExist(picture);
+        return NoContent();
+    }
 
     private bool PictureExists(int id)
     {
-        return (_context.Pictures?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (dbContext.Pictures?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

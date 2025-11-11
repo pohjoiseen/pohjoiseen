@@ -133,8 +133,8 @@ public class PictureUpload
 
 	    // might be already resized but not in database
             var resizedName = $"{picture.Hash}/{GetFilenameWithSuffix(picture.Filename, sizeSuffix, false)}";
-	    var alreadyUploaded = await _pictureStorage.CheckPictureAlreadyUploadedAsync(resizedName);
-	    if (alreadyUploaded == null)
+	        var alreadyUploaded = await _pictureStorage.CheckPictureAlreadyUploadedAsync(resizedName);
+	        if (alreadyUploaded == null)
             {
                 // load image if not done yet
                 if (image == null)
@@ -146,30 +146,28 @@ public class PictureUpload
                 }
 
                 // actually resize and save
-                using (Image resizedImage = image.Clone(x => x.Resize(width, height)))
-                {
-                    // clear metadata from resized versions
-                    resizedImage.Metadata.ExifProfile = null;
-                    resizedImage.Metadata.XmpProfile = null;
+                using Image resizedImage = image.Clone(x => x.Resize(width, height));
+                // clear metadata from resized versions
+                resizedImage.Metadata.ExifProfile = null;
+                resizedImage.Metadata.XmpProfile = null;
 
-                    MemoryStream output = new MemoryStream();
-                    if (picture.Filename.EndsWith(".jpg") || picture.Filename.EndsWith(".jpeg"))
-                    {
-                        await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JpegQualityLevel });
-                    }
-                    else if (picture.Filename.EndsWith(".png"))
-                    {
-                        await resizedImage.SaveAsync(output, new PngEncoder());
-                    }
-                    else
-                    {
-                        throw new Exception("Could not determine format for " + picture.Filename);
-                    }
-                     
-		    output.Seek(0,  SeekOrigin.Begin);
-                    await _pictureStorage.UploadPictureAsync(resizedName, output);
+                MemoryStream output = new MemoryStream();
+                if (picture.Filename.EndsWith(".jpg") || picture.Filename.EndsWith(".jpeg"))
+                {
+                    await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JpegQualityLevel });
                 }
-	    }
+                else if (picture.Filename.EndsWith(".png"))
+                {
+                    await resizedImage.SaveAsync(output, new PngEncoder());
+                }
+                else
+                {
+                    throw new Exception("Could not determine format for " + picture.Filename);
+                }
+                     
+                output.Seek(0,  SeekOrigin.Begin);
+                await _pictureStorage.UploadPictureAsync(resizedName, output);
+            }
 
             if (sizeSuffix == ".1x")
             {

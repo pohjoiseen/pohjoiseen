@@ -25,6 +25,8 @@ public class PostRequestDTO
     public int? TitlePictureId { get; set; }
 
     public bool? TitleImageInText { get; set; }
+    
+    public int? TitleImageOffsetY { get; set; }
 
     public string? TitleImageCaption { get; set; }
 
@@ -50,6 +52,7 @@ public class PostRequestDTO
         model.Mini = Mini;
         model.Draft = Draft;
         model.TitlePictureId = TitlePictureId;
+        model.TitleImageOffsetY = TitleImageOffsetY;
         model.TitleImageInText = TitleImageInText;
         model.TitleImageCaption = TitleImageCaption;
         model.DateDescription = DateDescription;

@@ -16,7 +16,7 @@ import Upload from './Upload';
 import { PicturesViewMode } from './pictureViewCommon';
 import { COATS_OF_ARMS_SET } from '../model/PictureSet';
 import { errorMessage } from '../util';
-import MapPointPicker from './MapPointPicker';
+import MapPointPicker, { DEFAULT_LAT, DEFAULT_LNG } from './MapPointPicker';
 import { MapType } from '../model/MapDefinitions';
 import GeoIconPicker from './GeoIconPicker';
 import PostCard from './PostCard';
@@ -176,7 +176,7 @@ const PostMetaTitlePicture = ({ post, onChange }: PostMetaPaneProps) => {
                 <EditableInline
                     value={post.titleImageOffsetY?.toString() || ''}
                     placeholder="50"
-                    onChange={(value) => onChange({ ...post, titleImageOffsetY: parseInt(value) })}
+                    onChange={(value) => onChange({ ...post, titleImageOffsetY: isNaN(parseInt(value)) ? undefined : parseInt(value) })}
                     validation={{ valueAsNumber: true }}
                 />
             </label>}
@@ -196,7 +196,11 @@ const CoA = ({ coa, onChange, onDelete }: { coa: CoatOfArms, onChange: (coa: Coa
     const coaPictureQuery = usePictureQuery(idParsed);
     
     return <div>
-        {!id && <Alert color="text-danger">Invalid coat of arms record.</Alert>}
+        {!id && <Alert color="text-danger">Invalid coat of arms record.
+            <Button className="d-inline-block w-auto ms-2" color="danger" onClick={() => window.confirm('Delete coat of arms?') && onDelete()}>
+                <i className="bi bi-x" /> Delete
+            </Button>
+        </Alert>}
         {coaPictureQuery.isLoading && <Spinner type="grow" />}
         {coaPictureQuery.isError && <Alert color="text-danger">Coat of arms loading failed.</Alert>}
         {coaPictureQuery.data && <div className="d-flex gap-2">
@@ -484,8 +488,7 @@ const PostMetaGeo = ({ post, onChange }: PostMetaPaneProps) => {
                      onChange({ ...post, geo: geos });
                  }} />)}
         <div>
-            <Button className="me-2" onClick={() => {
-            }}>Add...</Button>
+            <Button className="me-2" onClick={() => onChange({ ...post, geo: [...(post.geo || []), { lat: DEFAULT_LAT, lng: DEFAULT_LNG, zoom: 0 }]})}>Add...</Button>
         </div>
     </>;
 };

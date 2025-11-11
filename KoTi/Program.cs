@@ -5,9 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
+builder.Configuration.AddJsonFile("KoTi.appsettings.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile($"KoTi.appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 builder.Services.AddHolviServices(builder.Configuration);
 builder.Services.AddFennicaServices(builder.Configuration);
 builder.Services.AddControllers();

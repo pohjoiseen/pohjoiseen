@@ -194,7 +194,17 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
 
     private async Task<Post?> GetPostAsync(string language, int year, int month, int day, string name)
     {
-        var date = new DateOnly(year, month, day);
+        DateOnly date;
+        // swallow improperly parsed date, this usually means just wrong URL
+        try
+        {
+            date = new DateOnly(year, month, day);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
         var post = await dbContext.Posts
             .Include(p => p.TitlePicture)
             .FirstOrDefaultAsync(p => p.Language == language && p.Date == date &&

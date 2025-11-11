@@ -5,7 +5,8 @@ using Fennica3;
 using Holvi;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddJsonFile("Fennica3.appsettings.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile($"Fennica3.appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 builder.Services.AddHolviServices(builder.Configuration);
 builder.Services.AddFennicaServices(builder.Configuration);
 builder.Services.AddControllersWithViews();

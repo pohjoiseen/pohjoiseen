@@ -105,7 +105,7 @@ export const postPicture = async (picture: Picture): Promise<Picture> => {
         await handleError(response);
     }
     return pictureToFrontend(await response.json());
-}
+};
 
 export const deletePicture = async (id: number): Promise<void> => {
     const response = await fetch(`api/Pictures/${id}`, {
@@ -114,7 +114,7 @@ export const deletePicture = async (id: number): Promise<void> => {
     if (!response.ok || response.status !== 204) {
         await handleError(response);
     }
-}
+};
 
 export const deletePictures = async (ids: number[]): Promise<void> => {
     const response = await fetch('api/Pictures', {
@@ -123,6 +123,15 @@ export const deletePictures = async (ids: number[]): Promise<void> => {
         headers: {
             'Content-Type': 'application/json'
         }
+    });
+    if (!response.ok || response.status !== 204) {
+        await handleError(response);
+    }
+};
+
+export const ensureWebSizes = async (id: number): Promise<void> => {
+    const response = await fetch(`api/Pictures/${id}/WebSizes`, {
+        method: 'POST',
     });
     if (!response.ok || response.status !== 204) {
         await handleError(response);

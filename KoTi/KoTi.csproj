@@ -65,4 +65,20 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
+    
+  <!-- https://github.com/dotnet/sdk/issues/22716#issuecomment-2276449122 -->
+  <Target Name="DeleteAllAppsettings" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <AppSettingsFilesToDelete Include="$(OutputPath)appsettings*.json" />
+    </ItemGroup>
+    <Delete Files="@(AppSettingsFilesToDelete)" />
+    <Message Text="Deleted appsettings JSON files: @(AppSettingsFilesToDelete)" Importance="high" />
+  </Target>
+  <Target Name="CopyProjectAppSettings" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <AppSettingsJsonFiles Include="appsettings*.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AppSettingsJsonFiles)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="false" />
+    <Message Text="Copied project appsettings JSON files to output directory." Importance="high" />
+  </Target>
 </Project>

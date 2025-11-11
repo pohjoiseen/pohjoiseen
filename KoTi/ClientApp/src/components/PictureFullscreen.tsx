@@ -29,7 +29,7 @@ const PictureFullscreen = ({ picture, onRetryUpload, isError, isLoading }: Pictu
         document.body.classList.add('overlay');
         return () => {
             document.body.classList.remove('overlay');
-            window.scrollTo({ top: scrollPosition, left: 0, behavior: 'auto' });
+            window.scrollTo(0, scrollPosition);
             document.getElementById('root')!.style.top = 0 + 'px';
         };
     }, []);

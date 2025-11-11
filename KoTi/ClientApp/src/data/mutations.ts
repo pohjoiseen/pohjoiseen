@@ -9,7 +9,7 @@ import { deleteRegion, postRegion, putRegion, reorderAreasInRegion } from '../ap
 import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas';
 import { deletePlace, postPlace, putPlace } from '../api/places';
 import Picture from '../model/Picture';
-import { deletePicture, deletePictures, postPicture, putPicture } from '../api/pictures';
+import { deletePicture, deletePictures, ensureWebSizes, postPicture, putPicture } from '../api/pictures';
 import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 import Tag from '../model/Tag';
@@ -265,6 +265,13 @@ export const useDeletePicturesMutation = () => {
             await deletePictures(ids);
             await queryClient.invalidateQueries({ queryKey: [QueryKeys.PICTURES] });
         }
+    });
+};
+
+export const useEnsurePictureWebSizesMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (picture: Picture | number) => await ensureWebSizes(typeof picture === 'number' ? picture : picture.id!)
     });
 };
 

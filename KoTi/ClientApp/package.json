@@ -58,7 +58,7 @@
   "scripts": {
     "prestart": "node aspnetcore-https && node aspnetcore-react",
     "start": "rimraf ./build && node update-build-data.js && react-scripts start",
-    "build": "node update-build-data.js && react-scripts build",
+    "build": "node update-build-data.js && GENERATE_SOURCEMAP=false react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/"

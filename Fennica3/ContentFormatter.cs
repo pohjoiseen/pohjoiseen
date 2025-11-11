@@ -194,10 +194,14 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             if (picture.Website1xUrl != null)
             {
                 image.SetAttributeValue("src", picture.Website1xUrl);
-            }
-            if (picture.Website2xUrl != null)
-            {
-                image.SetAttributeValue("srcset", $"{picture.Website1xUrl}, {picture.Website2xUrl} 2x");
+                if (picture.Website2xUrl != null)
+                {
+                    image.SetAttributeValue("srcset", $"{picture.Website1xUrl}, {picture.Website2xUrl} 2x");
+                }
+                else
+                {
+                    image.SetAttributeValue("srcset", $"{picture.Website1xUrl}, {picture.Url} 2x");
+                }
             }
 
             // set proper sizes
