@@ -41,6 +41,15 @@ const Home = () => {
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
+                    <div className="w-25 pb-1 pe-1">
+                        <Card><CardBody><CardTitle>
+                            <h2>
+                                <i className="bi bi-file-earmark"/>
+                                &nbsp;
+                                <Link to="/articles">{stats.data ? `${stats.data.totalArticles} article(s)` : 'Loading...'}</Link>
+                            </h2>
+                        </CardTitle></CardBody></Card>
+                    </div>
                 </div>
                 <h3 className="mt-3">Pictures{stats.data && <>
                     {' '}(total: <b>{stats.data.totalPictures}</b>,

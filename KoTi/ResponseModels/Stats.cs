@@ -9,4 +9,6 @@ public class Stats
     public int TotalPlaces { get; set; }
     
     public int TotalPosts { get; set; }
+    
+    public int TotalArticles { get; set; }
 }

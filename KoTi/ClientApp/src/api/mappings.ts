@@ -2,6 +2,7 @@
 import Picture from '../model/Picture';
 import Place from '../model/Place';
 import Post from '../model/Post';
+import Article from '../model/Article';
 
 // TODO: do we need 'Z' or not?
 export const pictureToFrontend = (picture: any): Picture => {
@@ -31,4 +32,9 @@ export const postToFrontend = (post: any): Post => {
     post.date = new Date(post.date + 'Z');
     post.updatedAt = new Date(post.updatedAt + 'Z');
     return post as Post;
+};
+
+export const articleToFrontend = (article: any): Article => {
+    article.updatedAt = new Date(article.updatedAt + 'Z');
+    return article as Article;
 };

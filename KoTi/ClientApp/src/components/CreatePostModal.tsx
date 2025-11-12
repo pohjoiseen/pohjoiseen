@@ -2,15 +2,14 @@ import * as React from 'react';
 import { Button, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { useForm } from 'react-hook-form';
 import { useEffect, useRef } from 'react';
-import Post from '../model/Post';
 
 interface CreatePostModalProps {
     onClose: () => void;
-    onSubmit: (post: Post) => void;
+    onSubmit: (post: { id: number, name: string, title: string, language: string }) => void;
 }
 const CreateModal = ({ onClose, onSubmit }: CreatePostModalProps) => {
     const { register, handleSubmit,
-        formState: { errors } } = useForm<Post>({ defaultValues: { id: 0, name: '', title: '', language: 'ru', date: new Date() } });
+        formState: { errors } } = useForm<{ id: number, name: string, title: string, language: string }>({ defaultValues: { id: 0, name: '', title: '', language: 'ru' } });
     const inputRef = useRef<HTMLInputElement | null>();
     const { ref, ...rest } = register('title', { required: true });
     useEffect(() => {

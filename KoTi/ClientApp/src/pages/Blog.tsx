@@ -65,7 +65,15 @@ const Blog = () => {
             <Paginator page={page} setPage={setPage} totalPages={totalPages} />
             {isAddPostOpen && <CreatePostModal
                 onClose={() => setAddPostOpen(false)}
-                onSubmit={(post) => create(post)}
+                onSubmit={(post) => create({ 
+                    ...post,
+                    date: new Date(),
+                    draft: true,
+                    contentMD: '',
+                    description: '',
+                    mini: false,
+                    updatedAt: new Date()
+                })}
             />}
         </Container>
     </div>;

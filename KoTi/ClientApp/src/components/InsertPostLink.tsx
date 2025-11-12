@@ -47,7 +47,7 @@ const InsertPostLink = ({ isActive, onSelect }: InsertPostLinkProps) => {
                 ref={filterInputRef}
             />
         </div>
-        {posts.isSuccess && !posts.data.total && <p className="text-muted">No posts yet!</p>}
+        {posts.isSuccess && !posts.data.total && <p className="text-muted">{query ? 'No posts found!' : 'No posts yet!'}</p>}
         {posts.isSuccess && <div className="d-flex flex-wrap">
             {posts.data.data.map((p) =>
                 <PostCard key={p} id={p} selected={p === selectedId} onSelect={select} />)}

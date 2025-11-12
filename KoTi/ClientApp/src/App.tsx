@@ -15,6 +15,8 @@ import Search from './pages/Search';
 import PlaceRedirect from './pages/PlaceRedirect';
 import Blog from './pages/Blog';
 import Post from './pages/Post';
+import Articles from './pages/Articles';
+import Article from './pages/Article';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -44,6 +46,9 @@ const router = createBrowserRouter([
     { path: '/blog', element: <Blog /> },
     { path: '/post/:postId', element: <Post /> },
 
+    { path: '/articles', element: <Articles /> },
+    { path: '/article/:articleId', element: <Article /> },
+    
     { path: '/search', element: <Search /> },
 ]);
 

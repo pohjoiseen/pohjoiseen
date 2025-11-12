@@ -11,6 +11,7 @@ import { getPost } from '../api/posts';
 import { useEnsurePictureWebSizesMutation } from '../data/mutations';
 import InsertPane from './InsertPane';
 import PreviewPane from './PreviewPane';
+import { getArticle } from '../api/articles';
 
 interface ContentEditorProps {
     initialValue: string;
@@ -186,13 +187,30 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             }
         });
 
+        // article preview popups
+        monaco.languages.registerHoverProvider('markdown', {
+            provideHover: async (model, position) => {
+                const articleId = matchContentLink(model, position, 'article');
+                if (articleId) {
+                    const article = await getArticle(articleId);
+                    if (article) {
+                        return {
+                            contents: [
+                                { value: `**${article.title}**  \n${article.name}`},
+                            ]
+                        };
+                    }
+                }
+            }
+        });
+        
         // workaround for "$0" appended to plain text paste data erroneously,
         // see https://github.com/microsoft/monaco-editor/issues/4386,
         // workaround from https://github.com/microsoft/monaco-editor/issues/4386#issuecomment-3436268354 there
         // still results in "Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!" though...
         editor.getContainerDomNode().addEventListener('drop', e => {
             const data = e.dataTransfer?.getData('text/plain');
-            if (data?.startsWith('picture:') || data?.startsWith('post:')) {
+            if (data?.startsWith('picture:') || data?.startsWith('post:') || data?.startsWith('article:')) {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();

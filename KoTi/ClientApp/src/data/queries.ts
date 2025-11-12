@@ -11,6 +11,7 @@ import { getPictureSet, getPictureSetByName, getPictureSets } from '../api/pictu
 import { getStats } from '../api/home';
 import { getTags } from '../api/tags';
 import { getPost, getPosts } from '../api/posts';
+import { getArticle, getArticles } from '../api/articles';
 
 export enum QueryKeys {
     STATS = 'stats',
@@ -27,6 +28,8 @@ export enum QueryKeys {
     TAGS = 'tags',
     POST = 'post',
     POSTS = 'posts',
+    ARTICLES = 'articles',
+    ARTICLE = 'article',
 }
 
 export const PICTURE_PREVIEW_NUMBER = 10;
@@ -175,7 +178,7 @@ export const usePostsQuery = (limit: number, offset: number, searchQuery?: strin
         queryKey: [QueryKeys.POSTS, { limit, offset, searchQuery }],
         queryFn: async () => {
             const result = await getPosts(limit, offset, searchQuery);
-            // store each picture as individual query
+            // store each post as individual query
             for (const p of result.data) {
                 queryClient.setQueryData([QueryKeys.POST, p.id], p);
             }
@@ -191,4 +194,27 @@ export const usePostsQuery = (limit: number, offset: number, searchQuery?: strin
 export const usePostQuery = (id: number) => useQuery({
     queryKey: [QueryKeys.POST, id],
     queryFn: () => getPost(id),
+});
+
+export const useArticlesQuery = (limit: number, offset: number, enabled?: boolean) => {
+    const queryClient = useQueryClient();
+    return useQuery<ListWithTotal<number>>({
+        queryKey: [QueryKeys.ARTICLES, { limit, offset }],
+        queryFn: async () => {
+            const result = await getArticles(limit, offset);
+            for (const a of result.data) {
+                queryClient.setQueryData([QueryKeys.ARTICLES, a.id], a);
+            }
+            return {
+                total: result.total,
+                data: result.data.map(a => a.id!)
+            };
+        },
+        enabled
+    });
+};
+
+export const useArticleQuery = (id: number) => useQuery({
+    queryKey: [QueryKeys.ARTICLE, id],
+    queryFn: () => getArticle(id),
 });

@@ -16,6 +16,8 @@ import Tag from '../model/Tag';
 import { postTag } from '../api/tags';
 import Post from '../model/Post';
 import { deletePost, postPost, putPost } from '../api/posts';
+import Article from '../model/Article';
+import { deleteArticle, postArticle, putArticle } from '../api/articles';
 
 export const useReorderRegionsMutation = () => {
     const queryClient = useQueryClient();
@@ -365,6 +367,40 @@ export const useDeletePostMutation = () => {
             await deletePost(post.id);
             await queryClient.invalidateQueries([QueryKeys.POSTS]);
             await queryClient.invalidateQueries([QueryKeys.POST, post.id]);
+        }
+    });
+};
+
+export const useCreateArticleMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (article: Article) => {
+            article = await postArticle(article);
+            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
+            return article;
+        },
+    })
+};
+
+export const useUpdateArticleMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (article: Article) => {
+            queryClient.setQueryData([QueryKeys.ARTICLE, article.id], article);
+            await putArticle(article.id, article);
+            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
+            return article;
+        }
+    });
+};
+
+export const useDeleteArticleMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (article: Article) => {
+            await deleteArticle(article.id);
+            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
+            await queryClient.invalidateQueries([QueryKeys.ARTICLE, article.id]);
         }
     });
 };
