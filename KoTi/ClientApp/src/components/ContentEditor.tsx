@@ -8,10 +8,10 @@ import { forwardRef, ReactNode, useCallback, useEffect, useImperativeHandle, use
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap';
 import { getPicture } from '../api/pictures';
 import { getPost } from '../api/posts';
+import { getArticle } from '../api/articles';
 import { useEnsurePictureWebSizesMutation } from '../data/mutations';
 import InsertPane from './InsertPane';
 import PreviewPane from './PreviewPane';
-import { getArticle } from '../api/articles';
 
 interface ContentEditorProps {
     initialValue: string;
@@ -24,6 +24,34 @@ interface ContentEditorProps {
 export interface ContentEditorRef {
     getValue: () => string;
 } 
+
+// wraps or unwraps text in the editor with specified strings
+const wrapText = (editor: monaco.editor.IStandaloneCodeEditor, before: string, after: string)=> {
+    const range = editor.getSelection(), model = editor.getModel() as monaco.editor.ITextModel;
+    if (!range) {
+        return;
+    }
+    
+    // if already wrapped in same strings, remove them instead
+    const offsetBefore = model.getOffsetAt(range.getStartPosition());
+    const offsetAfter = model.getOffsetAt(range.getEndPosition());
+    const rangeBefore = monaco.Range.fromPositions(range.getStartPosition(), model.getPositionAt(offsetBefore + before.length));
+    if (model.getValueInRange(rangeBefore) === before) {
+        const rangeAfter = monaco.Range.fromPositions(model.getPositionAt(offsetAfter - after.length), range.getEndPosition());
+        if (model.getValueInRange(rangeAfter) === after) {
+            editor.executeEdits(null, [
+                { range: rangeBefore, text: null },
+                { range: rangeAfter, text: null }
+            ]);
+            return;
+        }
+    }
+
+    editor.executeEdits(null, [
+        { range: monaco.Range.fromPositions(range.getStartPosition()), text: before },
+        { range: monaco.Range.fromPositions(range.getEndPosition()), text: after }
+    ]);
+};
 
 // match content (picture:XXX, post:XXX, etc.) link under position
 // return content id if found or 0 if not
@@ -106,7 +134,7 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             // insert full image Markdown markup, unless we are already between brackets
             if (model.getValueInRange(monaco.Range.fromPositions(range.getStartPosition(), range.getStartPosition().delta(undefined, -1))) !== '(' ||
                 model.getValueInRange(monaco.Range.fromPositions(range.getEndPosition(), range.getEndPosition().delta(undefined, 1))) !== ')') {
-                return `![](${text})`;
+                return `![](${text})\n`;
             }
         }
 
@@ -149,6 +177,38 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             ],
             contextMenuGroupId: "navigation",
             run: () => (callbacksRef.current!.onSave!)()
+        });
+
+        // add actions for wrapping stuff into markup
+        editor.addAction({
+            id: 'bold',
+            label: 'Bold',
+            keybindings: [
+                monaco.KeyCode.KeyB | monaco.KeyMod.CtrlCmd
+            ],
+            contextMenuGroupId: "1_modification",
+            precondition: "editorHasSelection",
+            run: (editor) => wrapText(editor as monaco.editor.IStandaloneCodeEditor, '**', '**')
+        });
+        editor.addAction({
+            id: 'italic',
+            label: 'Italic',
+            keybindings: [
+                monaco.KeyCode.KeyI | monaco.KeyMod.CtrlCmd
+            ],
+            contextMenuGroupId: "1_modification",
+            precondition: "editorHasSelection",
+            run: (editor) => wrapText(editor as monaco.editor.IStandaloneCodeEditor, '_', '_')
+        });
+        editor.addAction({
+            id: 'gallery',
+            label: 'Gallery',
+            keybindings: [
+                monaco.KeyCode.KeyG | monaco.KeyMod.CtrlCmd
+            ],
+            contextMenuGroupId: "1_modification",
+            precondition: "editorHasSelection",
+            run: (editor) => wrapText(editor as monaco.editor.IStandaloneCodeEditor, '<!--gallery-->\n', '\n<!--/gallery-->')
         });
 
         // picture preview popups
