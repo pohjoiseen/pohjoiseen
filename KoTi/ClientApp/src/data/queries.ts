@@ -12,6 +12,7 @@ import { getStats } from '../api/home';
 import { getTags } from '../api/tags';
 import { getPost, getPosts } from '../api/posts';
 import { getArticle, getArticles } from '../api/articles';
+import { getRedirects } from '../api/redirects';
 
 export enum QueryKeys {
     STATS = 'stats',
@@ -30,6 +31,7 @@ export enum QueryKeys {
     POSTS = 'posts',
     ARTICLES = 'articles',
     ARTICLE = 'article',
+    REDIRECTS = 'redirects',
 }
 
 export const PICTURE_PREVIEW_NUMBER = 10;
@@ -217,4 +219,9 @@ export const useArticlesQuery = (limit: number, offset: number, enabled?: boolea
 export const useArticleQuery = (id: number) => useQuery({
     queryKey: [QueryKeys.ARTICLE, id],
     queryFn: () => getArticle(id),
+});
+
+export const useRedirectsQuery = (limit: number, offset: number) => useQuery({
+    queryKey: [QueryKeys.REDIRECTS, { limit, offset }],
+    queryFn: async () => await getRedirects(limit, offset)
 });

@@ -50,6 +50,15 @@ const Home = () => {
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
+                    <div className="w-25 pb-1 pe-1">
+                        <Card><CardBody><CardTitle>
+                            <h2>
+                                <i className="bi bi-arrow-90deg-right"/>
+                                &nbsp;
+                                <Link to="/redirects">Redirects</Link>
+                            </h2>
+                        </CardTitle></CardBody></Card>
+                    </div>
                 </div>
                 <h3 className="mt-3">Pictures{stats.data && <>
                     {' '}(total: <b>{stats.data.totalPictures}</b>,

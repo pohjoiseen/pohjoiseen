@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Button, Container, Spinner } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import { errorMessage } from '../util';

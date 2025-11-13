@@ -2,6 +2,7 @@
 // Fennica3 blog front-end ASP.NET MVC application.  See README.md.
 //
 using Fennica3;
+using Fennica3.Middleware;
 using Holvi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRedirectMiddleware();
 app.UseRouting();
 app.UseRequestLocalization();
 app.UseStatusCodePagesWithReExecute("/status-code/{0}");

@@ -10,10 +10,24 @@
         if (json.title) {
             throw new Error(json.title);
         } else {
-            throw new Error(`${response.status} ${response.statusText}, see console`);
+            throw new ServerError(response, body, json);
         }
     } else {
         console.error(`${response.status} ${response.statusText}`, body);
-        throw new Error(`${response.status} ${response.statusText}, see console`);
+        throw new ServerError(response, body);
+    }
+}
+
+export class ServerError extends Error {
+    public response: Response;
+    public body: string;
+    public json: any;
+    
+    constructor(response: Response, body: string, json: any = null) {
+        super();
+        this.message = `${response.status} ${response.statusText}, see console`;
+        this.response = response;
+        this.body = body;
+        this.json = json;
     }
 }

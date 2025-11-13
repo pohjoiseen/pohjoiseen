@@ -14,6 +14,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     public DbSet<Tag> Tags { get; init; } = null!;
     public DbSet<Article> Articles { get; init; } = null!;
     public DbSet<Post> Posts { get; init; } = null!;
+    public DbSet<Redirect> Redirects { get; init; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

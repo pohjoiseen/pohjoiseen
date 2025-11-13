@@ -17,6 +17,7 @@ import Blog from './pages/Blog';
 import Post from './pages/Post';
 import Articles from './pages/Articles';
 import Article from './pages/Article';
+import Redirects from './pages/Redirects';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -48,6 +49,8 @@ const router = createBrowserRouter([
 
     { path: '/articles', element: <Articles /> },
     { path: '/article/:articleId', element: <Article /> },
+
+    { path: '/redirects', element: <Redirects /> },
     
     { path: '/search', element: <Search /> },
 ]);
