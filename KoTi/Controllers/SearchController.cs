@@ -94,6 +94,12 @@ public class SearchController : ControllerBase
 
             case "PictureSets":
                 return $"/pictures/folders/?folderId={tableId}";
+            
+            case "Posts":
+                return $"/post/{tableId}";
+            
+            case "Articles":
+                return $"/article/{tableId}";
 
             default:
                 throw new Exception("Unknown table name: " + tableName);

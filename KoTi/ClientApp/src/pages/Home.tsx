@@ -26,7 +26,7 @@ const Home = () => {
                 This is <b>KoTi</b> <i>(Kohteiden tietokanta, Finn. Place database)</i>,
                 the backoffice application for <code>pohjoiseen.fi</code> and a personal photo and PoI database.
             </p>
-            <SearchString onSearch={search} initialTables="Places,Areas,Regions,Countries,PictureSets" />
+            <SearchString onSearch={search} initialTables="Places,Areas,Regions,Countries,PictureSets,Posts,Articles" />
             {stats.isError && <Alert color="danger">Loading stats: {errorMessage(countries.error)}</Alert>}
             {stats.isLoading && <div className="text-center"><Spinner type="grow" size="sm"/> Loading...</div>}
             {!stats.isLoading && <>

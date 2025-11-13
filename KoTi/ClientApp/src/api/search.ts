@@ -3,7 +3,7 @@ import ListWithTotal from '../model/ListWithTotal';
 import { handleError } from './common';
 
 export const SEARCHABLE_TABLES = [
-    'Places', 'Areas', 'Regions', 'Countries', 'Pictures', 'PictureSets'
+    'Places', 'Areas', 'Regions', 'Countries', 'Pictures', 'PictureSets', 'Posts', 'Articles'
 ] as const;
 
 export enum SEARCHABLE_TABLES_NAMES {
@@ -12,7 +12,9 @@ export enum SEARCHABLE_TABLES_NAMES {
     'Regions' = 'Regions',
     'Countries' = 'Countries',
     'Pictures' = 'Pictures',
-    'PictureSets' = 'Folders'
+    'PictureSets' = 'Folders',
+    'Posts' = 'Posts',
+    'Articles' = 'Articles',
 }
 
 export enum SEARCHABLE_TABLES_NAMES_SINGULAR {
@@ -21,7 +23,9 @@ export enum SEARCHABLE_TABLES_NAMES_SINGULAR {
     'Regions' = 'Region',
     'Countries' = 'Country',
     'Pictures' = 'Picture',
-    'PictureSets' = 'Folder'
+    'PictureSets' = 'Folder',
+    'Posts' = 'Post',
+    'Articles' = 'Article',
 }
 
 export interface SearchOptions {

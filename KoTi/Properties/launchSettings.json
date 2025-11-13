@@ -3,7 +3,7 @@
     "KoTi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7169;http://localhost:5069",
+      "applicationUrl": "https://localhost:7169",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"

@@ -150,7 +150,7 @@ const Redirects = () => {
                     }}>Article</Button>
                 </div>
                 {redirects.isSuccess && !redirects.data.total && <p className="text-muted">No redirects yet!</p>}
-                {redirects.isSuccess && redirects.data.data.length && <table className="table"><tbody>
+                {redirects.isSuccess && !!redirects.data.data.length && <table className="table"><tbody>
                     {redirects.data.data.map(r => <tr key={r.id}>
                         <td className="align-middle">{r.urlFrom}</td>
                         <td className="align-middle"><i className="bi bi-arrow-right" /></td>
