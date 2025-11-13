@@ -1,32 +1,59 @@
-﻿using Holvi;
+﻿using System.Diagnostics;
+using Holvi;
 using KoTi.ResponseModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class HomeController : ControllerBase
+public class HomeController(HolviDbContext dbContext, IConfiguration configuration) : ControllerBase
 {
-    private readonly HolviDbContext _context;
-
-    public HomeController(HolviDbContext context)
-    {
-        _context = context;
-    }
-
     // GET: api/Home/Stats
     [HttpGet("Stats")]
     public async Task<ActionResult<Stats>> GetStats()
     {
+        var dbFileInfo = new FileInfo(configuration["KoTi:LiveDatabase"]!);
         return new Stats
         {
-            TotalPictures = await _context.Pictures.CountAsync(),
-            TotalPicturesWithNoLocation = await _context.Pictures.Where(p => p.PlaceId == null).CountAsync(),
-            TotalPlaces = await _context.Places.CountAsync(),
-            TotalPosts = await _context.Posts.CountAsync(),
-            TotalArticles = await _context.Articles.CountAsync(),
+            TotalPictures = await dbContext.Pictures.CountAsync(),
+            TotalPicturesWithNoLocation = await dbContext.Pictures.Where(p => p.PlaceId == null).CountAsync(),
+            TotalPlaces = await dbContext.Places.CountAsync(),
+            TotalPosts = await dbContext.Posts.CountAsync(),
+            TotalArticles = await dbContext.Articles.CountAsync(),
+            DatabaseLastPublishedAt = dbFileInfo.LastWriteTime,
+            DatabaseSize = dbFileInfo.Length
         };
+    }
+
+    // POST: api/Home/Publish
+    [HttpPost("Publish")]
+    public async Task<IActionResult> Publish()
+    {
+        SqliteConnection.ClearAllPools();  // flushes unsaved data
+        // ensure database is not modified while being copied
+        await dbContext.Database.ExecuteSqlAsync($"BEGIN EXCLUSIVE");
+        // execute the publish script, wait for completion and capture its output
+        var psi = new ProcessStartInfo
+        {
+            FileName = "/bin/sh",
+            ArgumentList = { "-c", configuration["KoTi:PublishCommand"]! },
+            UseShellExecute = false,  // a bit confusing when we're running /bin/sh :)
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        var process = new Process { StartInfo = psi };
+        process.Start();
+        await process.WaitForExitAsync();
+        var result = new
+        {
+            exitCode = process.ExitCode,
+            stdout = await process.StandardOutput.ReadToEndAsync(),
+            stderr = await process.StandardError.ReadToEndAsync()
+        };
+        await dbContext.Database.ExecuteSqlAsync($"COMMIT");
+        return Ok(result);
     }
 }

@@ -30,7 +30,7 @@ const Home = () => {
             {stats.isError && <Alert color="danger">Loading stats: {errorMessage(countries.error)}</Alert>}
             {stats.isLoading && <div className="text-center"><Spinner type="grow" size="sm"/> Loading...</div>}
             {!stats.isLoading && <>
-                <h3>Blog:</h3>
+                <h3>Blog{stats.data && <> (last published: <b>{new Date(stats.data?.databaseLastPublishedAt).toString().replace(/ \([^)]+\)$/, '')}</b>)</>}:</h3>
                 <div className="d-flex flex-wrap">
                     <div className="w-25 pb-1 pe-1">
                         <Card><CardBody><CardTitle>
@@ -56,6 +56,15 @@ const Home = () => {
                                 <i className="bi bi-arrow-90deg-right"/>
                                 &nbsp;
                                 <Link to="/redirects">Redirects</Link>
+                            </h2>
+                        </CardTitle></CardBody></Card>
+                    </div>
+                    <div className="w-25 pb-1 pe-1">
+                        <Card><CardBody><CardTitle>
+                            <h2 className="m-0">
+                                <i className="bi bi-check-lg"/>
+                                &nbsp;
+                                <Link to="/publish">Publish</Link>
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
@@ -117,6 +126,7 @@ const Home = () => {
             <div className="mt-4 text-center text-muted small"> 
                 &copy; 2023-2025 Alexander Ulyanov.  Built on ASP.NET Core 9.0 + SQLite + React + TanStack Query + Bootstrap<br/>
                 Version {process.env.REACT_APP_VERSION}, revision {process.env.REACT_APP_GIT_SHA} from {process.env.REACT_APP_GIT_DATE}
+                {stats.data && <> <i className="bi bi-dot" /> Database size: {(stats.data.databaseSize / 1048576).toFixed(1)} MB</>}
             </div>
         </Container>
     </div>

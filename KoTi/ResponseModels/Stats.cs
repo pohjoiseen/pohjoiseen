@@ -11,4 +11,8 @@ public class Stats
     public int TotalPosts { get; set; }
     
     public int TotalArticles { get; set; }
+    
+    public DateTime DatabaseLastPublishedAt { get; set; }
+    
+    public long DatabaseSize { get; set; }
 }

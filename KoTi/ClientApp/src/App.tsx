@@ -18,6 +18,7 @@ import Post from './pages/Post';
 import Articles from './pages/Articles';
 import Article from './pages/Article';
 import Redirects from './pages/Redirects';
+import Publish from './pages/Publish';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -51,6 +52,8 @@ const router = createBrowserRouter([
     { path: '/article/:articleId', element: <Article /> },
 
     { path: '/redirects', element: <Redirects /> },
+
+    { path: '/publish', element: <Publish /> },
     
     { path: '/search', element: <Search /> },
 ]);
