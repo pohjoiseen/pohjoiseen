@@ -171,4 +171,7 @@
   <data name="404-text" xml:space="preserve">
     <value>Страница не найдена!  Возможно, она удалена с сайта, или в ссылке опечатка.</value>
   </data>
+  <data name="last-updated-on" xml:space="preserve">
+    <value>Последнее обновление сайта</value>
+  </data>
 </root>

@@ -171,4 +171,7 @@
   <data name="404-text" xml:space="preserve">
     <value>Page not found.</value>
   </data>
+  <data name="last-updated-on" xml:space="preserve">
+    <value>Website last updated</value>
+  </data>
 </root>

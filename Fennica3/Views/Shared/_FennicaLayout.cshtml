@@ -1,6 +1,7 @@
 ﻿@{
     LayoutParams layoutParams = Model.LayoutParams;
 }
+@inject IConfiguration configuration
 <!DOCTYPE html>
 <html lang="@layoutParams.Language" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -211,6 +212,10 @@
                 <text><a href="@layoutParams.NextPath" class="text">@layoutParams.NextTitle</a>@Html.Raw("&nbsp;")<a href="@layoutParams.NextPath"><i class="fas fa-arrow-right"></i></a></text>
             }
         </p>
+    }
+    else
+    {
+        <p>@(Localizer["last-updated-on"].Value): @File.GetLastWriteTime(configuration["Holvi:DatabaseFile"]).ToLongDateString()</p>
     }
     <p>
         @Fennica3.Copyright <a href="@Fennica3.FooterLink">@Fennica3.Author</a>

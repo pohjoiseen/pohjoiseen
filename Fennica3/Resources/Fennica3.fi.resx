@@ -171,4 +171,7 @@
   <data name="404-text" xml:space="preserve">
     <value>Sivua ei löytynyt.</value>
   </data>
+  <data name="last-updated-on" xml:space="preserve">
+    <value>Sivuston viimeisin päivitys</value>
+  </data>
 </root>
