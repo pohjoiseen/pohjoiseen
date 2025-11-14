@@ -1,8 +1,7 @@
 ﻿import * as React from 'react';
+import { Ref, useContext, useEffect, useRef } from 'react';
 import { RegisterOptions, useForm } from 'react-hook-form';
 import { Edit, Editable, EditableContext, EditableHandle } from './Editable';
-import { Ref, useContext, useEffect, useRef } from 'react';
-import { Button } from 'reactstrap';
 
 interface EditableTextareaProps {
     value: string;

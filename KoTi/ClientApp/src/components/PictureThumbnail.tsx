@@ -52,9 +52,10 @@ const PictureThumbnail = ({ picture, isSelected, link, onOpen, onClick, onRetryU
             }
             e.dataTransfer?.setData('text/plain', `picture:${picture?.id}`);
         };
-        ref.current?.addEventListener('dragstart', onDragStart);
-        return () => ref.current?.removeEventListener('dragstart', onDragStart);
-    }, [picture, ref.current]);
+        const el = ref.current;
+        el?.addEventListener('dragstart', onDragStart);
+        return () => el?.removeEventListener('dragstart', onDragStart);
+    }, [picture]);
 
     const pictureElem = <>
         <img

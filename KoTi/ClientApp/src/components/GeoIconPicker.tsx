@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Popover, PopoverBody } from 'reactstrap';
 
-interface GeoIconPicker {
+interface GeoIconPickerProps {
     icon: string;
     onChange: (icon: string) => void;
 }
@@ -80,7 +80,7 @@ const ICONS = [
     'waterfall',
 ];
 
-const GeoIconPicker = ({ icon, onChange }: GeoIconPicker) => {
+const GeoIconPicker = ({ icon, onChange }: GeoIconPickerProps) => {
     const idRef = useRef('');
     if (!idRef.current) {
         idRef.current = 'iconpicker-' + (++counter);
@@ -95,7 +95,7 @@ const GeoIconPicker = ({ icon, onChange }: GeoIconPicker) => {
         setSelected(icon);
         setPopoverOpen(true);
         requestAnimationFrame(() => filterRef.current?.focus());
-    }, [setFilter, setSelected, setPopoverOpen]);
+    }, [setFilter, setSelected, setPopoverOpen, icon]);
 
     const doChange = useCallback((icon: string) => {
         setPopoverOpen(false);
@@ -163,7 +163,7 @@ const GeoIconPicker = ({ icon, onChange }: GeoIconPicker) => {
         };
         document.addEventListener('keydown', keyboardHandler);
         return () => document.removeEventListener('keydown', keyboardHandler);
-    }, [isPopoverOpen, selected, filteredIcons]);
+    }, [isPopoverOpen, selected, filteredIcons, doChange]);
 
     return <>
         <button

@@ -1,18 +1,11 @@
 ﻿import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, Button, Container, Spinner } from 'reactstrap';
+import { Container, Spinner } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { errorMessage } from '../util';
-import CreateModal from '../components/CreateModal';
-import Region from '../model/Region';
 import NavBar from '../components/NavBar';
-import { useCountriesQuery, useRegionsQuery } from '../data/queries';
-import { useCreateRegionMutation, useReorderRegionsMutation } from '../data/mutations';
-import RegionCard from '../components/RegionCard';
 import { getPlace } from '../api/places';
 import { getArea } from '../api/areas';
 import { getRegion } from '../api/regions';
-import { getCountry } from '../api/countries';
 import useTitle from '../hooks/useTitle';
 
 const PlaceRedirect = () => {
@@ -36,7 +29,7 @@ const PlaceRedirect = () => {
                 }
             }
         })();
-    }, []);
+    }, [navigate, placeId]);
     
     useTitle(() => error || false, [error]);
 

@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { createContext, forwardRef, ReactNode, useContext, useImperativeHandle, useState } from 'react';
+import { createContext, forwardRef, ReactNode, useCallback, useContext, useImperativeHandle, useState } from 'react';
 import { Button } from 'reactstrap';
 
 interface EditableProps {
@@ -9,7 +9,7 @@ interface EditableProps {
     onStateChange?: (state: boolean) => void;
 }
 
-interface EditableContext {
+interface EditableContextType {
     onStartEdit: () => void;
     onEndEdit: () => void;
 }
@@ -18,7 +18,7 @@ export interface EditableHandle {
     startEditing: () => void;
 }
 
-export const EditableContext = createContext<EditableContext>({
+export const EditableContext = createContext<EditableContextType>({
     onStartEdit: () => { throw new Error('editableContext provider not set') },
     onEndEdit: () => { throw new Error('editableContext provider not set') }
 });
@@ -28,12 +28,12 @@ export const Editable = forwardRef<EditableHandle, EditableProps>(
         
     const [isEditing, setEditing] = useState(false);
 
-    const doSetEditing = (state: boolean) => {
+    const doSetEditing = useCallback((state: boolean) => {
         setEditing(state);
         if (onStateChange) {
             onStateChange(state);
         }
-    }
+    }, [onStateChange]);
     
     useImperativeHandle(ref, () => ({
         startEditing() {

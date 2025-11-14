@@ -111,7 +111,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             }
             return params;
         });
-    }, [searchParams]);
+    }, [setSearchParams]);
     
     const setMinRating = useCallback((minRating: number) => {
         setSearchParams((params) => {
@@ -122,7 +122,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             }
             return params;
         })
-    }, [searchParams]);
+    }, [setSearchParams]);
     
     // pictures list
     const pageSize = PAGE_SIZES[viewMode];
@@ -312,7 +312,7 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             const ids = picturesQuery.data.data.filter((id, k) => selection[k]);
             deletePicturesMutation.mutate(ids);
         }
-    }, [selection, numSelected]);
+    }, [selection, numSelected, deletePicturesMutation, picturesQuery.data]);
     
     /// page title ///
     

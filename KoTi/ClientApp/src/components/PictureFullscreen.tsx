@@ -1,8 +1,8 @@
 ﻿import * as React from 'react';
-import Picture, { PICTURE_SIZE_THUMBNAIL } from '../model/Picture';
+import { SyntheticEvent, useEffect, useRef } from 'react';
+import Picture from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
-import { SyntheticEvent, useEffect, useRef } from 'react';
 
 interface PictureFullscreenProps {
     picture?: Picture;

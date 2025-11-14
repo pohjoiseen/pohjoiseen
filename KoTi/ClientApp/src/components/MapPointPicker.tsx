@@ -84,7 +84,7 @@ const MapPointPickerControls = ({ lat, lng, zoom, onChange }: MapPointPickerProp
         setTimeout(() => {
             map.invalidateSize()
         }, 0);
-    }, [lat, lng, zoom])
+    }, [lat, lng, zoom, map])
     
     const moved =
         zoom !== realMapState.zoom ||

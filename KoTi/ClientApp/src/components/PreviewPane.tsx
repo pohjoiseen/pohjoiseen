@@ -33,7 +33,7 @@ const PreviewPane = ({ previewUrl }: PreviewPaneProps) => {
                 Preview shows the last saved version.
             </NavLink></NavItem>
         </Nav>
-        <iframe className="w-100 h-100 overflow-y-auto overflow-x-hidden" ref={iframeRef} src={process.env.REACT_APP_PREVIEW_HOST + previewUrl} />
+        <iframe title="Preview" className="w-100 h-100 overflow-y-auto overflow-x-hidden" ref={iframeRef} src={process.env.REACT_APP_PREVIEW_HOST + previewUrl} />
     </div>;
 };
 

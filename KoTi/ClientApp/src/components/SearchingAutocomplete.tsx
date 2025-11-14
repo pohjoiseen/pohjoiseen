@@ -44,7 +44,9 @@ export const SearchingAutocomplete = ({ id, title, placeholder, table, addNewTex
             <div className="small" dangerouslySetInnerHTML={{ __html: result.text }} />
         </div>;
     }, []);
-    
+
+    const editableContext = useContext(EditableContext);
+
     const shouldClose = useRef(false);
     const onChange = useCallback((selected: any) => {
         if (selected.length) {
@@ -60,17 +62,16 @@ export const SearchingAutocomplete = ({ id, title, placeholder, table, addNewTex
         if (shouldClose.current && inEditableContext) {
             editableContext.onEndEdit();
         }
-    }, [onSelect]);
+    }, [onSelect, editableContext, inEditableContext, onAddNew]);
     
     const ref = useRef<ElementRef<typeof Typeahead>>(null);
     const elemId = useRef('autocomplete' + Math.random())
-    const editableContext = useContext(EditableContext);
 
     useEffect(() => {
         if (inEditableContext) {
             ref.current?.focus();
         }
-    }, []);
+    }, []);  // eslint-disable-line
     
     return <AsyncTypeahead
         id={elemId.current}

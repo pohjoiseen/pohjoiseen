@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Container, Spinner } from 'reactstrap';
+import { useRef, useState } from 'react';
+import { Alert } from 'reactstrap';
 import { errorMessage } from '../util';
 import { usePostsQuery } from '../data/queries';
 import Paginator from '../components/Paginator';

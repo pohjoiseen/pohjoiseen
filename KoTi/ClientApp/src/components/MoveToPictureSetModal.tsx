@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
-import { Button, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
-import { useForm } from 'react-hook-form';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { useEffect, useRef, useState } from 'react';
 import { SearchingAutocomplete } from './SearchingAutocomplete';
 

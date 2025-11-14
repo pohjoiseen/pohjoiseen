@@ -1,5 +1,5 @@
 /**
- * Localization for frontend.  Most of localization is server-size and is handled in Resources/Fennica.*.resx
+ * Localization for frontend.  Most of localization is server-size and is handled in Resources/Fennica3.*.resx
  */
 const strings: {[lang: string]: {[key: string]: string}} = {
     "ru": {

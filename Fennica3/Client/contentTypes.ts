@@ -1,5 +1,5 @@
 /**
- * Subset of content type definition useful in client context.
+ * JSONs passed from server side to client JS.
  */
 
 export interface Geo {
@@ -13,12 +13,10 @@ export interface Geo {
     zoom: number;
     icon?: string;
     maps?: string[];
-    
     links?: {
         label?: string;
         path?: string;
     }[];
-    
 }
 
 export interface PostDefinition {

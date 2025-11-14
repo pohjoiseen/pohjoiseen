@@ -1,4 +1,4 @@
-﻿import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debounce from 'lodash/debounce';
 import { QueryKeys } from './queries';
 import Region from '../model/Region';
@@ -274,7 +274,6 @@ export const useDeletePicturesMutation = () => {
 };
 
 export const useEnsurePictureWebSizesMutation = () => {
-    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (picture: Picture | number) => await ensureWebSizes(typeof picture === 'number' ? picture : picture.id!)
     });

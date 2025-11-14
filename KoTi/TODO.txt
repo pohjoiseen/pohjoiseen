@@ -1,10 +1,21 @@
-﻿Remaining features before Fennica3 migration:
+﻿Major stuff:
+
+* Add some kind of "book" content
+  - Not time-based as blog
+  - Should contain chapters
+  - Should contain notes (on various terms, people etc.) that could be expanded in place and linked
+    from more than one place.
+  - Should be able to link to PoI database (to particular regions/areas)
+  - Should be again properly multilingual
+* Make PoI database multilingual
+
+Remaining minor features and bugs from before Fennica3 migration (pictures, PoIs):
 
 * "Database is locked"
 * Rethink or remove folder thumbnails, very slow, also empty folders look bad
 * Tag list page
 * Add thumbnails to search results
-* Override date for pictures and do not crash on missing date
+* Allow overriding override date for pictures
 * On upload make it possible to choose/create a folder right away
 * More information in fullscreen mode
 * Improve country and region page (at least link to pictures)
@@ -15,6 +26,4 @@
 * Fix various spinner sizes
 * Warn when leaving the upload page
 * Place autocomplete z-index issue in picture details when isPrivate=true
-* Fix all build warnings both on backend and frontend
-
-For Fennica3 obviously blog editing . . .
+* Fix all frontend build warnings

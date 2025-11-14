@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Alert } from 'reactstrap';
 import { errorMessage } from '../util';
 import { useArticlesQuery } from '../data/queries';
@@ -17,7 +17,6 @@ const InsertArticleLink = ({ isActive, onSelect }: InsertArticleLinkProps) => {
     const [page, setPage] = useState(0);
     const articles = useArticlesQuery(ARTICLES_PER_PAGE, page * ARTICLES_PER_PAGE, isActive);
     const totalPages = Math.ceil((articles.data?.total ?? 0) / ARTICLES_PER_PAGE);
-    const filterInputRef = useRef<HTMLInputElement>(null);
     const [selectedId, setSelectedId] = useState(0);
 
     if (articles.isError) {

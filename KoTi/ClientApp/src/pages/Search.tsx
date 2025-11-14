@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCallback, useState } from 'react';
-import { Alert, Button, Container, Spinner } from 'reactstrap';
+import { Alert, Container, Spinner } from 'reactstrap';
 import NavBar from '../components/NavBar';
 import { errorMessage } from '../util';
 import SearchString from '../components/SearchString';
@@ -71,7 +71,7 @@ const Search = () => {
                 <h5 className="text-center mb-4">{total} result(s)</h5>
                 <ol start={offset + 1}>
                     {searchQuery.data.data.map((result, key) => <li key={key} className="mb-2">
-                        <a href="javascript:void(0)" onClick={() => navigateToResult(result.tableName, result.tableId)}>
+                        <a href="#" onClick={(e) => { e.preventDefault(); navigateToResult(result.tableName, result.tableId); }}>
                             <b>{result.title}</b>
                         </a> <i className="text-muted">({SEARCHABLE_TABLES_NAMES[result.tableName].toLowerCase()})</i>
                         <br/>

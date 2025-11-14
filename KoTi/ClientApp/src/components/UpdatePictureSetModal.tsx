@@ -1,15 +1,16 @@
 ﻿import * as React from 'react';
-import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, FormGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { useForm } from 'react-hook-form';
 import { useEffect, useRef } from 'react';
 import PictureSet from '../model/PictureSet';
 
-interface UpdatePictureSetModal {
+interface UpdatePictureSetModalProps {
     pictureSet: PictureSet;
     onClose: () => void;
     onSubmit: (pictureSet: PictureSet) => void;
 }
-const UpdatePictureSetModal = ({ pictureSet, onClose, onSubmit }: UpdatePictureSetModal) => {
+
+const UpdatePictureSetModal = ({ pictureSet, onClose, onSubmit }: UpdatePictureSetModalProps) => {
     const { register, handleSubmit,
         formState: { errors } } = useForm<PictureSet>({ defaultValues: pictureSet });
     const inputElemRef = useRef<HTMLInputElement | null>();

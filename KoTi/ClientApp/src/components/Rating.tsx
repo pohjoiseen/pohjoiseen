@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
 import { useCallback, KeyboardEvent, MouseEvent } from 'react';
-import { DomEvent } from 'leaflet';
 
 interface RatingProps {
     className?: string;

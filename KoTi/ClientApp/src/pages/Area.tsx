@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Accordion, Alert, Button, Container, Spinner } from 'reactstrap';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../util';
@@ -108,7 +108,7 @@ const AreaPage = () => {
         }
         requestAnimationFrame(() => placesFilterInputRef.current?.scrollIntoView());
         setAlreadyScrolled(true);
-    }, [setAlreadyScrolled, placeIdOpen, area, places.data, alreadyScrolled]);
+    }, [setAlreadyScrolled, placeIdOpen, area, places.data, alreadyScrolled, filter, setFilter]);
 
     useTitle(() => area ? area.name : false, [area]);
 

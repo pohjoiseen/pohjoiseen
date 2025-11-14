@@ -1,3 +1,6 @@
+//
+// KoTi pohjoiseen.fi backoffice application.  See README.md.
+//
 using Fennica3;
 using Holvi;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -20,6 +23,7 @@ builder.Services.AddControllersWithViews().ConfigureApplicationPartManager(apm =
 
 var app = builder.Build();
 
+// allow running migrations in production without dragging in .NET SDK
 if (args.Contains("--help"))
 {
     Console.WriteLine("This is Fennica3/KoTi backoffice.");
@@ -28,8 +32,6 @@ if (args.Contains("--help"))
     Console.WriteLine("Otherwise this works as a regular ASP.NET Core Web app.");
     return;
 }
-
-// various script-like stuff
 if (args.Length > 0)
 {
     switch (args[0])

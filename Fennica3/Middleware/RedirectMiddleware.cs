@@ -4,10 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fennica3.Middleware;
 
+/// <summary>
+/// Check redirects table from the database and perform a 302 redirect, if found.
+/// Resolve post:XXX/article:XXX links.
+/// </summary>
+/// <param name="next"></param>
 public class RedirectMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context, HolviDbContext dbContext, Helpers helpers)
     {
+        // look for this exact URL (without query string), check all possible trailing backslash variations
         var redirect = await dbContext.Redirects.FirstOrDefaultAsync(r => r.UrlFrom == context.Request.Path.Value ||
             r.UrlFrom + "/" == context.Request.Path.Value ||
             r.UrlFrom == context.Request.Path.Value + "/");
@@ -15,6 +21,7 @@ public class RedirectMiddleware(RequestDelegate next)
         {
             var url = redirect.UrlTo;
             
+            // resolve link
             if (url.StartsWith("post:"))
             {
                 var match = Regex.Match(url, "post:([0-9]+)(#.*)?");

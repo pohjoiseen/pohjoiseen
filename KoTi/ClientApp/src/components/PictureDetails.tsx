@@ -110,13 +110,13 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
     const doCopy = useCallback((checkCopyFlags: boolean) => {
         setCopyFlagsOpen(false);
         onCopy({
-            title: (!checkCopyFlags || copyFlags.title) && picture?.title || null,
-            description: (!checkCopyFlags || copyFlags.description) && picture?.description || null,
-            placeId: (!checkCopyFlags || copyFlags.place) && picture?.placeId || null,
-            placeName: (!checkCopyFlags || copyFlags.place) && picture?.placeName || null,
-            tags: (!checkCopyFlags || copyFlags.tags) && picture?.tags || null
+            title: ((!checkCopyFlags || copyFlags.title) && picture?.title) || null,
+            description: ((!checkCopyFlags || copyFlags.description) && picture?.description) || null,
+            placeId: ((!checkCopyFlags || copyFlags.place) && picture?.placeId) || null,
+            placeName: ((!checkCopyFlags || copyFlags.place) && picture?.placeName) || null,
+            tags: ((!checkCopyFlags || copyFlags.tags) && picture?.tags) || null
         });
-    }, [picture, onCopy]);
+    }, [picture, onCopy, copyFlags]);
     
     const doPaste = useCallback(() => {
         if (!picture) {
@@ -258,7 +258,7 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                     </div>
                     <div className="d-flex align-items-start mt-3 mb-0">
                         <p className="small text-muted">
-                            <a target="_blank" href={picture.url}>{picture.filename}</a>
+                            <a target="_blank" rel="noreferrer" href={picture.url}>{picture.filename}</a>
                             &nbsp;&nbsp;&nbsp;
                             {picture.width}x{picture.height}
                             &nbsp;&nbsp;&nbsp;

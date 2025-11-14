@@ -37,7 +37,7 @@ const Paginator = ({ page, setPage, totalPages, disableKeyboardNav }: PaginatorP
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [page, totalPages, setPage]);
+    }, [page, totalPages, setPage, disableKeyboardNav]);
 
     if (totalPages <= 1) {
         return null;

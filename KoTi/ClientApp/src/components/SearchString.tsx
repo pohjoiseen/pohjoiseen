@@ -54,7 +54,7 @@ const SearchString = ({ initialValue, initialTables, onSearch }: SearchStringPro
                             if (e.target.checked) {
                                 newTables = [...tables, t];
                             } else {
-                                newTables = tables.filter(_t => _t != t);
+                                newTables = tables.filter(_t => _t !== t);
                             }
                             setTables(newTables);
                             if (value.length) {

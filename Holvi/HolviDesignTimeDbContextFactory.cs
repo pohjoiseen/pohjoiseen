@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Holvi;
 
+/// <summary>
+/// This is needed to run "dotnet ef database update" from this project directory.
+/// </summary>
 public class HolviDesignTimeDbContextFactory : IDesignTimeDbContextFactory<HolviDbContext>
 {
     public HolviDbContext CreateDbContext(string[] args)

@@ -23,7 +23,7 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
                      ILogger<Helpers> logger, IConfiguration configuration)
 {
     /// <summary>
-    /// Generates a canonical link to a post 
+    /// Generates a canonical link to a post.
     /// </summary>
     /// <param name="post"></param>
     /// <returns>Link (without host)</returns>
@@ -40,7 +40,7 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
     }
     
     /// <summary>
-    /// Generates a canonical link to an article 
+    /// Generates a canonical link to an article.
     /// </summary>
     /// <param name="article"></param>
     /// <returns>Link (without host)</returns>
@@ -57,8 +57,8 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
     /// Generates GeoJSON data for blog maps, in 16 zoom levels.
     /// </summary>
     /// <param name="language">Language to filter by</param>
-    /// <returns>Map of map name -> 16 GeoJSON FeatureCollection objects</returns>
-    public IDictionary<string, FeatureCollection[]> GenerateGeoJSONFromPosts(string language)
+    /// <returns>Dictionary of "map name" -> "16 GeoJSON FeatureCollection objects"</returns>
+    private IDictionary<string, FeatureCollection[]> GenerateGeoJSONFromPosts(string language)
     {
         var geoJSONs = new Dictionary<string, FeatureCollection[]>(); 
         
@@ -124,6 +124,12 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
         return geoJSONs;
     }
     
+    /// <summary>
+    /// Generates HTML for maps on blog front page.
+    /// Leaves some divs not closed, as the HTML wraps some user-editable content.
+    /// </summary>
+    /// <param name="language">Language to filter by</param>
+    /// <returns>HTML</returns>
     public string BeginPostMaps(string language)
     {
         var geoJSONs = GenerateGeoJSONFromPosts(language);
@@ -147,6 +153,10 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
         return output.ToString();
     }
 
+    /// <summary>
+    /// Closes HTML markup opened by BeginPostMaps().
+    /// </summary>
+    /// <returns>HTML</returns>
     public string EndPostMaps() => "</div></div>\n";
     
     /// <summary>

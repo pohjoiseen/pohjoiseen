@@ -12,6 +12,7 @@ public static class HolviExtensions
     {
         services.AddDbContext<HolviDbContext>(o =>
             o.UseSqlite($"Data Source={configuration["Holvi:DatabaseFile"]}"));
+        // TODO: this should be optional for Fennica3
         services.AddScoped<IAmazonS3, AmazonS3Client>(provider => new AmazonS3Client(
             configuration["Holvi:S3:AccessKey"],
             // allow using secret manager for secret key

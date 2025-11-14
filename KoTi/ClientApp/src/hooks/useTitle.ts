@@ -2,17 +2,15 @@
 
 const useTitle = (title?: string | false | undefined | (() => string | false | undefined), dependencies?: any[]) => {
     useEffect(() => {
-        if (typeof title === 'function') {
-            title = title();
-        }
-        if (title === false) {
+        const realTitle = typeof title === 'function' ? title() : title; 
+        if (realTitle === false) {
             document.title = 'Loading... — KoTi';
-        } else if (title === undefined) {
+        } else if (realTitle === undefined) {
             document.title = 'KoTi';
         } else {
-            document.title = title + ' — KoTi';
+            document.title = realTitle + ' — KoTi';
         }
-    }, dependencies || []);
+    }, dependencies || [title]);  // eslint-disable-line
 };
 
 export default useTitle;

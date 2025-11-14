@@ -104,7 +104,7 @@ const Upload = ({ viewMode, setId, disableKeyboardNav, onSelect }: UploadProps) 
             return [...pics, picture]
         });
         // TODO: is currentPictureIndex necessary?  Formally no but might break upload
-    }, [setPicturesForUpload, currentPictureIndex, setId]);
+    }, [setPicturesForUpload, currentPictureIndex, setId]);  // eslint-disable-line
 
     /// drag-and-droppigng pictures ///
 
@@ -240,7 +240,7 @@ const Upload = ({ viewMode, setId, disableKeyboardNav, onSelect }: UploadProps) 
             //console.log(`Nothing to upload`);
         })();
         // TODO: is createPictureMutation necessary?  Formally yes but might break upload
-    }, [currentPictureIndex, setPictureForUpload, setUploadError]);
+    }, [currentPictureIndex, setPictureForUpload, setUploadError]);  // eslint-disable-line
     
     /// keyboard ///
 

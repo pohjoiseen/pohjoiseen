@@ -7,6 +7,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Alert, Button, Col, FormGroup, Input, Label, Nav, NavItem, NavLink, Row, Spinner } from 'reactstrap';
+import { useNavigate } from 'react-router-dom';
 import Post, { CoatOfArms, GeoPoint, Link as LinkModel } from '../model/Post';
 import { usePictureQuery, usePictureSetByNameQuery } from '../data/queries';
 import EditableInline from './EditableInline';
@@ -22,8 +23,6 @@ import GeoIconPicker from './GeoIconPicker';
 import PostCard from './PostCard';
 import InsertPostLink from './InsertPostLink';
 import { useDeletePostMutation } from '../data/mutations';
-import confirmModal from './ConfirmModal';
-import { useNavigate } from 'react-router-dom';
 
 interface PostMetaPaneProps {
     post: Post;
@@ -292,7 +291,7 @@ const GeoLink = ({ link, onChange, onDelete }: { link: LinkModel, onChange: (lin
     const postIdRaw = parseInt(link.path.replace('post:', '') || '');
     const postId = isNaN(postIdRaw) ? null : postIdRaw;
     const hashIndex = link.path.indexOf('#');
-    const hash = hashIndex != -1 ? link.path.substring(hashIndex + 1) : '';
+    const hash = hashIndex !== -1 ? link.path.substring(hashIndex + 1) : '';
 
     return <div className="d-flex gap-2 align-items-start">
         {postId && <PostCard id={postId} onSelect={() => {}} />}

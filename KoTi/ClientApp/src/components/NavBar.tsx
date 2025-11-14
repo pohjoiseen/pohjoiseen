@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
-import { Navbar, NavbarBrand, Spinner } from 'reactstrap';
+import { Navbar, Spinner } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { useIsMutating, useQueryClient } from '@tanstack/react-query';
+import { useIsMutating } from '@tanstack/react-query';
 
 const NavBar = ({ children }: { children?: ReactNode }) => {
     const isMutating = useIsMutating();

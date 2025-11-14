@@ -98,10 +98,10 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
         preloadRef.current = preloadImages;
     }, [setCurrentFullscreen, picturesQuery, queryClient]);
     
-    const exitFullscreen = () => {
+    const exitFullscreen = useCallback(() => {
         select(currentFullscreen);
         setCurrentFullscreen(-1);
-    };
+    }, [select, currentFullscreen]);
 
     // query would be actually executed only when we have an id
     const fullscreenPictureId = picturesQuery.data && currentFullscreen >= 0 ? picturesQuery.data.data[currentFullscreen] : 0;
@@ -138,7 +138,7 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
         };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery, currentFullscreen, enterFullscreen]);
+    }, [page, totalPages, setPage, isFullscreen, exitFullscreen, picturesQuery, currentFullscreen, enterFullscreen, changePage]);
 
     const open = useCallback((index: number, ctrlKey: boolean) => {
         if (ctrlKey) {

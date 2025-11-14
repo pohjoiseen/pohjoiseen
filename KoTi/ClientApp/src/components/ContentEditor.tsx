@@ -317,14 +317,14 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
             window.removeEventListener('keydown', onKeyDown);
             monacoRef.current!.dispose();
         }
-    }, []);
+    }, []);  // eslint-disable-line
     
     // programmatically insert text into editor
     const insertText = useCallback((text: string) => {
         const selection = monacoRef.current!.getSelection();
         text = handleTextInsertion(text, monacoRef.current!.getModel()!, selection!);
         monacoRef.current!.executeEdits(null, [{ range: selection!, text, forceMoveMarkers: true }]);
-    }, [monacoRef.current, handleTextInsertion]);
+    }, [handleTextInsertion]);
     
     useImperativeHandle(ref, () => ({
         getValue() {

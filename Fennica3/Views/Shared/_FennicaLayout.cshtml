@@ -215,7 +215,7 @@
     }
     else
     {
-        <p>@(Localizer["last-updated-on"].Value): @File.GetLastWriteTime(configuration["Holvi:DatabaseFile"]).ToLongDateString()</p>
+        <p>@(Localizer["last-updated-on"].Value): @File.GetLastWriteTime(configuration["Holvi:DatabaseFile"]!).ToLongDateString()</p>
     }
     <p>
         @Fennica3.Copyright <a href="@Fennica3.FooterLink">@Fennica3.Author</a>

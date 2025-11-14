@@ -54,7 +54,7 @@ const PlaceModal = ({ id, onSave, onClose }: PlaceModalProps) => {
             }
             setIsLoading(false);
         })();
-    }, []);
+    }, [id]);
     
     const doClose = () => place ? onSave(place.name) : onClose();
 

@@ -7,10 +7,9 @@ function writeToEnv(key, value) {
     const empty = !key;
 
     if (empty) {
-        // TODO: this needs to be configurable of course
-        fs.writeFileSync(".env", "REACT_APP_PREVIEW_HOST=https://koti.pohjoiseen.fi\n");
+        fs.writeFileSync(".env.local", "");
     } else {
-        fs.appendFileSync(".env", `${key}='${value.trim()}'\n`);
+        fs.appendFileSync(".env.local", `${key}='${value.trim()}'\n`);
     }
 }
 

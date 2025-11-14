@@ -8,11 +8,17 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Holvi;
 
+/// <summary>
+/// This is the high-level interface for picture S3 storage.
+/// </summary>
 public class PictureUpload
 {
     private readonly PictureStorage _pictureStorage;
     private readonly HolviDbContext _context;
 
+    /// <summary>
+    /// This is only for resized versions, the original is always kept as is.  75 seems to be a good compromise
+    /// </summary>
     private const int JpegQualityLevel = 75;
 
     public PictureUpload(PictureStorage pictureStorage, HolviDbContext context)
@@ -20,7 +26,15 @@ public class PictureUpload
         _pictureStorage = pictureStorage;
         _context = context;
     }
-
+    
+    /// <summary>
+    /// Uploads a picture file to S3, creating also its required resized versions (thumbnail and "details view").
+    /// Detects duplicates, will not reupload anything then.
+    /// </summary>
+    /// <param name="input">File to upload, as a stream</param>
+    /// <param name="hash">SHA-1 hash of the content</param>
+    /// <param name="filename">Original filename</param>
+    /// <returns>Uploaded URLs</returns>
     public async Task<UploadResult> UploadAsync(Stream input, string hash, string filename)
     {
         string baseOutputName = $"{hash}/{filename}";
@@ -104,6 +118,15 @@ public class PictureUpload
         return result;
     }
 
+    /// <summary>
+    /// Creates website versions of a picture (1x, 2x) and uploads them to S3, saves URLs
+    /// to Picture entity.  These versions are optional.  Will detect if these versions already exist
+    /// but URLs were not saved for some reason.  Will not do anything if Picture already has
+    /// flag WebsiteSizesExist set to true. 
+    /// </summary>
+    /// <param name="picture">Picture to process</param>
+    /// <returns>true if needed to do anything</returns>
+    /// <exception cref="Exception"></exception>
     public async Task<bool> EnsureWebsiteVersionsExist(Picture picture)
     {
         if (picture.WebsiteSizesExist)
@@ -131,7 +154,7 @@ public class PictureUpload
                 continue;  // too small, skip this size
             }
 
-	    // might be already resized but not in database
+	        // might be already resized but not in database
             var resizedName = $"{picture.Hash}/{GetFilenameWithSuffix(picture.Filename, sizeSuffix, false)}";
 	        var alreadyUploaded = await _pictureStorage.CheckPictureAlreadyUploadedAsync(resizedName);
 	        if (alreadyUploaded == null)

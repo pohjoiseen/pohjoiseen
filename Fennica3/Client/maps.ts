@@ -6,7 +6,7 @@
  *   with various icons in a similar style
  * - geos have minimum zoom levels.  We define (on server/generator side) 16 GeoJSON layers with features,
  *   and turn them on/off according to zoom change
- * - clicking on geo/marker displays a popup, in which we load a bit more information from a pregenerated JSON
+ * - clicking on geo/marker displays a popup, in which we load a bit more information from a JSON endpoint
  *   with post metadata
  */
 import L from 'leaflet';

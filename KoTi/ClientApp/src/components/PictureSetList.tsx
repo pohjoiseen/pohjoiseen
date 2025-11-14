@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Card, CardBody, CardTitle } from 'reactstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PictureSet from '../model/PictureSet';
 import { confirmModal } from './ModalContainer';
 import { useDeletePictureSetMutation, useUpdatePictureSetMutation } from '../data/mutations';
@@ -29,7 +29,7 @@ const PictureSetList = ({ pictureSet, onSelect, disableEdit, disableKeyboardNav 
         } else {
             navigate(setId ? `/pictures/folders?folderId=${setId}` : '/pictures/folders');
         }
-    }, [])
+    }, [navigate, onSelect])
 
     useEffect(() => {
         if (filterInputRef.current) {
@@ -46,7 +46,7 @@ const PictureSetList = ({ pictureSet, onSelect, disableEdit, disableKeyboardNav 
             document.addEventListener('keydown', keyboardHandler);
             return () => document.removeEventListener('keydown', keyboardHandler);
         }
-    }, [pictureSet, navigate]);
+    }, [pictureSet, navigate, disableKeyboardNav, select]);
     
     const updatePictureSet = async (pictureSet: PictureSet) => {
         try {

@@ -25,7 +25,7 @@ const PlaceCategoryIndicator = ({ category, onChange }: PlaceCategoryIndicatorPr
         setSelectedCategory(category);
         setPopoverOpen(true);
         requestAnimationFrame(() => filterRef.current?.focus());
-    }, [setFilter, setSelectedCategory, setPopoverOpen]);
+    }, [setFilter, setSelectedCategory, setPopoverOpen, category]);
     
     const doChange = useCallback((category: PlaceCategory) => {
         setPopoverOpen(false);
@@ -96,7 +96,7 @@ const PlaceCategoryIndicator = ({ category, onChange }: PlaceCategoryIndicatorPr
         };
         document.addEventListener('keydown', keyboardHandler);
         return () => document.removeEventListener('keydown', keyboardHandler);
-    }, [isPopoverOpen, selectedCategory, filteredCategories]);
+    }, [isPopoverOpen, selectedCategory, filteredCategories, doChange]);
     
     return <>
         <button

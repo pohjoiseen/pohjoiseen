@@ -10,7 +10,7 @@ namespace Fennica3;
 
 /// <summary>
 /// Formats Markdown (or HTML) for display in Fennica3.
-/// Most importantly, resolves "post:XXX" and "picture:XXX" links, and generated correct
+/// Most importantly, resolves "post:XXX" and "picture:XXX" links, and generates correct
 /// markup for images (with figure/figcaption, srcset and such.)
 /// Pretty much the most critical part of Fennica3 webapp :)
 /// </summary>
@@ -18,9 +18,16 @@ namespace Fennica3;
 /// <param name="pictureUpload">Picture upload handler</param>
 /// <param name="helpers">Helpers class (for link generation)</param>
 /// <param name="logger">.NET logger</param>
+/// <param name="configuration">App configuration</param>
 public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpload,
-                              Helpers helpers, ILogger<ContentFormatter> logger)
+                              Helpers helpers, ILogger<ContentFormatter> logger, IConfiguration configuration)
 {
+    /// <summary>
+    /// Format and postprocess Markdown content.
+    /// </summary>
+    /// <param name="markdown">Markdown to render</param>
+    /// <param name="singlePara">if true, won't wrap result in any block tags</param>
+    /// <returns>HTML ready to display</returns>
     public async Task<string> FormatMarkdownAsync(string markdown, bool singlePara = false)
     {
         // we just go ahead with Markdig defaults
@@ -44,10 +51,16 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         return html;
     }
     
+    /// <summary>
+    /// Format and postprocess HTML content.
+    /// </summary>
+    /// <param name="html">Intermediate HTML</param>
+    /// <returns>HTML ready to display</returns>
     public async Task<string> FormatHTMLAsync(string html)
     {
         // use XML processing for various tasks
-        // this of course means our HTML needs to be well-formed as XML
+        // this of course means our HTML needs to be well-formed as XML.  Markdig generates correct XHTML,
+        // but need to be careful with any handwritten markup in posts.
         var document = XElement.Parse("<html>" + html + "</html>", LoadOptions.PreserveWhitespace);
         await ConvertPostLinks(document);
         await ConvertPictureLinks(document);
@@ -62,8 +75,14 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         return html;
     }
 
+    /// <summary>
+    /// Resolve "post:XXX" and "article:XXX" links in HTML to actual post and article URLs.
+    /// Only handles &lt;a href="..."&gt; attributes.
+    /// </summary>
+    /// <param name="document">HTML as XHTML document</param>
     private async Task ConvertPostLinks(XElement document)
     {
+        // do it in two steps, first collect all links to be resolved
         IList<(XElement, int, string)> links = new List<(XElement, int, string)>();
         
         // get all <a> in a document
@@ -116,6 +135,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             }
         }
 
+        // second step, resolve all posts at once
         var posts = await dbContext.Posts
             .Where(p => links.Select(l => l.Item2).Contains(p.Id))
             .ToDictionaryAsync(p => p.Id);
@@ -130,8 +150,14 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         }
     }
 
+    /// <summary>
+    /// Resolve "picture:XXX" images in HTML to actual image URLs and generate wrapping figure markup.
+    /// Only handles &lt;img src="..."&gt; attributes.
+    /// </summary>
+    /// <param name="document">HTML as XHTML document</param>
     private async Task ConvertPictureLinks(XElement document)
     {
+        // do it in two steps, first collect all pictures to be resolved
         IList<(XElement, int)> images = new List<(XElement, int)>();
 
         // get all <img> in a document
@@ -168,6 +194,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             images.Add((image, pictureId));
         }
         
+        // second step, resolve all pictures at once
         var pictures = await dbContext.Pictures
             .Where(p => images.Select(l => l.Item2).Contains(p.Id))
             .ToDictionaryAsync(p => p.Id);
@@ -182,12 +209,22 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             // found image
             image.SetAttributeValue("src", picture.Url);
 
-            // website sizes must exist
-            // a bit hacky to handle this from here but oh well
+            // website sizes should exist
             if (!picture.WebsiteSizesExist)
             {
-                logger.LogInformation("Website sizes not found for picture #{id} ({filename}), creating", picture.Id, picture.Filename);
-                await pictureUpload.EnsureWebsiteVersionsExist(picture);
+                // optionally can create them on the fly, if needed.  Conceptually not a great place to do it,
+                // but still useful when Fennica3 is run from KoTi for previews (the editor there will try to create
+                // downsized versions when picture markup is inserted, but will miss if it's typed/pasted by hand).
+                // Should be turned off in production still; this is the only place where Fennica3 might not be fully readonly.
+                if (configuration["Fennica3:DownsizeImagesOnTheFly"] is not null)
+                {
+                    logger.LogInformation("Website sizes not found for picture #{id} ({filename}), creating", picture.Id, picture.Filename);
+                    await pictureUpload.EnsureWebsiteVersionsExist(picture);
+                }
+                else
+                {
+                    logger.LogWarning("Website sizes not found for picture #{id} ({filename}), using original", picture.Id, picture.Filename);
+                }
             }
             
             // set src and possibly srcset if downsized images exist
@@ -231,13 +268,14 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                 figure.Add(imageOrLink);
                 
                 // move alt text to <figcaption>
-
                 var alt = image.Attribute("alt");
                 if (alt != null && alt.Value.Length > 0)
                 {
                     var figcaption = new XElement("figcaption");
                     figcaption.SetValue(alt.Value);
                     figure.Add(figcaption);
+                    // unset alt, since semantically it's likely not proper alt text anyway
+                    image.SetAttributeValue("alt", "");
                 }
 
                 // unwrap from <p>
@@ -249,6 +287,10 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         }
     }
 
+    /// <summary>
+    /// Automatically add ids on all heading elements.
+    /// </summary>
+    /// <param name="document">HTML as XHTML document</param>
     private void AddHeaderIds(XElement document)
     {
         for (int level = 1; level <= 6; level++)
@@ -264,6 +306,11 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         }
     }
 
+    /// <summary>
+    /// Generate Glider gallery markup from images wrapped into special comments.
+    /// </summary>
+    /// <param name="html">HTML as string</param>
+    /// <returns>Processed HTML</returns>
     private string FormatGalleries(string html)
     {
         // build HTML structure required by glider gallery library from
@@ -297,6 +344,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             // build output HTML as regular string
             StringBuilder output =
                 new StringBuilder($"<div class=\"glider-contain\" data-id=\"{k}\"><div class=\"glider\">");
+            // look only for images, any other content in gallery block will be ignored
             foreach (var image in from image in subDocument.Descendants("img") select image)
             {
                 output.Append("<div class=\"glider-image\">");
@@ -331,12 +379,26 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         return html;
     }
     
+    /// <summary>
+    /// Add some typography formatting to HTML so that it's nicer to read.
+    /// </summary>
+    /// <param name="html">HTML as string</param>
+    /// <returns>Processed HTML</returns>
     private string FormatTypography(string html)
     {
-        // TODO: the only thing we do right now is convert double dashes into proper long dash (adding a nbsp before it)
-        // And even so this is probably not super reliable...  Take care to not destroy IDN URLs (with "xn--"!)
+        // convert double dashes into proper long dash (adding a nbsp before it)
+        // this is probably not super reliable...  Take care to not destroy IDN URLs (with "xn--"!)
         html = Regex.Replace(html, "([>\\s])--([^-<>])", "$1—$2", RegexOptions.Singleline);
         html = Regex.Replace(html, "\\s—", "\u00a0—");
+        
+        // no break before various units
+        html = Regex.Replace(html, "([.0-9]+)\\s+(с|сек|мин|ч|дн\\.|лет|год\\S*|век\\S*|шт\\.|м|км|см|мм|МВт|кВт|ГВт|кг|т|тонн\\S*|л|кв\\.|куб\\.|чел\\S*|тыс\\S*|млн\\.|млрд\\.)\\b", "$1\u00a0$2");
+        html = Regex.Replace(html, "(кв\\.|куб\\.)\\s+", "$1\u00a0");
+        
+        // no break before numbers, including Roman ones
+        html = Regex.Replace(html, " ([.0-9]+)", "\u00a0$1");
+        html = Regex.Replace(html, " ([IVXDCLM]+)", "\u00a0$1");
+        
         return html;
     }
 }

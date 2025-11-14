@@ -20,7 +20,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
                             IStringLocalizer<Fennica3> localizer, IConfiguration configuration) : Controller
 {
     [HttpGet("/{language}/")]
-    [HttpGet("/{language}/{page}/")]
+    [HttpGet("/{language}/{page:int}/")]
     public async Task<IActionResult> Blog(string language, int page = 1)
     {
         var posts = await GetPostsAsync(language, Fennica3.PostsPerPage, (page - 1) * Fennica3.PostsPerPage);
@@ -61,7 +61,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         return View("Blog", model);
     }
 
-    [HttpGet("/{language}/{year}/{month}/{day}/{name}/")]
+    [HttpGet("/{language}/{year:int}/{month:int}/{day:int}/{name}/")]
     public async Task<IActionResult> Post(string language, int year, int month, int day, string name)
     {
         var post = await GetPostAsync(language, year, month, day, name);

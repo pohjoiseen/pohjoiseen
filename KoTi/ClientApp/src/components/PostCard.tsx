@@ -22,9 +22,10 @@ const PostCard = ({ id, selected, onSelect }: PostCardProps) => {
             e.dataTransfer?.setData('text/plain', `post:${id}`);
             e.stopPropagation();
         };
-        ref.current?.addEventListener('dragstart', onDragStart);
-        return () => ref.current?.removeEventListener('dragstart', onDragStart);
-    }, [id, ref.current]);
+        const el = ref.current;
+        el?.addEventListener('dragstart', onDragStart);
+        return () => el?.removeEventListener('dragstart', onDragStart);
+    }, [id]);
 
     const postQuery = usePostQuery(id);
     const post = postQuery.data;

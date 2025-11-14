@@ -139,7 +139,7 @@ const PlaceComponent = ({ area, country, place, index, isOpen, allowDnD, onSetIs
                 }}
             >
                 {place.thumbnailUrl 
-                    ? <img src={place.thumbnailUrl} className="place-mini-thumbnail me-2" />
+                    ? <img src={place.thumbnailUrl} className="place-mini-thumbnail me-2" alt="" />
                     : <div className="place-mini-thumbnail empty me-2" />}
                 <ExploreStatusIndicator
                     status={place.exploreStatus}
