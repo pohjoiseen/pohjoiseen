@@ -111,7 +111,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         return View("Post", model);
     }
 
-    [HttpGet("/{language}/{year}/{month}/{day}/{name}.json")]
+    [HttpGet("/{language}/{year:int}/{month:int}/{day:int}/{name}.json")]
     [Produces("application/json")]
     public async Task<ActionResult> PostJson(string language, int year, int month, int day, string name)
     {
