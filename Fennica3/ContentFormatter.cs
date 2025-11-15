@@ -396,7 +396,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         html = Regex.Replace(html, "(кв\\.|куб\\.)\\s+", "$1\u00a0");
         
         // no break before numbers, including Roman ones
-        html = Regex.Replace(html, " ([.0-9]+)", "\u00a0$1");
+        html = Regex.Replace(html, " ([.0-9]+\\b)", "\u00a0$1");
         html = Regex.Replace(html, " ([IVXDCLM]+)", "\u00a0$1");
         
         return html;
