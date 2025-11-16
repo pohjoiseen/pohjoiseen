@@ -24,7 +24,8 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
             TotalPosts = await dbContext.Posts.CountAsync(),
             TotalArticles = await dbContext.Articles.CountAsync(),
             DatabaseLastPublishedAt = dbFileInfo.LastWriteTime,
-            DatabaseSize = dbFileInfo.Length
+            DatabaseSize = dbFileInfo.Length,
+            S3Bucket = $"{configuration["Holvi:S3:Bucket"]!} ({configuration["Holvi:S3:PublicURL"]!.Replace("https://", "").Replace("/", "")})"
         };
     }
 

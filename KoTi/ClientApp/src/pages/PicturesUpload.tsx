@@ -24,7 +24,7 @@ const PicturesUpload = () => {
     
     return <div className="d-flex flex-column mvh-100">
         <NavBar>
-            <h3>
+            <h3 className="flex-grow-1">
                 <i className="bi bi-image"></i>
                 &nbsp;&rsaquo;&nbsp;
                 Upload

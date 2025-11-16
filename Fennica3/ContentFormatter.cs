@@ -275,7 +275,8 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     figcaption.SetValue(alt.Value);
                     figure.Add(figcaption);
                     // unset alt, since semantically it's likely not proper alt text anyway
-                    image.SetAttributeValue("alt", "");
+                    // TODO: no, don't, breaks gallery captions, should fix galleries to look at figcaption instead
+                    //image.SetAttributeValue("alt", "");
                 }
 
                 // unwrap from <p>

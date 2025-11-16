@@ -59,6 +59,9 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
         if (!isFullscreen) {
             //window.scrollTo(0, 0);
         }
+        if (typeof fullscreen !== 'undefined') {
+            enterFullscreen(fullscreen);
+        }
     }, [setPage, select, isFullscreen]);
 
     /// fullscreen mode ///
@@ -96,7 +99,7 @@ const InsertPicture = ({ isActive, onSelect }: InsertPictureProps) => {
             }
         }
         preloadRef.current = preloadImages;
-    }, [setCurrentFullscreen, picturesQuery, queryClient]);
+    }, [setCurrentFullscreen, picturesQuery.data, queryClient]);
     
     const exitFullscreen = useCallback(() => {
         select(currentFullscreen);

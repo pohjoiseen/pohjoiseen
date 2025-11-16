@@ -6,6 +6,7 @@
     totalArticles: number;
     databaseLastPublishedAt: string;
     databaseSize: number;
+    s3Bucket: string;
 }
 
 export default Stats;

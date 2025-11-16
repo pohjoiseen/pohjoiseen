@@ -31,10 +31,17 @@ const wrapText = (editor: monaco.editor.IStandaloneCodeEditor, before: string, a
     if (!range) {
         return;
     }
-    
-    // if already wrapped in same strings, remove them instead
     const offsetBefore = model.getOffsetAt(range.getStartPosition());
     const offsetAfter = model.getOffsetAt(range.getEndPosition());
+
+    // if wrapping ends with a newline, look at the selection; if it ends with a newline itself, do the intuitive thing
+    // and put the newline in 'after' to the end instead of beginning
+    if (after.startsWith('\n') && model.getValueInRange(monaco.Range.fromPositions(
+        model.getPositionAt(offsetAfter - '\n'.length), range.getEndPosition())) === '\n') {
+        after = after.replace(/^\n(.*)/, '$1\n');
+    }
+
+    // if already wrapped in same strings, remove them instead
     const rangeBefore = monaco.Range.fromPositions(range.getStartPosition(), model.getPositionAt(offsetBefore + before.length));
     if (model.getValueInRange(rangeBefore) === before) {
         const rangeAfter = monaco.Range.fromPositions(model.getPositionAt(offsetAfter - after.length), range.getEndPosition());
@@ -139,10 +146,12 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
         }
 
         // insert full link Markdown markup, unless we are already between brackets
+        // wrap any existing selection as link text
         if (text.startsWith('post:') || text.startsWith('article')) {
             if (model.getValueInRange(monaco.Range.fromPositions(range.getStartPosition(), range.getStartPosition().delta(undefined, -1))) !== '(' ||
                 model.getValueInRange(monaco.Range.fromPositions(range.getEndPosition(), range.getEndPosition().delta(undefined, 1))) !== ')') {
-                return `[](${text})`;
+                
+                return `[${model.getValueInRange(range)}](${text})`;
             }
         }
         
@@ -303,9 +312,12 @@ const ContentEditor = forwardRef<ContentEditorRef, ContentEditorProps>(({ initia
                 e.preventDefault();
             }
 
-            // prevent accidental Ctrl-Left/Right navigation 
+            // prevent accidental Ctrl-Left/Right navigation (unless an input or textarea is focused)
             if (e.ctrlKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-                e.preventDefault();
+                const el = e.target as HTMLElement;
+                if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
             }
         };
         window.addEventListener('keydown', onKeyDown);

@@ -3,7 +3,7 @@
  */
 import * as React from 'react';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, } from 'reactstrap';
+import { Alert, Button, } from 'reactstrap';
 import exifr from 'exifr';
 import Picture, { PictureUploadResult } from '../model/Picture';
 import PicturesList from '../components/PicturesList';
@@ -303,6 +303,9 @@ const Upload = ({ viewMode, setId, disableKeyboardNav, onSelect }: UploadProps) 
         {!picturesForUpload.length && <h4 className="text-center cursor-pointer" onClick={() => uploadInputRef.current?.click()}>
             Choose files to upload, drag or paste them here.
         </h4>}
+        {!!picturesForUpload.length && <Button onClick={() => uploadInputRef.current?.click()}>
+            <i className="bi bi-upload" /> Upload more
+        </Button>}
         {currentFullscreen >= 0 && <PictureFullscreen
             picture={picturesForUpload[currentFullscreen]}
             onRetryUpload={() => setCurrentPictureIndex(currentFullscreen)}
