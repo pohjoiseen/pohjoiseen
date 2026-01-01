@@ -1,0 +1,39 @@
+@using KoTi.Controllers.App
+@model FullscreenViewModel
+
+<div id="fullscreen-container"
+     hx-get hx-controller="Home" hx-action="Blank" hx-trigger="click, keydown[key==='Escape'] from:document consume" hx-swap="outerHTML">
+    <img id="fullscreen-image" data-id="@Model.Picture.Id" src="@Model.Picture.Url" alt="" title="@($"{Model.Picture.PhotographedAt?.ToString("d.MM.yyyy")}\n{Model.Picture.Filename}")">
+    
+    @if (Model.PreviousId != -1)
+    {
+        <button style="visibility: hidden; pointer-events: none; position: fixed;"
+                hx-target="#picture-fullscreen-container" hx-trigger="keydown[key==='ArrowLeft'] from:document consume" hx-get hx-controller="Pictures" hx-action="Fullscreen"
+                hx-route-pictureId="@Model.PreviousId" hx-route-setId="@Model.SetId" hx-route-setSearch="@Model.SetSearch"
+                hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds" hx-swap="innerHTML">Previous</button>
+    }
+    @if (Model.NextId != -1)
+    {
+        <button style="visibility: hidden; pointer-events: none; position: fixed;"
+                hx-target="#picture-fullscreen-container" hx-trigger="keydown[key==='ArrowRight'] from:document consume" hx-get hx-controller="Pictures" hx-action="Fullscreen"
+                hx-route-pictureId="@Model.NextId" hx-route-setId="@Model.SetId" hx-route-setSearch="@Model.SetSearch"
+                hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds" hx-swap="innerHTML">Next</button>
+    }
+    
+    @foreach (var preloadPictureUrl in Model.PreloadPictureUrls)
+    {
+        <img src="@preloadPictureUrl" alt="" style="position: fixed; top: -10000px; left: -10000px;" loading="eager">
+    }
+</div>
+
+@if (Model.ChangePage != null)
+{
+    <form id="@Model.ChangePage" hx-swap-oob="innerHTML">
+        @(await Component.InvokeAsync<PicturesPickerViewComponent>(new { setId = Model.SetId, setSearch = Model.SetSearch, limit = Model.Limit, offset = Model.Offset }))
+    </form>
+}
+
+<script>
+    document.dispatchEvent(new CustomEvent('koti-picture:deselect-all', {detail: {id: @Model.Picture.Id}}));
+    document.dispatchEvent(new CustomEvent('koti-picture:select', {detail: {id: @Model.Picture.Id}}));
+</script>

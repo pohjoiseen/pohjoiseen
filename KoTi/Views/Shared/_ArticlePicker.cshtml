@@ -1,0 +1,19 @@
+@model ArticlePickerViewModel
+
+<div class="content-header">
+    <label for="@Model.ComponentId-post-search-input" style="text-wrap-mode: nowrap; margin-right: 5px;">Search for articles:</label>
+    <input type="text" id="@Model.ComponentId-post-search-input" class="input-block picture-set-search-input" value="@Model.ArticleSearchQuery" hx-get hx-target="#@Model.ComponentId"
+           hx-trigger="keyup changed delay:500ms" hx-controller="Articles" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
+           hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"articleSearch":this.value}'/>
+</div>
+
+<div class="content-list" data-remember-state="@Model.ComponentId-offset@(Model.Offset)">
+    @foreach (var article in Model.Articles)
+    {
+        <koti-content-item kind="article" id="@article.Id" name="@article.Name" title="@article.Title" 
+                           edit-url="@Url.ActionLink("Edit", "Articles", new { id = article.Id })"></koti-content-item>
+    }
+</div>
+
+<partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
+                                       BaseUrl = Url.ActionLink("Picker", "Articles", new { componentId = Model.ComponentId, articleSearch = Model.ArticleSearchQuery })!})" />

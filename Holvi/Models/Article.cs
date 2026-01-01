@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Holvi.Models;
 
 [Index(nameof(Name))]
-public class Article
+public class Article : IContentEntity
 {
     public int Id { get; set; }
 

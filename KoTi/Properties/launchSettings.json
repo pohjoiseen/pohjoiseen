@@ -2,11 +2,17 @@
   "profiles": {
     "KoTi": {
       "commandName": "Project",
-      "launchBrowser": true,
       "applicationUrl": "https://localhost:7169",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+      }
+    },
+    "KoTi, skip SPA": {
+      "commandName": "Project",
+      "applicationUrl": "https://localhost:7169",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }

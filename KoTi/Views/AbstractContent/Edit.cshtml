@@ -1,0 +1,116 @@
+@using KoTi.Controllers.App
+@model AbstractContentViewModel
+
+@{
+    ViewBag.Title = $"{Model.Title} - {Model.KindPlural}";
+    ViewBag.BodyClass = "body-2col";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <partial name="~/Views/AbstractContent/_Title.cshtml" model="Model" />
+}
+
+@section HeaderNav {
+    <button class="koti-btn primary with-indicator" onclick="$id('content-form').requestSubmit()" id="save-button">
+        <span id="save-button-indicator" class="spinner htmx-indicator"></span>
+        <i class="bi bi-save"></i> Save
+    </button>
+}
+
+<main id="editor-container"></main>
+
+<aside>
+    <div class="koti-tabs" data-remember-state="topleveltab">
+        <div>
+            <input type="radio" name="topleveltab" id="topleveltab-form" checked>
+            <label for="topleveltab-form" tabindex="0">Properties</label>
+            <form class="content" id="content-form" hx-put hx-disabled-elt="#save-button" hx-indicator="#save-button-indicator">
+                @await Component.InvokeAsync((Type)ViewData["FormViewComponentType"]!, new { model = Model })
+            </form>
+        </div>
+
+        <div>
+            <input type="radio" name="topleveltab" id="topleveltab-insert">
+            <label for="topleveltab-insert" tabindex="0">Insert</label>
+            <div class="content insert-pane">
+                <div class="koti-tabs" data-remember-state="inserttab">
+                    <div>
+                        <input type="radio" name="inserttab" id="inserttab-picture" checked>
+                        <label for="inserttab-picture" tabindex="0">Photo</label>
+                        <div class="content">
+                            <form id="picture-picker-@Model.GetType().Name-@Model.Id" class="picture-picker" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<PicturesPickerViewComponent>(new { componentId = $"picture-picker-{Model.GetType().Name}-{Model.Id}", setId = -1, setSearch = "#", offset = -1 }))
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <input type="radio" name="inserttab" id="inserttab-upload">
+                        <label for="inserttab-upload" tabindex="0">Upload Picture</label>
+                        <div class="content">
+                            <koti-picture-uploader target-set="Blog Pictures"></koti-picture-uploader>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <input type="radio" name="inserttab" id="inserttab-post" checked>
+                        <label for="inserttab-post" tabindex="0">Post Link</label>
+                        <div class="content">
+                            <form id="post-picker-@Model.GetType().Name-@Model.Id" class="content-picker" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<PostsPickerViewComponent>(new { componentId = $"post-picker-{Model.GetType().Name}-{Model.Id}", offset = -1, postSearch = "#" }))
+                            </form>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="radio" name="inserttab" id="inserttab-article" checked>
+                        <label for="inserttab-article" tabindex="0">Article Link</label>
+                        <div class="content">
+                            <form id="article-picker-@Model.GetType().Name-@Model.Id" class="content-picker" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<ArticlesPickerViewComponent>(new { componentId = $"articles-picker-{Model.GetType().Name}-{Model.Id}", offset = -1, articleSearch = "#" }))
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div style="flex-grow: 1;"></div>
+                    <button style="height: fit-content;" id="insert-button" class="koti-btn primary" disabled="disabled">Select an item</button>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <input type="radio" name="topleveltab" id="topleveltab-preview">
+            <label for="topleveltab-preview" tabindex="0">Preview</label>
+            <div class="content">
+                <div class="content-preview-pane">
+                    <div class="buttons">
+                        <button class="koti-btn primary" onclick="$id('preview-iframe').contentWindow.postMessage('reload')">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                        <button class="koti-btn" onclick="$id('preview-iframe').src = '@Model.FennicaURL'">
+                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        </button>
+                        <button class="koti-btn" onclick="window.open('@Model.FennicaURL', '_blank')">
+                            <i class="bi bi-box-arrow-up-right"></i> Open in new tab
+                        </button>
+                        <span>&nbsp;&nbsp;&nbsp;Preview shows the last saved version.</span>
+                    </div>
+                    <iframe id="preview-iframe" src="@Model.FennicaURL"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<textarea id="content-md-initial" style="position: fixed; width: 0; height: 0; visibility: hidden; pointer-events: none;">@Model.ContentMD</textarea>
+
+@section Scripts {
+    <script src="~/js/koti-picture.js" asp-append-version="true"></script>
+    <script src="~/js/koti-picture-uploader.js" asp-append-version="true"></script>
+    <script src="~/js/koti-content-item.js" asp-append-version="true"></script>
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js" integrity="sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=" crossorigin="anonymous"></script>
+    <script>require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' }});</script>
+    <script src="~/js/content-editor.js" asp-append-version="true"></script>
+}

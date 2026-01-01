@@ -1,0 +1,10 @@
+@model KoTi.ViewModels.AbstractContentViewModel
+
+@if (ViewData.ModelState.IsValid)
+{
+    <h2 id="header-title" hx-swap-oob="true">
+        <partial name="_Title.cshtml" model="Model" />        
+    </h2>
+}
+
+@await Component.InvokeAsync((Type)ViewData["FormViewComponentType"]!, new { model = Model })

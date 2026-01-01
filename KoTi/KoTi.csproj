@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
@@ -17,6 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Htmx" Version="1.9.0" />
+    <PackageReference Include="Htmx.TagHelpers" Version="1.9.0" />
     <PackageReference Include="Markdig" Version="0.43.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
@@ -33,6 +35,9 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+    <None Include="wwwroot\favicon.svg" />
+    <None Include="wwwroot\koti-logo.svg" />
+    <None Include="wwwroot\manifest.json" />
   </ItemGroup>
     
   <ItemGroup>

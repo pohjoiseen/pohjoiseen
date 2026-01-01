@@ -15,6 +15,6 @@ public class Stats
     public DateTime DatabaseLastPublishedAt { get; set; }
     
     public long DatabaseSize { get; set; }
-    
-    public string S3Bucket { get; set; }
+
+    public string S3Bucket { get; set; } = "";
 }

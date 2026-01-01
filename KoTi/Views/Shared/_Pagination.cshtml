@@ -1,0 +1,71 @@
+@model PaginatorViewModel
+
+@{
+    var numPages = Model.Data.Total / Model.Data.Limit;
+    if (Model.Data.Total % Model.Data.Limit != 0)
+    {
+        numPages++;
+    }
+
+    var thisPage = Model.Data.Offset / Model.Data.Limit + 1;
+    
+    var pages = new List<int>();
+    if (numPages < 11)
+    {
+        pages.AddRange(Enumerable.Range(1, numPages));
+    }
+    else if (thisPage <= 6)
+    {
+        pages.AddRange(Enumerable.Range(1, thisPage + 2));
+        pages.Add(0);
+        pages.AddRange(Enumerable.Range(numPages - 2, 3));
+    }
+    else if (numPages - thisPage <= 6)
+    {
+        pages.AddRange(Enumerable.Range(1, 3));
+        pages.Add(0);
+        pages.AddRange(Enumerable.Range(thisPage - 2, numPages - thisPage + 3));
+    }
+    else
+    {
+        pages.AddRange(Enumerable.Range(1, 3));
+        pages.Add(0);
+        pages.AddRange(Enumerable.Range(thisPage - 2, 5));
+        pages.Add(0);
+        pages.AddRange(Enumerable.Range(numPages - 2, 3));
+    }
+}
+
+@if (pages.Count > 1)
+{
+    <nav class="pagination">
+        @if (thisPage != 1)
+        {
+            <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset - Model.Data.Limit)}'>
+                <i class="bi bi-caret-left"></i>
+            </button>                     
+        }
+        @foreach (int npage in pages)
+        {
+            if (npage == 0)
+            {
+                <button class="koti-btn" disabled>…</button>
+            }
+            else if (npage == thisPage)
+            {
+                <button class="koti-btn primary" onclick="return false;">@npage</button>                        
+            }
+            else
+            {
+                <button class="koti-btn" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" 
+                        hx-vals='{"offset":@((npage - 1) * Model.Data.Limit)}'>@npage</button>                        
+            }
+        }
+        @if (thisPage != numPages)
+        {
+            <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset + Model.Data.Limit)}'>
+                <i class="bi bi-caret-right"></i>
+            </button>                     
+        }
+</nav>
+}

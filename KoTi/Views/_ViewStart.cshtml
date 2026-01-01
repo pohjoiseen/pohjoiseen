@@ -1,0 +1,18 @@
+@using Fennica3
+@using Htmx
+@using Microsoft.AspNetCore.Mvc.Controllers
+@{
+    Layout = "_Layout";
+    if (Context.Request.IsHtmx())
+    {
+        Layout = null;
+    }
+
+    // Identify preview requests to Fennica3 pages and use the correct layout for them
+    // (since even for them this _ViewStart is used instead of one in the Fennica3 assembly)
+    // Would be nice if we didn't have to do this explicitly, maybe possible but whatever
+    if ((ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ControllerTypeInfo.Assembly == typeof(Fennica3).Assembly)
+    {
+        Layout = "_FennicaLayout";
+    }
+}

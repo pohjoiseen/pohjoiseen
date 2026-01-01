@@ -1,0 +1,21 @@
+@model ArticleViewModel
+
+<fieldset>
+    <div>
+        <label for="name">Name (URL slug):</label>
+        <input id="name" class="input-block" required asp-for="Name" />
+        @Html.ValidationMessageFor(m => m.Name)
+    </div>
+
+    <div>
+        <label for="title">Title:</label>
+        <input id="title" class="input-block heading-font" style="font-size: 30px;" required asp-for="Title" />
+        @Html.ValidationMessageFor(m => m.Title)
+    </div>
+
+    <div>
+        <input id="draft" type="checkbox" asp-for="Draft" />
+        <label for="draft">Draft</label>
+        @Html.ValidationMessageFor(m => m.Draft)
+    </div>
+</fieldset>
