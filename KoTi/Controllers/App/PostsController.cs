@@ -1,18 +1,23 @@
-using Holvi;
+using Holvi.Models;
+using Koti.Controllers.App;
+using KoTi.ModelFactories;
+using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KoTi.Controllers.App;
 
 [Route("app/[controller]")]
-public class PostsController(HolviDbContext dbContext) : Controller
+public class PostsController(PostViewModelFactory modelFactory)
+    : AbstractContentController<Post, PostViewModel, PostFormViewComponent>(modelFactory)
 {
-    [HttpGet("Picker/{componentId}")]
-    public async Task<IActionResult> Picker(
+    [HttpGet("List/{componentId}/{language}")]
+    public async Task<IActionResult> List(
         string componentId,
+        string language,
         [FromQuery] int limit,
         [FromQuery] int offset,
         [FromQuery] string? postSearch)
     {
-        return ViewComponent("PostsPicker", new { componentId, limit, offset, postSearch });
+        return ViewComponent("PostList", new { componentId, language, limit, offset, postSearch });
     }
 }

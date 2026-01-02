@@ -4,6 +4,7 @@
 using Fennica3;
 using Holvi;
 using Holvi.Models;
+using KoTi.ModelFactories;
 using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ builder.Services.AddSwaggerGen();
 var f3Assembly = typeof(Fennica3.Fennica3).Assembly;
 var part = new AssemblyPart(f3Assembly);
 builder.Services.AddControllersWithViews().ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
+builder.Services.AddScoped<PostViewModelFactory>();
 builder.Services.AddScoped<ArticleViewModelFactory>();
 
 var app = builder.Build();

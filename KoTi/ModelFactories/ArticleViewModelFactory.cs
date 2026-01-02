@@ -1,8 +1,9 @@
 using Holvi;
 using Holvi.Models;
+using KoTi.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace KoTi.ViewModels;
+namespace KoTi.ModelFactories;
 
 public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewModelFactory<ArticleViewModel, Article>
 {

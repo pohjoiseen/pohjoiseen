@@ -22,7 +22,9 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
         const title = this.getAttribute('title');
         const width = this.getAttribute('width');
         const height = this.getAttribute('height');
+        const draft = this.getAttribute('draft');
 
+        this.#button.classList.toggle('draft', !!draft);
         this.#text.innerHTML = `${title}<br><span class="muted">${name}</span>`;
         if (src) {
             this.#img.style.display = '';
@@ -36,7 +38,7 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['src', 'title', 'width', 'height'];
+        return ['src', 'title', 'width', 'height', 'draft'];
     }
 
     attributeChangedCallback(name, oldValue, newValue) {

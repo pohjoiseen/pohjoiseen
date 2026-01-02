@@ -1,5 +1,5 @@
 ///
-/// <koti-picture> web component, handling diplaying a picture thumbnail (both for picture picker and picture
+/// <koti-picture> web component, handling diplaying a picture thumbnail (both for picture list and picture
 /// uploader) and associated behaviors.
 ///
 

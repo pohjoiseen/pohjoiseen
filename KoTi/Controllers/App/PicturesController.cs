@@ -9,15 +9,15 @@ namespace KoTi.Controllers.App;
 [Route("app/[controller]")]
 public class PicturesController(HolviDbContext dbContext, PictureUpload pictureUpload) : Controller
 {
-    [HttpGet("Picker/{componentId}")]
-    public async Task<IActionResult> Picker(
+    [HttpGet("List/{componentId}")]
+    public async Task<IActionResult> List(
         string componentId,
         [FromQuery] int limit,
         [FromQuery] int offset,
         [FromQuery] int? setId,
         [FromQuery] string? setSearch)
     {
-        return ViewComponent("PicturesPicker", new { componentId, limit, offset, setId, setSearch });
+        return ViewComponent("PictureList", new { componentId, limit, offset, setId, setSearch });
     }
     
     [HttpGet("Fullscreen/{componentId}/{pictureId:int}")]
@@ -83,13 +83,13 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
             if (pictureIdIndex < offset)
             {
                 changePage = componentId;
-                offset -= limit > 0 ? limit : PicturesPickerViewComponent.DefaultLimit;
+                offset -= limit > 0 ? limit : PictureListViewComponent.DefaultLimit;
             }
 
             if (pictureIdIndex >= offset + limit)
             {
                 changePage = componentId;
-                offset += limit > 0 ? limit : PicturesPickerViewComponent.DefaultLimit;
+                offset += limit > 0 ? limit : PictureListViewComponent.DefaultLimit;
             }
         }
 

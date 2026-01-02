@@ -1,6 +1,7 @@
 using Holvi.Models;
+using KoTi.ViewModels;
 
-namespace KoTi.ViewModels;
+namespace KoTi.ModelFactories;
 
 public interface IContentViewModelFactory<TViewModel, TEntity> 
     where TViewModel : AbstractContentViewModel where TEntity : IContentEntity

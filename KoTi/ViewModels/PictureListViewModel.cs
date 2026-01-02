@@ -2,7 +2,7 @@ using Holvi.Models;
 
 namespace KoTi.ViewModels;
 
-public class PicturePickerViewModel : PaginatedViewModel
+public class PictureListViewModel : PaginatedViewModel
 {
     public required string ComponentId { get; set; }
     public required IList<Picture> Pictures { get; set; }

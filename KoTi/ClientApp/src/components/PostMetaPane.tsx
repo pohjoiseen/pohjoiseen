@@ -50,6 +50,14 @@ const PostMetaMain = ({ post, onChange }: PostMetaPaneProps) => {
     
     return <>
         {deletePostMutation.isError && <Alert color="danger">Deleting post: {errorMessage(deletePostMutation.error)}</Alert>}
+
+        <Alert color="success" className="mb-4 d-flex flex-row justify-content-between align-items-center">
+            Open this post in the new editor UI
+            <Button color="success" onClick={() => window.location.href = `/app/Posts/${post.id}/`}>
+                <i className="bi bi-arrow-right-square" /> Open
+            </Button>
+        </Alert>
+
         <Row className="mb-4 d-flex align-items-center">
             <Col xs={3}>
                 <Input type="date" value={post.date.toISOString().substring(0, 10)}

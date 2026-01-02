@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Holvi.Models;
 
-public class Post
+public class Post : IContentEntity
 {
     /// <summary>
     /// Helper class: Geo point definition to show on a map, one or more can be associated to a post.

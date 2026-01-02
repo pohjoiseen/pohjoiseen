@@ -7,12 +7,13 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KoTi.Controllers.App;
 
-public class PostsPickerViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
+public class PostListViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
 {
     public static readonly int DefaultLimit = 25;
 
     public async Task<IViewComponentResult> InvokeAsync(
         string componentId,
+        string language,
         int limit,
         int offset,
         string? postSearch)
@@ -21,7 +22,7 @@ public class PostsPickerViewComponent(HolviDbContext dbContext, IMemoryCache mem
         // allow using cached values if special parameters are passed
         if (postSearch == "#")
         {
-            if (!memoryCache.TryGetValue($"{componentId}:postSearch", out postSearch))
+            if (!memoryCache.TryGetValue($"{componentId}:{language}:postSearch", out postSearch))
             {
                 postSearch = null;
             }
@@ -29,18 +30,19 @@ public class PostsPickerViewComponent(HolviDbContext dbContext, IMemoryCache mem
 
         if (offset == -1)
         {
-            if (!memoryCache.TryGetValue($"{componentId}:offset", out offset))
+            if (!memoryCache.TryGetValue($"{componentId}:{language}:offset", out offset))
             {
                 offset = 0;
             }
         }
         
-        memoryCache.Set($"{componentId}:postSearch", postSearch, TimeSpan.FromDays(7));
-        memoryCache.Set($"{componentId}:offset", offset, TimeSpan.FromDays(7));
+        memoryCache.Set($"{componentId}:{language}:postSearch", postSearch, TimeSpan.FromDays(7));
+        memoryCache.Set($"{componentId}:{language}:offset", offset, TimeSpan.FromDays(7));
         
         // query for posts
         var query = dbContext.Posts
             .Include(p => p.TitlePicture)
+            .Where(p => p.Language == language)
             .AsQueryable();
         if (postSearch != null)
         {
@@ -62,9 +64,10 @@ public class PostsPickerViewComponent(HolviDbContext dbContext, IMemoryCache mem
             queryPaginated = queryPaginated.Take(DefaultLimit);
         }
         
-        return View("~/Views/Shared/_PostPicker.cshtml", new PostPickerViewModel
+        return View("~/Views/Posts/_List.cshtml", new PostListViewModel
         {
             ComponentId = componentId,
+            Language = language,
             Total = await query.CountAsync(),
             Limit = limit > 0 ? limit : DefaultLimit,
             Offset = offset,

@@ -6,12 +6,13 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KoTi.Controllers.App;
 
-public class ArticlesPickerViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
+public class ArticleListViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
 {
     public static readonly int DefaultLimit = 25;
 
     public async Task<IViewComponentResult> InvokeAsync(
         string componentId,
+        string language,
         int limit,
         int offset,
         string? articleSearch)
@@ -20,7 +21,7 @@ public class ArticlesPickerViewComponent(HolviDbContext dbContext, IMemoryCache 
         // allow using cached values if special parameters are passed
         if (articleSearch == "#")
         {
-            if (!memoryCache.TryGetValue($"{componentId}:articleSearch", out articleSearch))
+            if (!memoryCache.TryGetValue($"{componentId}:{language}:articleSearch", out articleSearch))
             {
                 articleSearch = null;
             }
@@ -28,17 +29,19 @@ public class ArticlesPickerViewComponent(HolviDbContext dbContext, IMemoryCache 
 
         if (offset == -1)
         {
-            if (!memoryCache.TryGetValue($"{componentId}:offset", out offset))
+            if (!memoryCache.TryGetValue($"{componentId}:{language}:offset", out offset))
             {
                 offset = 0;
             }
         }
         
-        memoryCache.Set($"{componentId}:articleSearch", articleSearch, TimeSpan.FromDays(7));
-        memoryCache.Set($"{componentId}:offset", offset, TimeSpan.FromDays(7));
+        memoryCache.Set($"{componentId}:{language}:articleSearch", articleSearch, TimeSpan.FromDays(7));
+        memoryCache.Set($"{componentId}:{language}:offset", offset, TimeSpan.FromDays(7));
         
         // query for articles
-        var query = dbContext.Articles.AsQueryable();
+        var query = dbContext.Articles
+            .Where(a => a.Language == language)
+            .AsQueryable();
         if (articleSearch != null)
         {
             query = query.Where(a => a.Name.ToLower().Contains(articleSearch.ToLower()) || a.Title.ToLower().Contains(articleSearch.ToLower()));
@@ -59,9 +62,10 @@ public class ArticlesPickerViewComponent(HolviDbContext dbContext, IMemoryCache 
             queryPaginated = queryPaginated.Take(DefaultLimit);
         }
         
-        return View("~/Views/Shared/_ArticlePicker.cshtml", new ArticlePickerViewModel
+        return View("~/Views/Articles/_List.cshtml", new ArticleListViewModel
         {
             ComponentId = componentId,
+            Language = language,
             Total = await query.CountAsync(),
             Limit = limit > 0 ? limit : DefaultLimit,
             Offset = offset,

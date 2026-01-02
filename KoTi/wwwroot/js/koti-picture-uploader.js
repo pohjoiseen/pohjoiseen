@@ -1,6 +1,6 @@
 ///
 /// <koti-picture-uploader>: friendly picture upload panel.  This is implemented entirely in JS without htmx,
-/// with the basic unit being <koti-picture> also used in server-side picture picker.  This uploads pictures
+/// with the basic unit being <koti-picture> also used in server-side picture list.  This uploads pictures
 /// one by one, from file input, drag and drop, or pasting, shows progress and handles errors, allows retry in case
 /// of errors, allows to view uploaded pictures in fullscreen.
 ///
@@ -25,7 +25,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
         // add DOM and store important elements
         this.innerHTML = `
             <div class="picture-uploader">
-                <div class="picture-list">
+                <div class="list">
                     <h2 class="placeholder-heading">Paste or drop photos here</h2>            
                 </div>
                 <div class="footer">
@@ -44,7 +44,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
                 </div>
             </div>
         `;
-        this.#pictureList = this.querySelector('.picture-list');
+        this.#pictureList = this.querySelector('.list');
         this.#uploadButton = this.querySelector('.upload-button');
         this.#uploadInput = this.querySelector('.upload-hidden-button');
         this.#errorAlert = this.querySelector('.alert');

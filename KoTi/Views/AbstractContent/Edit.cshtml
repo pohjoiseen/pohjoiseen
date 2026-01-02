@@ -39,8 +39,8 @@
                         <input type="radio" name="inserttab" id="inserttab-picture" checked>
                         <label for="inserttab-picture" tabindex="0">Photo</label>
                         <div class="content">
-                            <form id="picture-picker-@Model.GetType().Name-@Model.Id" class="picture-picker" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<PicturesPickerViewComponent>(new { componentId = $"picture-picker-{Model.GetType().Name}-{Model.Id}", setId = -1, setSearch = "#", offset = -1 }))
+                            <form id="picture-list-@Model.GetType().Name-@Model.Id" class="picture-list" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<PictureListViewComponent>(new { componentId = $"picture-list-{Model.GetType().Name}-{Model.Id}", setId = -1, setSearch = "#", offset = -1 }))
                             </form>
                         </div>
                     </div>
@@ -57,8 +57,8 @@
                         <input type="radio" name="inserttab" id="inserttab-post" checked>
                         <label for="inserttab-post" tabindex="0">Post Link</label>
                         <div class="content">
-                            <form id="post-picker-@Model.GetType().Name-@Model.Id" class="content-picker" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<PostsPickerViewComponent>(new { componentId = $"post-picker-{Model.GetType().Name}-{Model.Id}", offset = -1, postSearch = "#" }))
+                            <form id="post-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<PostListViewComponent>(new { componentId = $"post-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, postSearch = "#" }))
                             </form>
                         </div>
                     </div>
@@ -67,8 +67,8 @@
                         <input type="radio" name="inserttab" id="inserttab-article" checked>
                         <label for="inserttab-article" tabindex="0">Article Link</label>
                         <div class="content">
-                            <form id="article-picker-@Model.GetType().Name-@Model.Id" class="content-picker" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<ArticlesPickerViewComponent>(new { componentId = $"articles-picker-{Model.GetType().Name}-{Model.Id}", offset = -1, articleSearch = "#" }))
+                            <form id="article-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
+                                @(await Component.InvokeAsync<ArticleListViewComponent>(new { componentId = $"article-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, articleSearch = "#" }))
                             </form>
                         </div>
                     </div>

@@ -41,6 +41,5 @@ function handleElements(rootEl, selector, callback) {
 
 htmx.onLoad((el) => {
     handleElements(el, '.koti-tabs[data-remember-state]', saveAndRestoreTabState);
-    handleElements(el, '.picture-list[data-remember-state]', saveAndRestoreListState);
-    handleElements(el, '.content-list[data-remember-state]', saveAndRestoreListState);
+    handleElements(el, '.list[data-remember-state]', saveAndRestoreListState);
 });

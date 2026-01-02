@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KoTi.Controllers.App;
 
-public class PicturesPickerViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
+public class PictureListViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
 {
     public static readonly int DefaultLimit = 100;
 
@@ -109,7 +109,7 @@ public class PicturesPickerViewComponent(HolviDbContext dbContext, IMemoryCache 
             }
         }
 
-        return View("~/Views/Shared/_PicturePicker.cshtml", new PicturePickerViewModel
+        return View("~/Views/Pictures/_List.cshtml", new PictureListViewModel
         {
             ComponentId = componentId,
             Total = await query.CountAsync(),

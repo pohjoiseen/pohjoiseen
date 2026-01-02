@@ -1,5 +1,5 @@
 @using Holvi.Models
-@model PicturePickerViewModel
+@model PictureListViewModel
 
 @if (Model.PictureSet != null)
 {
@@ -8,13 +8,13 @@
           {
                <label for="@Model.ComponentId-picture-set-search-input" style="text-wrap-mode: nowrap; margin-right: 5px;">Search for folders:</label>
                <input type="text" id="@Model.ComponentId-picture-set-search-input" class="input-block picture-set-search-input" value="@Model.PictureSetSearchQuery" hx-get hx-target="#@Model.ComponentId"
-                      hx-trigger="keyup changed delay:500ms" hx-controller="Pictures" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
+                      hx-trigger="keyup changed delay:500ms" hx-controller="Pictures" hx-action="List" hx-route-componentId="@Model.ComponentId"
                       hx-route-setId="0" hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"setSearch":this.value}'/>
           }
           else
           {
                <h3>
-                    <button class="koti-btn" hx-get hx-target="#@Model.ComponentId" hx-controller="Pictures" hx-action="Picker"
+                    <button class="koti-btn" hx-get hx-target="#@Model.ComponentId" hx-controller="Pictures" hx-action="List"
                             hx-route-componentId="@Model.ComponentId" hx-route-setId="@(Model.PictureSet.ParentId ?? 0)" hx-route-setSearch="#"
                             hx-route-limit="@Model.Limit" hx-route-offset="0">
                          <i class="bi bi-arrow-90deg-up"></i>
@@ -25,7 +25,7 @@
      </div>
 }
 
-<div class="picture-list picker" data-remember-state="@Model.ComponentId-set@(Model.PictureSet is not null ? Model.PictureSet.Id : "null")-offset@(Model.Offset)">
+<div class="list" data-remember-state="@Model.ComponentId-set@(Model.PictureSet is not null ? Model.PictureSet.Id : "null")-offset@(Model.Offset)">
      @if (Model.PictureSet != null)
      {
           @foreach (var childSet in Model.PictureSet.Children)
@@ -33,7 +33,7 @@
                @if (String.IsNullOrWhiteSpace(Model.PictureSetSearchQuery) || childSet.Name.ToLower().Contains(Model.PictureSetSearchQuery.ToLower()))
                {
                     <button class="koti-btn folder" hx-get hx-target="#@Model.ComponentId" hx-controller="Pictures"
-                            hx-action="Picker" hx-route-componentId="@Model.ComponentId"
+                            hx-action="List" hx-route-componentId="@Model.ComponentId"
                             hx-route-setId="@childSet.Id" hx-route-setSearch="#" hx-route-limit="@Model.Limit" hx-route-offset="-1">
                          @if (Model.ChildrenPictureSetThumbnails.ContainsKey(childSet.Id))
                          {
@@ -60,6 +60,5 @@
 </div>
 
 <partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
-                                        BaseUrl = Url.ActionLink("Picker", "Pictures", new { componentId = Model.ComponentId, setId = Model.PictureSet?.Id, setSearch = Model.PictureSetSearchQuery })!})" />
+                                        BaseUrl = Url.ActionLink("List", "Pictures", new { componentId = Model.ComponentId, setId = Model.PictureSet?.Id, setSearch = Model.PictureSetSearchQuery })!})" />
 
-<div id="picture-picker-fullscreen-container" hx-preserve></div>
