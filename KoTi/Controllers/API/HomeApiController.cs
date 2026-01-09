@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Home")]
 [ApiController]
-public class HomeController(HolviDbContext dbContext, IConfiguration configuration) : ControllerBase
+public class HomeApiController(HolviDbContext dbContext, IConfiguration configuration) : ControllerBase
 {
     // GET: api/Home/Stats
     [HttpGet("Stats")]

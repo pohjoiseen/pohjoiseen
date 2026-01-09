@@ -7,9 +7,9 @@ using KoTi.ResponseModels;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Pictures")]
 [ApiController]
-public class PicturesController(HolviDbContext dbContext, PictureStorage pictureStorage, PictureUpload pictureUpload) : ControllerBase
+public class PicturesApiController(HolviDbContext dbContext, PictureStorage pictureStorage, PictureUpload pictureUpload) : ControllerBase
 {
     // GET: api/Pictures
     [HttpGet]

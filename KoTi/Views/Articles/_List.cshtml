@@ -11,9 +11,9 @@
     @foreach (var article in Model.Articles)
     {
         <koti-content-item kind="article" id="@article.Id" name="@article.Name" title="@article.Title" draft="@(article.Draft ? "true" : "")"
-                           edit-url="@Url.ActionLink("Edit", "Articles", new { id = article.Id })"></koti-content-item>
+                           edit-url="@Url.Action("Edit", "Articles", new { id = article.Id })"></koti-content-item>
     }
 </div>
 
 <partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
-                                       BaseUrl = Url.ActionLink("List", "Articles", new { componentId = Model.ComponentId, language = Model.Language, articleSearch = Model.ArticleSearchQuery })!})" />
+                                       BaseUrl = Url.Action("List", "Articles", new { componentId = Model.ComponentId, language = Model.Language, articleSearch = Model.ArticleSearchQuery })!})" />

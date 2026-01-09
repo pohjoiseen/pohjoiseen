@@ -6,13 +6,13 @@ using Holvi.Models;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Regions")]
 [ApiController]
-public class RegionsController : ControllerBase
+public class RegionsApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public RegionsController(HolviDbContext context)
+    public RegionsApiController(HolviDbContext context)
     {
         _context = context;
     }

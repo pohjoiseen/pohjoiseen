@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Redirects")]
 [ApiController]
-public class RedirectsController(HolviDbContext dbContext) : ControllerBase
+public class RedirectsApiController(HolviDbContext dbContext) : ControllerBase
 {
     // GET: api/Redirects
     [HttpGet]

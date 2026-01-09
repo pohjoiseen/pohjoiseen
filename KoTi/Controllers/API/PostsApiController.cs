@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Posts")]
 [ApiController]
-public class PostsController(HolviDbContext dbContext) : ControllerBase
+public class PostsApiController(HolviDbContext dbContext) : ControllerBase
 {
     // GET: api/Posts
     [HttpGet]

@@ -7,13 +7,13 @@ using KoTi.ResponseModels;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Places")]
 [ApiController]
-public class PlacesController : ControllerBase
+public class PlacesApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public PlacesController(HolviDbContext context)
+    public PlacesApiController(HolviDbContext context)
     {
         _context = context;
     }

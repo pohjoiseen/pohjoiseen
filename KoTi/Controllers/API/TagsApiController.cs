@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Tags")]
 [ApiController]
-public class TagsController : ControllerBase
+public class TagsApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public TagsController(HolviDbContext context)
+    public TagsApiController(HolviDbContext context)
     {
         _context = context;
     }

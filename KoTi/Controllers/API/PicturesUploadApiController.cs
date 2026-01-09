@@ -7,11 +7,11 @@ namespace KoTi.Controllers.API;
 
 [Route("api/Pictures/Upload")]
 [ApiController]
-public class PicturesUploadController : ControllerBase
+public class PicturesUploadApiController : ControllerBase
 {
     private readonly PictureUpload _pictureUpload;
 
-    public PicturesUploadController(PictureUpload pictureUpload)
+    public PicturesUploadApiController(PictureUpload pictureUpload)
     {
         _pictureUpload = pictureUpload;
     }

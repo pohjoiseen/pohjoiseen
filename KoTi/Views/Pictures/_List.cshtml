@@ -54,11 +54,11 @@
      {
           <koti-picture picture-id="@picture.Id" src="@picture.DetailsUrl" title="@($"{picture.PhotographedAt?.ToString("d.MM.yyyy")}\n{picture.Filename}")"
                         height="@Picture.ThumbnailSize" width="@Math.Floor(picture.Width * 1.0 / picture.Height * Picture.ThumbnailSize)"
-                        fullscreen-url="@Url.ActionLink("Fullscreen", "Pictures", new { pictureId = picture.Id, componentId = Model.ComponentId,
+                        fullscreen-url="@Url.Action("Fullscreen", "Pictures", new { pictureId = picture.Id, componentId = Model.ComponentId,
                                              setId = Model.PictureSet?.Id, setSearch = Model.PictureSetSearchQuery, limit = Model.Limit, offset = Model.Offset })"></koti-picture>
      }
 </div>
 
 <partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
-                                        BaseUrl = Url.ActionLink("List", "Pictures", new { componentId = Model.ComponentId, setId = Model.PictureSet?.Id, setSearch = Model.PictureSetSearchQuery })!})" />
+                                        BaseUrl = Url.Action("List", "Pictures", new { componentId = Model.ComponentId, setId = Model.PictureSet?.Id, setSearch = Model.PictureSetSearchQuery })!})" />
 

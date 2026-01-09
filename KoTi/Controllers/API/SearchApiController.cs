@@ -6,13 +6,13 @@ using Microsoft.Data.Sqlite;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/Search")]
 [ApiController]
-public class SearchController : ControllerBase
+public class SearchApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public SearchController(HolviDbContext context)
+    public SearchApiController(HolviDbContext context)
     {
         _context = context;
     }

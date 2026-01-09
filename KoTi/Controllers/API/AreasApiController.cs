@@ -7,13 +7,13 @@ using KoTi.ResponseModels;
 
 namespace KoTi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/Areas")]
 [ApiController]
-public class AreasController : ControllerBase
+public class AreasApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public AreasController(HolviDbContext context)
+    public AreasApiController(HolviDbContext context)
     {
         _context = context;
     }

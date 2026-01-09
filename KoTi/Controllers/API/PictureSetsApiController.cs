@@ -7,13 +7,13 @@ using KoTi.ResponseModels;
 
 namespace KoTi.Controllers.API;
 
-[Route("api/[controller]")]
+[Route("api/PictureSets")]
 [ApiController]
-public class PictureSetsController : ControllerBase
+public class PictureSetsApiController : ControllerBase
 {
     private readonly HolviDbContext _context;
 
-    public PictureSetsController(HolviDbContext context)
+    public PictureSetsApiController(HolviDbContext context)
     {
         _context = context;
     }
