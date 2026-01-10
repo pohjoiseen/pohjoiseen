@@ -1,53 +1,72 @@
+@using KoTi.Controllers.App
 @model PostViewModel
 
-<fieldset>
-    <div style="display: grid; grid-template-columns: 120px 1fr; grid-gap: 5px; grid-auto-flow: column;">
-        <div>
-            <label for="date">Date:</label>
-            <input type="date" id="date" class="input-block" required asp-for="Date"/>
-            @Html.ValidationMessageFor(m => m.Date)
+<div class="koti-tabs" data-remember-state="posttab">
+    <div>
+        <input type="radio" name="posttab" value="main" id="posttab-main" checked asp-for="PostTab" />
+        <label for="posttab-main" tabindex="0">General</label>
+        <div class="content">
+            <fieldset>
+                <div style="display: grid; grid-template-columns: 120px 1fr; grid-gap: 5px; grid-auto-flow: column;">
+                    <div>
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" class="input-block" required asp-for="Date"/>
+                        @Html.ValidationMessageFor(m => m.Date)
+                    </div>
+                    <div>
+                        <label for="name">Name (URL slug):</label>
+                        <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"/>
+                        @Html.ValidationMessageFor(m => m.Name)
+                    </div>
+                </div>
+
+                <div>
+                    <label for="title">Title:</label>
+                    <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title"/>
+                    @Html.ValidationMessageFor(m => m.Title)
+                </div>
+
+                <div>
+                    <label for="description">Description (for blog index):</label>
+                    <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
+                    @Html.ValidationMessageFor(m => m.Title)
+                </div>
+
+                <div>
+                    <label for="date-description">Date description (when photos and text were authored):</label>
+                    <textarea rows="1" id="date-description" class="input-block" asp-for="DateDescription"></textarea>
+                    @Html.ValidationMessageFor(m => m.DateDescription)
+                </div>
+
+                <div>
+                    <label for="location-description">Location description (short):</label>
+                    <textarea rows="1" id="location-description" class="input-block" asp-for="LocationDescription"></textarea>
+                    @Html.ValidationMessageFor(m => m.LocationDescription)
+                </div>
+
+                <div>
+                    <input id="draft" type="checkbox" asp-for="Draft"/>
+                    <label for="draft">Draft</label>
+                    <input id="mini" type="checkbox" asp-for="Mini"/>
+                    <label for="mini">Mini</label>
+                    @Html.ValidationMessageFor(m => m.Draft)
+                </div>
+
+                <div class="alert">
+                    The new post editor is a work in progress. More properties can be set in the old editor.
+                    <a class="koti-btn" href="/post/@Model.Id">Go to old editor</a>
+                </div>
+            </fieldset>
         </div>
-        <div>
-            <label for="name">Name (URL slug):</label>
-            <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"/>
-            @Html.ValidationMessageFor(m => m.Name)
+    </div>
+    
+    <div>
+        <input type="radio" name="posttab" value="titleimage" id="posttab-titlepicture" asp-for="PostTab" />
+        <label for="posttab-titlepicture" tabindex="0">Title Picture</label>
+        <div class="content">
+            @(await Component.InvokeAsync<PicturePickerViewComponent>(new { componentId = "picture-picker-post-" + Model.Id, fieldName = "TitlePictureId", pictureId = Model.TitlePictureId }))
+            <p>TODO: TitleImageOffsetY, TitleImageInText, TitleImageCaption</p>
         </div>
     </div>
 
-    <div>
-        <label for="title">Title:</label>
-        <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title"/>
-        @Html.ValidationMessageFor(m => m.Title)
-    </div>
-
-    <div>
-        <label for="description">Description (for blog index):</label>
-        <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
-        @Html.ValidationMessageFor(m => m.Title)
-    </div>
-
-    <div>
-        <label for="date-description">Date description (when photos and text were authored):</label>
-        <textarea rows="1" id="date-description" class="input-block" asp-for="DateDescription"></textarea>
-        @Html.ValidationMessageFor(m => m.DateDescription)
-    </div>
-
-    <div>
-        <label for="location-description">Location description (short):</label>
-        <textarea rows="1" id="location-description" class="input-block" asp-for="LocationDescription"></textarea>
-        @Html.ValidationMessageFor(m => m.LocationDescription)
-    </div>
-
-    <div>
-        <input id="draft" type="checkbox" asp-for="Draft"/>
-        <label for="draft">Draft</label>
-        <input id="mini" type="checkbox" asp-for="Mini"/>
-        <label for="mini">Mini</label>
-        @Html.ValidationMessageFor(m => m.Draft)
-    </div>
-
-    <div class="alert">
-        The new post editor is a work in progress. More properties can be set in the old editor.
-        <a class="koti-btn" href="/post/@Model.Id">Go to old editor</a>
-    </div>
-</fieldset>
+</div>

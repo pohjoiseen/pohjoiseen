@@ -38,6 +38,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             Description = entity.Description,
             DateDescription = entity.DateDescription,
             LocationDescription = entity.LocationDescription,
+            TitlePictureId = entity.TitlePictureId,
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
             Mini = entity.Mini,
@@ -63,6 +64,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.Description = model.Description ?? "";
         entity.DateDescription = model.DateDescription;
         entity.LocationDescription = model.LocationDescription;
+        entity.TitlePictureId = model.TitlePictureId;
         entity.ContentMD = model.ContentMD;
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;

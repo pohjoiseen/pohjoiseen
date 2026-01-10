@@ -10,6 +10,8 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     #img;
     /** @type {HTMLSpanElement} */
     #text;
+    /** @type {HTMLElement} */
+    #parent;
     
     constructor() {
         super();
@@ -64,6 +66,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     
     connectedCallback() {
         // create DOM (button with img and span inside)
+        this.#parent = this.parentElement;
         this.#button = document.createElement('button');
         this.#button.classList.add('koti-btn', 'picture');
         this.#button.setAttribute('hx-target', '#picture-fullscreen-container');
@@ -79,8 +82,8 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         this.update();
 
         // bind custom event listeners
-        document.addEventListener('koti-picture:select', this);
-        document.addEventListener('koti-picture:deselect-all', this);
+        this.#parent.addEventListener('koti-picture:select', this);
+        this.#parent.addEventListener('koti-picture:deselect-all', this);
         
         // bind event listeners to button
         
@@ -90,12 +93,12 @@ window.customElements.define('koti-picture', class extends HTMLElement {
             e.preventDefault();
             if (this.#button.classList.contains('selected')) {
                 this.#button.classList.remove('selected');
-                document.dispatchEvent(new CustomEvent('content:select-insertable'));
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', {bubbles: true}));
             } else {
-                document.dispatchEvent(new CustomEvent('koti-picture:deselect-all'));
+                this.#parent.dispatchEvent(new CustomEvent('koti-picture:deselect-all'));
                 this.#button.classList.add('selected');
                 if (this.getAttribute('picture-id')) {
-                    document.dispatchEvent(new CustomEvent('content:select-insertable', {detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
+                    this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', {bubbles: true, detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
                 }
             }
         });
@@ -108,11 +111,11 @@ window.customElements.define('koti-picture', class extends HTMLElement {
             if (e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                document.dispatchEvent(new CustomEvent('koti-picture:deselect-all'));
+                this.#parent.dispatchEvent(new CustomEvent('koti-picture:deselect-all'));
                 this.#button.classList.add('selected');
                 if (this.getAttribute('picture-id')) {
-                    document.dispatchEvent(new CustomEvent('content:select-insertable', {detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
-                    document.dispatchEvent(new CustomEvent('content:insert', {detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
+                    this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', {bubbles: true, detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
+                    this.#parent.dispatchEvent(new CustomEvent('content:insert', {bubbles: true, detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
                 }
             }
         }
@@ -141,8 +144,8 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     }
     
     disconnectedCallback() {
-        document.removeEventListener('koti-picture:select', this);
-        document.removeEventListener('koti-picture:deselect-all', this);
+        this.#parent.removeEventListener('koti-picture:select', this);
+        this.#parent.removeEventListener('koti-picture:deselect-all', this);
     }
 
     getFullscreenOverrideIds() {
@@ -169,7 +172,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         if (e.detail.id.toString() === this.getAttribute('picture-id')) {
             this.#button.classList.add('selected');
             if (this.getAttribute('picture-id')) {
-                document.dispatchEvent(new CustomEvent('content:select-insertable', {detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', {bubbles: true, detail: {text: 'picture:' + this.getAttribute('picture-id')}}));
             }
         }
     }

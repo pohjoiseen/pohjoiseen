@@ -301,6 +301,9 @@ require(["vs/editor/editor.main"], () => {
     
     //// Custom event listeners
     
+    const insertSources = document.querySelectorAll('#editor-container, ' +
+        '.insert-picture .list, .insert-uploaded-picture .list, .insert-post-link .list, .insert-article-link .list');
+
     document.addEventListener('content:save', () => {
         formEl.requestSubmit();
     });
@@ -314,7 +317,7 @@ require(["vs/editor/editor.main"], () => {
         text = handleTextInsertion(text, editor.getModel(), selection);
         editor.executeEdits(null, [{ range: selection, text, forceMoveMarkers: true }]);
     };
-    document.addEventListener('content:insert', onInsert);
+    insertSources.forEach(el => el.addEventListener('content:insert', onInsert));
     
     let selectedItem = null;
     /**
@@ -330,10 +333,10 @@ require(["vs/editor/editor.main"], () => {
             insertButtonEl.innerText = 'Select an item';
         }
     };
-    document.addEventListener('content:select-insertable', onSelectInsertable);
+    insertSources.forEach(el => el.addEventListener('content:select-insertable', onSelectInsertable));
     insertButtonEl.addEventListener('click', () => {
        if (selectedItem) {
-           document.dispatchEvent(new CustomEvent('content:insert', { detail: { text: selectedItem } }));
+           editorEl.dispatchEvent(new CustomEvent('content:insert', { detail: { text: selectedItem } }));
        } 
     });
     
@@ -377,8 +380,10 @@ require(["vs/editor/editor.main"], () => {
     // put editor value back into form on submit, remember serialized form state
     let savingFormData = null;
     formEl.addEventListener('htmx:configRequest', e => {
-        e.detail.parameters.set('ContentMD', editor.getValue());
-        savingFormData = getFormData();
+        if (e.detail.target === formEl) {
+            e.detail.parameters.set('ContentMD', editor.getValue());
+            savingFormData = getFormData();
+        }
     });
     
     // on successful save, store what was being saved in lastSavedFormData 

@@ -20,6 +20,15 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         return ViewComponent("PictureList", new { componentId, limit, offset, setId, setSearch });
     }
     
+    [HttpGet("Picker/{componentId}/{fieldName}")]
+    public async Task<IActionResult> Picker(
+        string componentId,
+        string fieldName,
+        [FromQuery] int? pictureId)
+    {
+        return ViewComponent("PicturePicker", new { componentId, fieldName, pictureId });
+    }
+
     [HttpGet("Fullscreen/{componentId}/{pictureId:int}")]
     public async Task<IActionResult> Fullscreen(string componentId, int pictureId,
             [FromQuery] int limit,

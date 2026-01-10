@@ -10,6 +10,8 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     #img;
     /** @type {HTMLSpanElement} */
     #text;
+    /** @type {HTMLElement} */
+    #parent;
 
     constructor() {
         super();
@@ -49,6 +51,7 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
 
     connectedCallback() {
         // create DOM (button with img and span inside)
+        this.#parent = this.parentElement;
         this.#button = document.createElement('button');
         this.#button.classList.add('koti-btn', 'item');
         this.#img = document.createElement('img');
@@ -60,8 +63,8 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
         this.update();
 
         // bind custom event listeners
-        document.addEventListener('koti-content-item:select', this);
-        document.addEventListener('koti-content-item:deselect-all', this);
+        this.#parent.addEventListener('koti-content-item:select', this);
+        this.#parent.addEventListener('koti-content-item:deselect-all', this);
 
         // bind event listeners to button
 
@@ -71,11 +74,11 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
             e.preventDefault();
             if (this.#button.classList.contains('selected')) {
                 this.#button.classList.remove('selected');
-                document.dispatchEvent(new CustomEvent('content:select-insertable'));
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable'));
             } else {
-                document.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
+                this.#parent.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
                 this.#button.classList.add('selected');
-                document.dispatchEvent(new CustomEvent('content:select-insertable', 
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', 
                     {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
             }
         });
@@ -87,11 +90,11 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
             if (e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                document.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
+                this.#parent.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
                 this.#button.classList.add('selected');
-                document.dispatchEvent(new CustomEvent('content:select-insertable',
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable',
                     {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
-                document.dispatchEvent(new CustomEvent('content:insert',
+                this.#parent.dispatchEvent(new CustomEvent('content:insert',
                     {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
             } else {
                 window.open(this.getAttribute('edit-url'), '_blank');
@@ -117,8 +120,8 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     }
 
     disconnectedCallback() {
-        document.removeEventListener('koti-content-item:select', this);
-        document.removeEventListener('koti-content-item:deselect-all', this);
+        this.#parent.removeEventListener('koti-content-item:select', this);
+        this.#parent.removeEventListener('koti-content-item:deselect-all', this);
     }
 
     handleEvent(e) {
@@ -133,7 +136,7 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     onSelect(e) {
         if (e.detail.kind === this.getAttribute('kind') && e.detail.id.toString() === this.getAttribute('id')) {
             this.#button.classList.add('selected');
-            document.dispatchEvent(new CustomEvent('content:select-insertable',
+            this.#parent.dispatchEvent(new CustomEvent('content:select-insertable',
                 {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
         }
     }

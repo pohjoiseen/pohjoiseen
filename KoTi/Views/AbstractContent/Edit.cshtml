@@ -38,7 +38,7 @@
                     <div>
                         <input type="radio" name="inserttab" id="inserttab-picture" checked>
                         <label for="inserttab-picture" tabindex="0">Photo</label>
-                        <div class="content">
+                        <div class="content insert-picture">
                             <form id="picture-list-@Model.GetType().Name-@Model.Id" class="picture-list" hx-swap="innerHTML">
                                 @(await Component.InvokeAsync<PictureListViewComponent>(new { componentId = $"picture-list-{Model.GetType().Name}-{Model.Id}", setId = -1, setSearch = "#", offset = -1 }))
                             </form>
@@ -48,7 +48,7 @@
                     <div>
                         <input type="radio" name="inserttab" id="inserttab-upload">
                         <label for="inserttab-upload" tabindex="0">Upload Picture</label>
-                        <div class="content">
+                        <div class="content insert-uploaded-picture">
                             <koti-picture-uploader target-set="Blog Pictures"></koti-picture-uploader>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                     <div>
                         <input type="radio" name="inserttab" id="inserttab-post" checked>
                         <label for="inserttab-post" tabindex="0">Post Link</label>
-                        <div class="content">
+                        <div class="content insert-post-link">
                             <form id="post-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
                                 @(await Component.InvokeAsync<PostListViewComponent>(new { componentId = $"post-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, postSearch = "#" }))
                             </form>
@@ -66,7 +66,7 @@
                     <div>
                         <input type="radio" name="inserttab" id="inserttab-article" checked>
                         <label for="inserttab-article" tabindex="0">Article Link</label>
-                        <div class="content">
+                        <div class="content insert-article-link">
                             <form id="article-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
                                 @(await Component.InvokeAsync<ArticleListViewComponent>(new { componentId = $"article-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, articleSearch = "#" }))
                             </form>
@@ -106,9 +106,9 @@
 <textarea id="content-md-initial" style="position: fixed; width: 0; height: 0; visibility: hidden; pointer-events: none;">@Model.ContentMD</textarea>
 
 @section Scripts {
-    <script src="~/js/koti-picture.js" asp-append-version="true"></script>
-    <script src="~/js/koti-picture-uploader.js" asp-append-version="true"></script>
-    <script src="~/js/koti-content-item.js" asp-append-version="true"></script>
+    <script src="~/js/webcomponents/koti-picture.js" asp-append-version="true"></script>
+    <script src="~/js/webcomponents/koti-picture-uploader.js" asp-append-version="true"></script>
+    <script src="~/js/webcomponents/koti-content-item.js" asp-append-version="true"></script>
     <script src="~/js/api.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js" integrity="sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=" crossorigin="anonymous"></script>
     <script>require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' }});</script>

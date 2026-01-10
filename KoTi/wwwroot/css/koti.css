@@ -365,6 +365,16 @@
     color: var(--color-muted);
   }
   
+  dialog {
+    margin: auto;
+    background: var(--color-bg);
+    border: 1px solid var(--color-bg-shade);
+    border-radius: var(--border-radius);
+    
+    & > header, & > div {
+      padding: 10px;
+    }
+  }
 }
 
 @layer components-page-specific {
@@ -534,4 +544,17 @@
     }
   }
 
+  .picture-picker-dialog {
+    &:open {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 1fr; 
+    }
+    & header {
+      grid-area: 1 / 1 / 2 / 2;
+    }
+    & .picture-list {
+      min-height: 0;
+    }
+  }
 }
