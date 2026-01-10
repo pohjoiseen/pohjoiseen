@@ -2,7 +2,7 @@
 @model PostListViewModel
 
 <div class="content-header">
-     <label for="@Model.ComponentId-post-search-input" style="text-wrap-mode: nowrap; margin-right: 5px;">Search for posts:</label>
+     <label for="@Model.ComponentId-post-search-input" style="text-wrap-mode: nowrap;" class="mr">Search for posts:</label>
      <input type="text" id="@Model.ComponentId-post-search-input" class="input-block picture-set-search-input" value="@Model.PostSearchQuery" hx-get hx-target="#@Model.ComponentId"
             hx-trigger="keyup changed delay:500ms" hx-controller="Posts" hx-action="List" hx-route-componentId="@Model.ComponentId" hx-route-language="@Model.Language"
             hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"postSearch":this.value}'/>

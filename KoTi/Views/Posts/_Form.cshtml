@@ -65,7 +65,7 @@
         <koti-post-title-picture class="content" picker-component-id="picture-picker-post-@Model.Id">
             <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId" />
             
-            <div style="margin-top: 5px;">
+            <div class="mt">
                 <div class="title-image-in-text-container" hidden="@(Model.TitlePictureId is null)">
                     <input id="title-image-in-text" type="checkbox" asp-for="TitleImageInText"/>
                     <label for="title-image-in-text">Place into post body rather than header</label>

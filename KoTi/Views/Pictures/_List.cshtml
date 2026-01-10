@@ -6,7 +6,7 @@
      <div class="picture-set-header">
           @if (Model.PictureSet.Id == 0)
           {
-               <label for="@Model.ComponentId-picture-set-search-input" style="text-wrap-mode: nowrap; margin-right: 5px;">Search for folders:</label>
+               <label for="@Model.ComponentId-picture-set-search-input" style="text-wrap-mode: nowrap;" class="mr">Search for folders:</label>
                <input type="text" id="@Model.ComponentId-picture-set-search-input" class="input-block picture-set-search-input" value="@Model.PictureSetSearchQuery" hx-get hx-target="#@Model.ComponentId"
                       hx-trigger="keyup changed delay:500ms" hx-controller="Pictures" hx-action="List" hx-route-componentId="@Model.ComponentId"
                       hx-route-setId="0" hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"setSearch":this.value}'/>

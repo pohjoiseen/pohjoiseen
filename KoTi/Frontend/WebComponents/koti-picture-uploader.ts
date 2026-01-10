@@ -28,7 +28,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
                     <h2 class="placeholder-heading">Paste or drop photos here</h2>            
                 </div>
                 <div class="footer">
-                    <div class="alert" style="display: none; margin-bottom: 5px;">
+                    <div class="alert mb" style="display: none;">
                         <span>Error uploading photo: <span class="error-message"></span></span>
                         <button class="koti-btn primary retry-button">Retry</button>
                     </div>
@@ -37,7 +37,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
                         <i class="bi bi-upload"></i> Choose photo(s) to upload...
                     </button>
                     <input type="file" name="files" accept="image/jpeg, image/png" multiple="multiple" hidden="hidden" class="upload-hidden-button">
-                    <div style="margin-top: 5px;">
+                    <div class="mt">
                         Uploaded pictures will go to <b>${this.getAttribute('target-set')}</b> folder.
                     </div>
                 </div>
