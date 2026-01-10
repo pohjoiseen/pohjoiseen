@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Holvi;
 using Holvi.Models;
 using KoTi.ViewModels;
@@ -26,6 +27,10 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         string fieldName,
         [FromQuery] int? pictureId)
     {
+        Response.Headers["HX-Trigger-After-Swap"] = JsonSerializer.Serialize(new Dictionary<string, dynamic>
+        {
+            { "picture-picker:loaded", new { componentId, pictureId } }
+        });
         return ViewComponent("PicturePicker", new { componentId, fieldName, pictureId });
     }
 

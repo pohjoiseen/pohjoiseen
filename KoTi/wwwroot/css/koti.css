@@ -262,6 +262,7 @@
       border: 1px solid var(--color-bg-shade);
       padding: 5px;
       display: none;
+      overflow-y: auto;
     }
 
     & > div > input[type="radio"]:checked + label {

@@ -1,4 +1,3 @@
-@using KoTi.Controllers.App
 @model PostViewModel
 
 <div class="koti-tabs" data-remember-state="posttab">
@@ -63,10 +62,31 @@
     <div>
         <input type="radio" value="titleimage" id="posttab-titlepicture" asp-for="ViewStatePostTab" />
         <label for="posttab-titlepicture" tabindex="0">Title Picture</label>
-        <div class="content">
+        <koti-post-title-picture class="content" picker-component-id="picture-picker-post-@Model.Id">
             <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId" />
-            <p>TODO: TitleImageOffsetY, TitleImageInText, TitleImageCaption</p>
-        </div>
+            
+            <div style="margin-top: 5px;">
+                <div class="title-image-in-text-container" hidden="@(Model.TitlePictureId is null)">
+                    <input id="title-image-in-text" type="checkbox" asp-for="TitleImageInText"/>
+                    <label for="title-image-in-text">Place into post body rather than header</label>
+                    @Html.ValidationMessageFor(m => m.TitleImageInText)
+                </div>
+                
+                <div class="input-inline title-image-offset-y-container" hidden="@(Model.TitlePictureId is null || Model.TitleImageInText)">
+                    <label for="title-image-offset-y">Title image vertical position:</label>
+                    <input type="number" min="0" max="100" placeholder="50" id="title-image-offset-y" asp-for="TitleImageOffsetY"/>
+                    %
+                    <br/>
+                    @Html.ValidationMessageFor(m => m.TitleImageOffsetY)
+                </div>
+
+                <div class="title-image-caption-container" hidden="@(Model.TitlePictureId is null || !Model.TitleImageInText)">
+                    <label for="title-image-caption">Caption:</label>
+                    <textarea rows="1" id="title-image-caption" class="input-block" asp-for="TitleImageCaption"></textarea>
+                    @Html.ValidationMessageFor(m => m.TitleImageCaption)
+                </div>
+            </div>
+        </koti-post-title-picture>
     </div>
 
 </div>

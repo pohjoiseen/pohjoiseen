@@ -5,7 +5,7 @@ using KoTi.RequestModels;
 using Holvi.Models;
 using KoTi.ResponseModels;
 
-namespace KoTi.Controllers;
+namespace KoTi.Controllers.API;
 
 [Route("api/Areas")]
 [ApiController]

@@ -16,6 +16,9 @@ public class PostViewModel : AbstractContentViewModel
     public string? LocationDescription { get; set; } = "";
     
     public int? TitlePictureId { get; set; }
+    public int? TitleImageOffsetY { get; set; }
+    public bool TitleImageInText { get; set; }
+    public string? TitleImageCaption { get; set; }
 
     public string ViewStatePostTab { get; set; } = "main";
     

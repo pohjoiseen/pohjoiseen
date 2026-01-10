@@ -7,3 +7,4 @@ import './WebComponents/koti-fullscreen-picture.ts';
 import './WebComponents/koti-picture.ts';
 import './WebComponents/koti-picture-picker.ts';
 import './WebComponents/koti-picture-uploader.ts';
+import './WebComponents/koti-post-title-picture.ts';
