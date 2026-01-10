@@ -5,17 +5,16 @@
 /// of errors, allows to view uploaded pictures in fullscreen.
 ///
 window.customElements.define('koti-picture-uploader', class extends HTMLElement {
-    /** @type {(File | number)[]} list of blobs to be uploaded or picture ids already uploaded */
-    #pictures = [];
+    // list of blobs to be uploaded or picture ids already uploaded
+    #pictures: (File | number)[] = [];
     #isUploading = false;
     
     // DOM elements
-    #pictureList;
-    #uploadButton;
-    #errorAlert;
-    #errorMessage;
-    /** @type {HTMLInputElement} */
-    #uploadInput;
+    #pictureList: HTMLElement = null!;
+    #uploadButton: HTMLButtonElement = null!;
+    #errorAlert: HTMLElement = null!;
+    #errorMessage: HTMLElement = null!;
+    #uploadInput: HTMLInputElement = null!;
     
     constructor() {
         super();
@@ -44,27 +43,31 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
                 </div>
             </div>
         `;
-        this.#pictureList = this.querySelector('.list');
-        this.#uploadButton = this.querySelector('.upload-button');
-        this.#uploadInput = this.querySelector('.upload-hidden-button');
-        this.#errorAlert = this.querySelector('.alert');
-        this.#errorMessage = this.querySelector('.error-message');
-        this.querySelector('.retry-button').addEventListener('click', () => this.uploadNextPicture());
+        this.#pictureList = this.querySelector('.list')!;
+        this.#uploadButton = this.querySelector('.upload-button')!;
+        this.#uploadInput = this.querySelector('.upload-hidden-button')!;
+        this.#errorAlert = this.querySelector('.alert')!;
+        this.#errorMessage = this.querySelector('.error-message')!;
+        this.querySelector('.retry-button')!.addEventListener('click', () => this.uploadNextPicture());
         
         // upload through file input
-        this.querySelector('.upload-button').addEventListener('click', () => this.#uploadInput.click());
+        this.querySelector('.upload-button')!.addEventListener('click', () => this.#uploadInput.click());
         this.#uploadInput.addEventListener('input', (e) => {
-            for (const file of [...this.#uploadInput.files]) {
-                this.addPicture(file);
+            if (this.#uploadInput.files) {
+                for (const file of [...this.#uploadInput.files]) {
+                    this.addPicture(file);
+                }
             }
         });
         
         // upload through paste
         this.#pictureList.addEventListener('paste', (e) => {
-            const files = [...e.clipboardData.items].map(i => i.getAsFile());
-            for (const file of files) {
-                if (file) {
-                    this.addPicture(file);
+            if (e.clipboardData) {
+                const files = [...e.clipboardData.items].map(i => i.getAsFile());
+                for (const file of files) {
+                    if (file) {
+                        this.addPicture(file);
+                    }
                 }
             }
         });
@@ -84,10 +87,12 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
         this.#pictureList.addEventListener('drop', (e) => {
             e.preventDefault();
             this.#pictureList.classList.remove('drop-hover');
-            const files = [...e.dataTransfer.items].map(i => i.getAsFile());
-            for (const file of files) {
-                if (file) {
-                    this.addPicture(file);
+            if (e.dataTransfer) {
+                const files = [...e.dataTransfer.items].map(i => i.getAsFile());
+                for (const file of files) {
+                    if (file) {
+                        this.addPicture(file);
+                    }
                 }
             }
         });
@@ -97,7 +102,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
      * Enqueues a picture for upload.
      * @param {File} file
      */
-    addPicture(file) {
+    addPicture(file: File) {
         if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
             return;
         }
@@ -140,10 +145,13 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
      * @param {number} index
      * @returns {Promise<void>}
      */
-    async uploadPicture(index) {
+    async uploadPicture(index: number) {
         const blob = this.#pictures[index];
-        const pictureEl = this.#pictureList.children[index];
-        const oldSrc = pictureEl.getAttribute('src');
+        if (!blob) {
+            return;
+        }
+        const pictureEl = this.#pictureList.children[index]!;
+        const oldSrc = pictureEl.getAttribute('src')!;
 
         // just in case
         if (typeof blob === 'number') {
@@ -169,8 +177,8 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
                 const percent = e.loaded / e.total * 100;
                 pictureEl.setAttribute('state', `uploading ${percent.toFixed(0)}`);
             });
-            request.open('POST', `/app/Pictures/Upload/${hash}/${blob.name}?setName=${encodeURIComponent(this.getAttribute('target-set'))}`);
-            await new Promise((resolve) => {
+            request.open('POST', `/app/Pictures/Upload/${hash}/${blob.name}?setName=${encodeURIComponent(this.getAttribute('target-set')!)}`);
+            await new Promise<void>((resolve) => {
                 request.addEventListener('readystatechange', () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
                         resolve();
@@ -203,7 +211,7 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
             
             // allow blob to be released
             URL.revokeObjectURL(oldSrc);
-            this.#pictures[index] = parseInt(this.#pictureList.children[index].getAttribute('picture-id'));
+            this.#pictures[index] = parseInt(this.#pictureList.children[index]!.getAttribute('picture-id')!);
             
             // continue to the next possible picture, if any
             this.uploadNextPicture();
@@ -211,7 +219,11 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
             pictureEl.setAttribute('state', 'error');
             this.#uploadButton.classList.remove('loading');
             this.#errorAlert.style.display = '';
-            this.#errorMessage.textContent = e.message;
+            if ((e as Error).message) {
+                this.#errorMessage.textContent = (e as Error).message;
+            } else {
+                this.#errorMessage.textContent = 'Unknown error';
+            }
             this.#isUploading = false;
             console.error(e);
         }

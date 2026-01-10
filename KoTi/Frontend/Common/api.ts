@@ -1,7 +1,11 @@
 // This is a small subset of KoTi 3.0 API calls that is still used in htmx frontend.
 // If I ever migrate completely to htmx, these should go to the same controller on the backend.
 
-const handleError = async (response) => {
+import type Picture from '../model/Picture.ts';
+import type Post from '../model/Post.ts';
+import type Article from '../model/Article.ts';
+
+const handleError = async (response: Response) => {
     const body = await response.text();
     let json = null;
     try {
@@ -22,7 +26,10 @@ const handleError = async (response) => {
 };
 
 class ServerError extends Error {
-    constructor(response, body, json = null) {
+    response: Response;
+    body: string;
+    json: any;
+    constructor(response: Response, body: string, json: any = null) {
         super();
         this.message = `${response.status} ${response.statusText}, see console`;
         this.response = response;
@@ -31,7 +38,7 @@ class ServerError extends Error {
     }
 }
 
-const pictureToFrontend = (picture) => {
+const pictureToFrontend = (picture: any): Picture => {
     if (picture.uploadedAt) {
         picture.uploadedAt = new Date(picture.uploadedAt.endsWith('Z')
             ? picture.uploadedAt : picture.uploadedAt + 'Z');
@@ -44,18 +51,18 @@ const pictureToFrontend = (picture) => {
     return picture;
 };
 
-const postToFrontend = (post) => {
+const postToFrontend = (post: any): Post => {
     post.date = new Date(post.date + 'Z');
     post.updatedAt = new Date(post.updatedAt + 'Z');
     return post;
 };
 
-const articleToFrontend = (article) => {
+const articleToFrontend = (article: any): Article => {
     article.updatedAt = new Date(article.updatedAt + 'Z');
     return article;
 };
 
-async function apiGetPicture(id) {
+export async function apiGetPicture(id: number) {
     const response = await fetch(`/api/Pictures/${id}`);
     if (!response.ok || response.status !== 200) {
         await handleError(response);
@@ -63,7 +70,7 @@ async function apiGetPicture(id) {
     return pictureToFrontend(await response.json());
 }
 
-async function apiGetPost(id) {
+export async function apiGetPost(id: number) {
     const response = await fetch(`/api/Posts/${id}`);
     if (!response.ok || response.status !== 200) {
         await handleError(response);
@@ -71,7 +78,7 @@ async function apiGetPost(id) {
     return postToFrontend(await response.json());
 }
 
-async function apiGetArticle(id) {
+export async function apiGetArticle(id: number) {
     const response = await fetch(`/api/Articles/${id}`);
     if (!response.ok || response.status !== 200) {
         await handleError(response);
@@ -79,7 +86,7 @@ async function apiGetArticle(id) {
     return articleToFrontend(await response.json());
 }
 
-async function apiEnsureWebSizes (id) {
+export async function apiEnsureWebSizes (id: number) {
     const response = await fetch(`/api/Pictures/${id}/WebSizes`, {
         method: 'POST',
     });

@@ -4,6 +4,7 @@
 ClientApp/.env
 *appsettings.Development.json
 /pohjoiseen.db
+KoTi/wwwroot/frontend/
 
 # User-specific files
 *.suo

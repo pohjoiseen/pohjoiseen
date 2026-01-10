@@ -2,16 +2,13 @@
 /// <koti-picture> web component, handling diplaying a picture thumbnail (both for picture list and picture
 /// uploader) and associated behaviors.
 ///
+import htmx from 'htmx.org';
 
 window.customElements.define('koti-picture', class extends HTMLElement {
-    /** @type {HTMLButtonElement} */
-    #button;
-    /** @type {HTMLImageElement} */
-    #img;
-    /** @type {HTMLSpanElement} */
-    #text;
-    /** @type {HTMLElement} */
-    #parent;
+    #button: HTMLButtonElement = null!;
+    #img: HTMLImageElement = null!;
+    #text: HTMLSpanElement = null!;
+    #parent: HTMLElement = null!;
     
     constructor() {
         super();
@@ -35,10 +32,10 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         } else {
             this.#button.removeAttribute('hx-get');
         }
-        this.#button.setAttribute('title', title);
-        this.#img.src = src;
-        this.#img.setAttribute('width', width);
-        this.#img.setAttribute('height', height);
+        this.#button.setAttribute('title', title || '');
+        this.#img.src = src || '';
+        this.#img.setAttribute('width', width || '');
+        this.#img.setAttribute('height', height || '');
         if (state === 'duplicate') {
             this.#text.textContent = 'DUP';
         } else if (state?.startsWith('uploading')) {
@@ -58,7 +55,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         return ['state', 'src', 'title', 'fullscreen-url', 'width', 'height'];
     }
     
-    attributeChangedCallback(name, oldValue, newValue) {
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (oldValue !== newValue && this.#button) {
             this.update();
         }
@@ -66,7 +63,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     
     connectedCallback() {
         // create DOM (button with img and span inside)
-        this.#parent = this.parentElement;
+        this.#parent = this.parentElement!;
         this.#button = document.createElement('button');
         this.#button.classList.add('koti-btn', 'picture');
         this.#button.setAttribute('hx-target', '#picture-fullscreen-container');
@@ -107,7 +104,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         // with picture link.
         // on double click WITHOUT Ctrl pressed, we will open fullscreen view, but that is handled through htmx,
         // see hx-* attributes assignment above
-        const onInsert = (e) => {
+        const onInsert = (e: KeyboardEvent | MouseEvent) => {
             if (e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -127,11 +124,13 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         
         this.#button.addEventListener('keydown', (e) => {
             // on left/right, select sibling pictures, if possible
-            if (e.key === 'ArrowRight' && this.nextElementSibling?.tagName === 'KOTI-PICTURE') {
+            if (e.key === 'ArrowRight' && this.nextElementSibling?.tagName === 'KOTI-PICTURE' &&
+                this.nextElementSibling.firstElementChild instanceof HTMLElement) {
                 this.nextElementSibling.firstElementChild.click();
                 this.nextElementSibling.firstElementChild.focus();
             }
-            if (e.key === 'ArrowLeft' && this.previousElementSibling?.tagName === 'KOTI-PICTURE') {
+            if (e.key === 'ArrowLeft' && this.previousElementSibling?.tagName === 'KOTI-PICTURE' &&
+                this.previousElementSibling.firstElementChild instanceof HTMLElement) {
                 this.previousElementSibling.firstElementChild.click();
                 this.previousElementSibling.firstElementChild.focus();
             }
@@ -151,7 +150,7 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     getFullscreenOverrideIds() {
         // for opening fullscreen view, allow to specify order as just ids of all siblings
         if (this.getAttribute('fullscreen-manual-order')) {
-            return [...this.parentElement.children]
+            return [...this.parentElement!.children]
                 .filter(el => el.tagName === 'KOTI-PICTURE' && el.getAttribute('picture-id'))
                 .map(el => el.getAttribute('picture-id'))
                 .join(',');
@@ -159,16 +158,15 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         return '';
     }
     
-    handleEvent(e) {
+    handleEvent(e: Event) {
         if (e.type === 'koti-picture:select') {
-            this.onSelect(e);
+            this.onSelect(e as KotiPictureSelectEvent);
         } else if (e.type === 'koti-picture:deselect-all') {
             this.onDeselectAll();
         }
     }
     
-    /** @param {CustomEvent<{id: number}>} e */
-    onSelect(e) {
+    onSelect(e: KotiPictureSelectEvent) {
         if (e.detail.id.toString() === this.getAttribute('picture-id')) {
             this.#button.classList.add('selected');
             if (this.getAttribute('picture-id')) {
@@ -182,3 +180,4 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     }
 })
 
+export type KotiPictureSelectEvent = CustomEvent<{id: number}>;

@@ -38,6 +38,9 @@
     <None Include="wwwroot\favicon.svg" />
     <None Include="wwwroot\koti-logo.svg" />
     <None Include="wwwroot\manifest.json" />
+    <Content Remove="Frontend\**" />
+    <None Remove="Frontend\**" />
+    <None Include="Frontend\**" Exclude="Frontend\node_modules\**" />
   </ItemGroup>
     
   <ItemGroup>
@@ -70,7 +73,20 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
-    
+
+
+  <Target Name="PublishRunBun" AfterTargets="ComputeFilesToPublish">
+    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+    <Exec WorkingDirectory="Frontend" Command="bun install" />
+    <Exec WorkingDirectory="Frontend" Command="bun run build" />
+
+    <!-- Include the newly-built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="wwwroot\frontend\**" />
+    </ItemGroup>
+  </Target>
+
+
   <!-- https://github.com/dotnet/sdk/issues/22716#issuecomment-2276449122 -->
   <Target Name="DeleteAllAppsettings" AfterTargets="PostBuildEvent">
     <ItemGroup>

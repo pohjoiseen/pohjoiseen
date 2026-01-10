@@ -1,0 +1,54 @@
+﻿import Tag from './Tag';
+
+interface Picture {
+    id: number | null;
+    filename: string;
+    hash?: string;
+    url: string;
+    thumbnailUrl: string;
+    detailsUrl: string;
+    uploadedAt: Date | null;
+    
+    placeId: number | null;
+    placeName?: string | null;
+    
+    setId: number | null;
+    setName?: number | null;
+    
+    width: number;
+    height: number;
+    size: number;
+
+    title: string;
+    description: string;
+    
+    isPrivate: boolean;
+    rating: number;
+    
+    // EXIF
+    photographedAt: Date;  // CreateDate from EXIF
+    camera: string | null;  // Model from EXIF
+    lens: string | null;  // Lens from EXIF
+    lat: number | null;  // latitude from EXIF, if available
+    lng: number | null;  // longitude from EXIF, if available
+    
+    updatedAt: Date;
+    
+    tags: Tag[];
+    
+    // Client-only fields
+    blob?: File | undefined;  // used before the file is uploaded
+    upload?: number | undefined;  // used during file upload, >0 = in progress, bytes uploaded; <0 = status
+}
+
+export enum PictureUploadResult {
+    UPLOADED = -1,
+    FAILED = -2,
+    DUPLICATE = -3
+}
+
+// Must match backend sizes, see Picture.cs
+export const PICTURE_SIZE_THUMBNAIL = 125;
+export const PICTURE_SIZE_DETAILS = 500;
+
+export default Picture;

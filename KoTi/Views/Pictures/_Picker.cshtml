@@ -1,78 +1,40 @@
 @model PicturePickerViewModel
 
-<fieldset id="picture-picker-@Model.ComponentId" hx-get hx-controller="Pictures" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
-          hx-route-fieldName="@Model.FieldName" hx-swap="outerHTML" hx-trigger="picture-picker:reload" hx-vals="js:{pictureId: this.querySelector('input[type=hidden]').value}">
-    <input type="hidden" name="@Model.FieldName" value="@Model.Picture?.Id" />
-    @if (Model.Picture != null)
-    {
-        <img src="@Model.Picture.Url" style="max-width: 100%; display: block;"/>
-    }
-    else
-    {
-        <div class="muted"><i>No picture selected.</i></div>
-    }
-    <div>
-        <button class="koti-btn primary" onclick="$id('picture-picker-dialog-@Model.ComponentId').showModal(); return false">
-            @(Model.Picture == null ? "Set..." : "Change...")
-        </button>
+<koti-picture-picker>
+    <fieldset id="picture-picker-@Model.ComponentId" hx-get hx-controller="Pictures" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
+              hx-route-fieldName="@Model.FieldName" hx-swap="outerHTML" hx-trigger="picture-picker:reload" hx-vals="js:{pictureId: this.querySelector('input[type=hidden]').value}">
+        <input type="hidden" name="@Model.FieldName" value="@Model.Picture?.Id" />
         @if (Model.Picture != null)
         {
-            <span class="muted">@Model.Picture.PhotographedAt?.ToString("d.MM.yyyy") @Model.Picture.Filename</span>
+            <img src="@Model.Picture.Url" style="max-width: 100%; display: block;"/>
         }
-    </div>
-    <dialog class="picture-picker-dialog" id="picture-picker-dialog-@Model.ComponentId">
-        <header>
-            <h2>Select title picture</h2>
-            <nav>
-                <button type="button" class="koti-btn primary select-btn" disabled>Select</button>
-                <button type="button" class="koti-btn unset-btn">Unset</button>
-                <button type="button" class="koti-btn cancel-btn">Cancel</button>
-            </nav>
-        </header>
-        <div class="picture-list" id="title-image-picker-@Model.ComponentId" hx-swap="innerHTML" hx-params="setId,setSearch,limit,offset"
-             hx-get="@Url.Action("List", "Pictures", new { componentId = $"title-image-picker-{Model.ComponentId}", setId = -1, setSearch = "#", offset = -1 })"
-             hx-trigger="intersect once">
-            <div><span class="spinner"></span> Loading...</div>
+        else
+        {
+            <div class="muted"><i>No picture selected.</i></div>
+        }
+        <div>
+            <button class="koti-btn primary" onclick="$id('picture-picker-dialog-@Model.ComponentId').showModal(); return false">
+                @(Model.Picture == null ? "Set..." : "Change...")
+            </button>
+            @if (Model.Picture != null)
+            {
+                <span class="muted">@Model.Picture.PhotographedAt?.ToString("d.MM.yyyy") @Model.Picture.Filename</span>
+            }
         </div>
-    </dialog>
-</fieldset>
-
-<script>(() => {
-    const pickerEl = document.getElementById('picture-picker-@Model.ComponentId');
-    /** @@type {HTMLDialogElement} */
-    const dialogEl = pickerEl.querySelector('dialog');
-    /** @@type {HTMLButtonElement} */
-    const selectButtonEl = dialogEl.querySelector('.select-btn');
-    /** @@type {HTMLInputElement} */
-    const inputEl = pickerEl.querySelector('input[type=hidden]');
-    pickerEl.addEventListener('content:select-insertable', (e) => {
-        e.stopPropagation();
-        if (e.detail?.text) {
-            const id = e.detail.text.replace('picture:', '');
-            inputEl.value = id;
-            selectButtonEl.textContent = 'Select: ' + id;
-            selectButtonEl.disabled = false;
-        } else {
-            selectButtonEl.textContent = 'Select';
-            selectButtonEl.disabled = true;
-        }
-    });
-    pickerEl.addEventListener('content:select', (e) => {
-        e.stopPropagation();
-        const id = e.detail.text.replace('picture:', '');
-        inputEl.value = id;
-        selectButtonEl.textContent = 'Select: ' + id;
-        selectButtonEl.disabled = false;
-        selectButtonEl.click();
-    });
-    selectButtonEl.addEventListener('click', () => {
-        dialogEl.close();
-        htmx.trigger(pickerEl, 'picture-picker:reload');
-    });
-    dialogEl.querySelector('.unset-btn').addEventListener('click', () => {
-        inputEl.value = '';
-        dialogEl.close();
-        htmx.trigger(pickerEl, 'picture-picker:reload');
-    });
-    dialogEl.querySelector('.cancel-btn').addEventListener('click', () => dialogEl.close());
-})()</script>
+        <dialog class="picture-picker-dialog" id="picture-picker-dialog-@Model.ComponentId">
+            <header>
+                <h2>Select title picture</h2>
+                <nav>
+                    <button type="button" class="koti-btn primary select-btn" disabled>Select</button>
+                    <button type="button" class="koti-btn unset-btn">Unset</button>
+                    <button type="button" class="koti-btn cancel-btn">Cancel</button>
+                </nav>
+            </header>
+            <div class="picture-list" id="title-image-picker-@Model.ComponentId" hx-swap="innerHTML" hx-params="setId,setSearch,limit,offset"
+                 hx-get="@Url.Action("List", "Pictures", new { componentId = $"title-image-picker-{Model.ComponentId}", setId = -1, setSearch = "#", offset = -1 })"
+                 hx-trigger="intersect once">
+                <div><span class="spinner"></span> Loading...</div>
+            </div>
+        </dialog>
+    </fieldset>
+</koti-picture-picker>

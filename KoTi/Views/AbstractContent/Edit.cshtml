@@ -12,13 +12,15 @@
 }
 
 @section HeaderNav {
-    <button class="koti-btn primary with-indicator" onclick="$id('content-form').requestSubmit()" id="save-button">
+    <button class="koti-btn primary with-indicator" onclick="document.querySelector('koti-content-editor').dispatchEvent(new CustomEvent('koti-content-editor:save'))" id="save-button">
         <span id="save-button-indicator" class="spinner htmx-indicator"></span>
         <i class="bi bi-save"></i> Save
     </button>
 }
 
-<main id="editor-container"></main>
+<koti-content-editor initial-content-md-id="content-md-initial"
+                     content-form-id="content-form"
+                     insert-button-id="insert-button"></koti-content-editor>
 
 <aside>
     <div class="koti-tabs" data-remember-state="topleveltab">
@@ -104,13 +106,3 @@
 </aside>
 
 <textarea id="content-md-initial" style="position: fixed; width: 0; height: 0; visibility: hidden; pointer-events: none;">@Model.ContentMD</textarea>
-
-@section Scripts {
-    <script src="~/js/webcomponents/koti-picture.js" asp-append-version="true"></script>
-    <script src="~/js/webcomponents/koti-picture-uploader.js" asp-append-version="true"></script>
-    <script src="~/js/webcomponents/koti-content-item.js" asp-append-version="true"></script>
-    <script src="~/js/api.js" asp-append-version="true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js" integrity="sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=" crossorigin="anonymous"></script>
-    <script>require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' }});</script>
-    <script src="~/js/content-editor.js" asp-append-version="true"></script>
-}

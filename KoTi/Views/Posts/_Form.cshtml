@@ -3,7 +3,7 @@
 
 <div class="koti-tabs" data-remember-state="posttab">
     <div>
-        <input type="radio" name="posttab" value="main" id="posttab-main" checked asp-for="PostTab" />
+        <input type="radio" value="main" id="posttab-main" asp-for="ViewStatePostTab" />
         <label for="posttab-main" tabindex="0">General</label>
         <div class="content">
             <fieldset>
@@ -61,7 +61,7 @@
     </div>
     
     <div>
-        <input type="radio" name="posttab" value="titleimage" id="posttab-titlepicture" asp-for="PostTab" />
+        <input type="radio" value="titleimage" id="posttab-titlepicture" asp-for="ViewStatePostTab" />
         <label for="posttab-titlepicture" tabindex="0">Title Picture</label>
         <div class="content">
             @(await Component.InvokeAsync<PicturePickerViewComponent>(new { componentId = "picture-picker-post-" + Model.Id, fieldName = "TitlePictureId", pictureId = Model.TitlePictureId }))

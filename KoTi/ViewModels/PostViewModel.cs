@@ -17,7 +17,7 @@ public class PostViewModel : AbstractContentViewModel
     
     public int? TitlePictureId { get; set; }
 
-    public string PostTab { get; set; } = "main";
+    public string ViewStatePostTab { get; set; } = "main";
     
     public override string FennicaURL => $"/{Language}/{Date.ToString("yyyy")}/{Date.ToString("MM")}/{Date.ToString("dd")}/{Name}/";
 }

@@ -1,0 +1,20 @@
+{
+  "name": "koti-fe-31",
+  "module": "koti.ts",
+  "scripts": {
+    "build": "bun build --production --outdir=../wwwroot/frontend --sourcemap=linked ./koti.ts",
+    "watch": "bun build --watch --outdir=../wwwroot/frontend --sourcemap=linked ./koti.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "htmx.org": "^2.0.8",
+    "monaco-editor": "^0.55.1"
+  }
+}
