@@ -64,7 +64,7 @@
         <input type="radio" value="titleimage" id="posttab-titlepicture" asp-for="ViewStatePostTab" />
         <label for="posttab-titlepicture" tabindex="0">Title Picture</label>
         <div class="content">
-            @(await Component.InvokeAsync<PicturePickerViewComponent>(new { componentId = "picture-picker-post-" + Model.Id, fieldName = "TitlePictureId", pictureId = Model.TitlePictureId }))
+            <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId" />
             <p>TODO: TitleImageOffsetY, TitleImageInText, TitleImageCaption</p>
         </div>
     </div>

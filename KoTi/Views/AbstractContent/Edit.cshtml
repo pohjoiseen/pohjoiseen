@@ -42,7 +42,7 @@
                         <label for="inserttab-picture" tabindex="0">Photo</label>
                         <div class="content insert-picture">
                             <form id="picture-list-@Model.GetType().Name-@Model.Id" class="picture-list" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<PictureListViewComponent>(new { componentId = $"picture-list-{Model.GetType().Name}-{Model.Id}", setId = -1, setSearch = "#", offset = -1 }))
+                                <vc:picture-list component-id="picture-list-@Model.GetType().Name-@Model.Id" set-id="-1" set-search="#" limit="0" offset="-1" />
                             </form>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                         <label for="inserttab-post" tabindex="0">Post Link</label>
                         <div class="content insert-post-link">
                             <form id="post-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<PostListViewComponent>(new { componentId = $"post-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, postSearch = "#" }))
+                                <vc:post-list component-id="post-list-@Model.GetType().Name-@Model.Id" language="@Model.Language" limit="0" offset= "-1" post-search="#" />
                             </form>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                         <label for="inserttab-article" tabindex="0">Article Link</label>
                         <div class="content insert-article-link">
                             <form id="article-list-@Model.GetType().Name-@Model.Id" class="content-list" hx-swap="innerHTML">
-                                @(await Component.InvokeAsync<ArticleListViewComponent>(new { componentId = $"article-list-{Model.GetType().Name}-{Model.Id}", language = Model.Language, offset = -1, articleSearch = "#" }))
+                                <vc:article-list component-id="article-list-@Model.GetType().Name-@Model.Id" language="@Model.Language" limit="0" offset= "-1" article-search="#" />
                             </form>
                         </div>
                     </div>

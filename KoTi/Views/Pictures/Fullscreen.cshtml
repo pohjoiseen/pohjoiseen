@@ -26,7 +26,7 @@
 @if (Model.ChangePage != null)
 {
     <form id="@Model.ChangePage" hx-swap-oob="innerHTML">
-        @(await Component.InvokeAsync<PictureListViewComponent>(new { setId = Model.SetId, setSearch = Model.SetSearch, limit = Model.Limit, offset = Model.Offset }))
+        <vc:picture-list component-id="@Model.ChangePage" set-id="@Model.SetId" set-search="@Model.SetSearch" limit="@Model.Limit" offset="@Model.Offset" />
     </form>
 }
 
