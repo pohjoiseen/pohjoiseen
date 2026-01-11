@@ -89,4 +89,20 @@
         </koti-post-title-picture>
     </div>
 
+    <div>
+        <input type="radio" value="coatsofarms" id="posttab-coatsofarms" asp-for="ViewStatePostTab" />
+        <label for="posttab-coatsofarms" tabindex="0">Coats of Arms</label>
+        <koti-post-coats-of-arms class="content">
+            <div class="coats-of-arms">
+                @foreach (var item in Model.CoatsOfArms.Select((value, i) => (value, i)))
+                {
+                    <vc:post-coat-of-arms url="@item.value.Url" size="@item.value.Size" index="@item.i"/>
+                }
+            </div>
+            <button class="koti-btn primary add-coa-btn" type="button">
+                <i class="bi bi-plus-lg"></i> Add coat of arms...
+            </button>
+            <partial name="~/Views/Pictures/_UploadModal.cshtml" model="@(new { ComponentId = "coa-upload", TargetSet = "Coats of Arms" })"/>
+        </koti-post-coats-of-arms>
+    </div>
 </div>

@@ -1,0 +1,31 @@
+@model PostCoatOfArmsViewModel
+
+<div class="post-coatofarms" data-index="@Model.Index">
+    @if (Model.Picture != null)
+    {
+        <img src="@Model.Picture.Url"/>
+        <div>
+            <input type="hidden" name="CoatsOfArms[@Model.Index][Url]" value="picture:@Model.ImageId"/>
+            <div class="muted">@Model.Picture.Filename</div>
+            <div class="input-inline mt mb">
+                <label for="coat-of-arms-size-@Model.Index">Size:</label>
+                <input type="number" min="0" max="1000" placeholder="150" name="CoatsOfArms[@Model.Index][Size]"
+                       id="coat-of-arms-size-@Model.Index" value="@Model.Size"/>
+                px
+            </div>
+            <button class="koti-btn danger remove-coa-btn" type="button" data-index="@Model.Index">Remove</button>
+        </div>
+    }
+    else
+    {
+        <div></div>
+        <div>
+            <input type="hidden" name="CoatsOfArms[@Model.Index][Url]" value="invalid"/>
+            <input type="hidden" name="CoatsOfArms[@Model.Index][Size]" value="picture:@Model.Size"/>
+            <div class="alert mb">Invalid coat of arms</div>
+            <button class="koti-btn danger remove-coa-btn" type="button" data-index="@Model.Index">Remove</button>
+        </div>
+    }
+</div>
+
+<hr/>

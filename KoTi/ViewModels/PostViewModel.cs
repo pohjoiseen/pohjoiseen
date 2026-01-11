@@ -1,3 +1,5 @@
+using Holvi.Models;
+
 namespace KoTi.ViewModels;
 
 public class PostViewModel : AbstractContentViewModel
@@ -20,6 +22,8 @@ public class PostViewModel : AbstractContentViewModel
     public bool TitleImageInText { get; set; }
     public string? TitleImageCaption { get; set; }
 
+    public IList<Post.CoatOfArms> CoatsOfArms { get; set; } = new List<Post.CoatOfArms>();
+    
     public string ViewStatePostTab { get; set; } = "main";
     
     public override string FennicaURL => $"/{Language}/{Date.ToString("yyyy")}/{Date.ToString("MM")}/{Date.ToString("dd")}/{Name}/";

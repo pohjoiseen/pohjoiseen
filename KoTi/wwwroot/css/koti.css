@@ -44,6 +44,8 @@
     --color-primary-highlight: #965442;
     --color-primary-disabled: #635450;
     --color-bad: #ff0000;
+    --color-bad-shade: #cc0000;
+    --color-bad-highlight: #ff4040;
     --color-bad-bg: #ffc0c0;
     --border-radius: 3px;
   }
@@ -68,6 +70,13 @@
     flex-direction: column;
     gap: 20px;
     border: none;
+  }
+  
+  hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 2px;
+    border: 1px solid var(--color-bg-shade);
   }
 }
 
@@ -181,6 +190,20 @@
       
       &:disabled {
         background: var(--color-primary-disabled);
+      }
+    }
+    
+    &.danger {
+      background-color: var(--color-bad);
+      color: var(--color-primary-invert);
+      border-color: var(--color-bad-shade);
+
+      &:hover:not(:disabled) {
+        background-color: var(--color-bad-highlight);
+      }
+
+      &:disabled {
+        background: var(--color-bad-bg);
       }
     }
   }
@@ -544,6 +567,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 150px;
     }
     
     & .footer {
@@ -552,7 +576,9 @@
     }
   }
 
-  .picture-picker-dialog {
+  .picture-picker-dialog, .picture-upload-dialog {
+    min-height: 33vh;
+    min-width: 66vw;
     &:open {
       display: grid;
       grid-template-rows: auto 1fr;
@@ -564,6 +590,13 @@
     & .picture-list {
       min-height: 0;
     }
+  }
+
+  .post-coatofarms {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 200px 1fr;
+    gap: 5px;
   }
 }
 

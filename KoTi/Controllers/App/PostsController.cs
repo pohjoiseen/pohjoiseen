@@ -20,4 +20,11 @@ public class PostsController(PostViewModelFactory modelFactory)
     {
         return ViewComponent("PostList", new { componentId, language, limit, offset, postSearch });
     }
+    
+    [HttpGet("CoatOfArms")]
+    public async Task<IActionResult> CoatOfArms(int index, string url, int? size)
+    {
+        return ViewComponent("PostCoatOfArms", new { index, url, size });
+    }
+    
 }

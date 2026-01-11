@@ -1,0 +1,12 @@
+<koti-picture-upload-modal>
+    <dialog class="picture-upload-dialog" id="picture-upload-dialog-@Model.ComponentId">
+        <header>
+            <h2>Upload picture</h2>
+            <nav>
+                <button type="button" class="koti-btn primary select-btn" disabled>Select</button>
+                <button type="button" class="koti-btn cancel-btn">Cancel</button>
+            </nav>
+        </header>
+        <koti-picture-uploader target-set="@Model.TargetSet"></koti-picture-uploader>
+    </dialog>
+</koti-picture-upload-modal>

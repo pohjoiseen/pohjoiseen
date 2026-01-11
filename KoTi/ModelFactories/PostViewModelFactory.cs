@@ -42,6 +42,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             TitleImageCaption = entity.TitleImageCaption,
             TitleImageInText = entity.TitleImageInText ?? false,
             TitleImageOffsetY = entity.TitleImageOffsetY,
+            CoatsOfArms = entity.CoatsOfArms ?? new List<Post.CoatOfArms>(),
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
             Mini = entity.Mini,
@@ -71,6 +72,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.TitleImageCaption = model.TitleImageCaption;
         entity.TitleImageInText = model.TitleImageInText;
         entity.TitleImageOffsetY = model.TitleImageOffsetY;
+        entity.CoatsOfArms = model.CoatsOfArms;
         entity.ContentMD = model.ContentMD;
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;
