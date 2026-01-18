@@ -12,7 +12,8 @@ There is support for some global pages, little used, and some support for multip
 the time being these are unused and the only version is Russian, which is my mother tongue.
 
 `Fennica` comes from the blog name, **Encyclopaedia Fennica**, https://fennica.pohjoiseen.fi/.
-Fennica3 is the third major version of the blog.  The first Fennica was a custom static site generator
+Fennica3 is the third major version of the blog, or even the forth if you cound the WordPress blog that I had
+in 2015-2020.  The first actual handwritten Fennica was a custom static site generator,
 written in NodeJS and TypeScript in 2020.  It was quite slow and in early 2023 I replaced it with Fennica2,
 also a static site generator but in C# and .NET 6.  This one worked a lot better, regenerating the entire website
 in 5-7 sec (assuming all resized versions of all pictures were already present) with its >500 Markdown posts and >15000
@@ -30,7 +31,7 @@ itself has any user accounts etc.  It is deployed behind a nginx cache, which ca
 requested pages until Fennica3's copy of the database is redeployed; so in practice it's not slower or more demanding
 than a fully static version (and still deployed to the same smallest DigitalOcean droplet, with 1 GB RAM).
 
-As such, it is a very simple ASP.NET MVC 9 application.  The most involved part is `ContentFormatter` which
+As such, it is a very simple ASP.NET MVC 10 application.  The most involved part is `ContentFormatter` which
 converts Markdown/HTML of posts and other content for display, resolving internal links to other posts and pictures,
 among other things.  Otherwise it's pretty much just a few controllers and Razor templates.
 
