@@ -1,5 +1,8 @@
 @model KoTi.ViewModels.AbstractContentViewModel
 
-<i class="bi bi-caret-right"></i> @Model.KindPlural
-<i class="bi bi-caret-right"></i> @(String.IsNullOrWhiteSpace(Model.Title) ? "Untitled" : Model.Title)
-@(Model.Draft ? $" [{Model.KindLink}:{Model.Id}; Draft]" : $" [{Model.KindLink}:{Model.Id}; Published]")
+<span title="@(String.IsNullOrWhiteSpace(Model.Title) ? "Untitled" : Model.Title) 
+@(Model.Draft ? $" [{Model.KindLink}:{Model.Id}; Draft]" : $" [{Model.KindLink}:{Model.Id}; Published]")">
+    <i class="bi bi-caret-right"></i> @Model.KindPlural
+    <i class="bi bi-caret-right"></i> @(String.IsNullOrWhiteSpace(Model.Title) ? "Untitled" : Model.Title)
+    @(Model.Draft ? $" [{Model.KindLink}:{Model.Id}; Draft]" : $" [{Model.KindLink}:{Model.Id}; Published]")
+</span>

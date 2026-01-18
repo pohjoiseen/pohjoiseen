@@ -38,6 +38,8 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             Description = entity.Description,
             DateDescription = entity.DateDescription,
             LocationDescription = entity.LocationDescription,
+            Address = entity.Address,
+            PublicTransport = entity.PublicTransport,
             TitlePictureId = entity.TitlePictureId,
             TitleImageCaption = entity.TitleImageCaption,
             TitleImageInText = entity.TitleImageInText ?? false,
@@ -69,6 +71,8 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.Description = model.Description ?? "";
         entity.DateDescription = model.DateDescription;
         entity.LocationDescription = model.LocationDescription;
+        entity.Address = model.Address;
+        entity.PublicTransport = model.PublicTransport;
         entity.TitlePictureId = model.TitlePictureId;
         entity.TitleImageCaption = model.TitleImageCaption;
         entity.TitleImageInText = model.TitleImageInText;

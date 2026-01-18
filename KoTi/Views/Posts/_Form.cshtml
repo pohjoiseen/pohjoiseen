@@ -41,6 +41,18 @@
                 </div>
 
                 <div>
+                    <label for="address">Address/driving directions:</label>
+                    <textarea rows="1" id="address" class="input-block" asp-for="Address"></textarea>
+                    @Html.ValidationMessageFor(m => m.Address)
+                </div>
+
+                <div>
+                    <label for="public-transport">Public transport directions:</label>
+                    <textarea rows="1" id="public-transport" class="input-block" asp-for="PublicTransport"></textarea>
+                    @Html.ValidationMessageFor(m => m.PublicTransport)
+                </div>
+
+                <div>
                     <input id="draft" type="checkbox" asp-for="Draft"/>
                     <label for="draft">Draft</label>
                     <input id="mini" type="checkbox" asp-for="Mini"/>
@@ -105,7 +117,7 @@
                 }
             </div>
             <button class="koti-btn primary add-geo-btn" type="button">
-                <i class="bi bi-plus-lg"></i> Add geo...
+                <i class="bi bi-plus-lg"></i> Add geo point...
             </button>
         </koti-post-geo>
     </koti-tab>

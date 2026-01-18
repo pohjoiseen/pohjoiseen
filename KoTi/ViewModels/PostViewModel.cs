@@ -17,6 +17,8 @@ public class PostViewModel : AbstractContentViewModel
     
     public string? DateDescription { get; set; } = "";
     public string? LocationDescription { get; set; } = "";
+    public string? Address { get; set; } = "";
+    public string? PublicTransport { get; set; } = "";
     
     public int? TitlePictureId { get; set; }
     public int? TitleImageOffsetY { get; set; }
