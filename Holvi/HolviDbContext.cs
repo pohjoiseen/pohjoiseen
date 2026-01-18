@@ -20,9 +20,11 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     {
         // manually specify some JSON mappings
         modelBuilder.Entity<Post>()
-            .OwnsMany<Post.CoatOfArms>(p => p.CoatsOfArms, builder => builder.ToJson())
-            .OwnsMany<Post.GeoPoint>(p => p.Geo, builder => builder
-                .OwnsMany<Post.Link>(g => g.Links, builder => builder.ToJson())
-                .ToJson());
+            .OwnsMany(p => p.CoatsOfArms, builder => builder.ToJson())
+            .OwnsMany(p => p.Geo, builder =>
+            {
+                builder.ToJson();
+                builder.OwnsMany(g => g.Links);
+            });
     }
 }
