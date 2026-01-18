@@ -61,46 +61,6 @@ public class PostsApiController(HolviDbContext dbContext) : ControllerBase
         return post;
     }
     
-    // PUT: api/Posts/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutPost(int id, PostRequestDTO requestDto)
-    {
-        var post = await dbContext.Posts
-            .Where(p => p.Id == id)
-            .FirstOrDefaultAsync();
-        if (post == null)
-        {
-            return NotFound();
-        }
-        
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        requestDto.ToModel(post);
-        
-        dbContext.Entry(post).State = EntityState.Modified;
-
-        try
-        {
-            await dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!PostExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
-    }
-
     // POST: api/Posts
     [HttpPost]
     public async Task<ActionResult<Post>> PostPost(PostRequestDTO requestDto)
@@ -116,26 +76,5 @@ public class PostsApiController(HolviDbContext dbContext) : ControllerBase
         await dbContext.SaveChangesAsync();
 
         return CreatedAtAction("GetPost", new { id = post.Id }, post);
-    }
-
-    // DELETE: api/Posts/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePost(int id)
-    {
-        var post = await dbContext.Posts.FindAsync(id);
-        if (post == null)
-        {
-            return NotFound();
-        }
-
-        dbContext.Posts.Remove(post);
-        await dbContext.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    private bool PostExists(int id)
-    {
-        return dbContext.Posts.Any(e => e.Id == id);
     }
 }

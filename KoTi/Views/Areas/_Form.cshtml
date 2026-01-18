@@ -1,0 +1,107 @@
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@model AreaViewModel
+
+<koti-tabs component-id="areatab">
+    <koti-tab name="General">
+        <fieldset>
+            <div>
+                <label for="name">Name (URL slug):</label>
+                <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Slug"></input>
+                @Html.ValidationMessageFor(m => m.Slug)
+            </div>
+
+            <div>
+                <input type="hidden" asp-for="@Model.ParentsDescription" />
+                <label for="title"><strong>@Model.ParentsDescription</strong></label>
+                <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title" placeholder="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div>
+                <label for="alias">Alias (in native language):</label>
+                <input id="alias" class="input-block" asp-for="Subtitle"/>
+                @Html.ValidationMessageFor(m => m.Subtitle)
+            </div>
+
+            <div>
+                <label>Location:</label>
+                <koti-location-picker id="location" hx-preserve="true" initial-zoom="@Model.Zoom"
+                                      initial-lat="@Model.Lat.ToString(CultureInfo.InvariantCulture)" initial-lng="@Model.Lng.ToString(CultureInfo.InvariantCulture)"
+                                      lat-field="Lat" lng-field="Lng"></koti-location-picker>
+                @Html.ValidationMessageFor(m => m.Lat)
+                @Html.ValidationMessageFor(m => m.Lng)
+            </div>
+
+            <div class="input-inline mt mb">
+                <label for="zoom">Default zoom level to display:</label>
+                <input type="number" min="0" max="12" placeholder="0"
+                       id="zoom" asp-for="Zoom"/>
+                <button class="koti-btn" type="button" onclick="$id('zoom').value = $id('location').getMap().getZoom();">Use current map zoom</button>
+                @Html.ValidationMessageFor(m => m.Zoom)
+            </div>
+            
+            <div class="hbox">
+                <label>Explore status:</label>
+                <koti-explore-status-picker value="@Model.ExploreStatus" name="ExploreStatus" />
+            </div>
+            
+            <div>
+                <label>Links:</label>
+                <div class="simple-link-list" id="links">
+                    @foreach (var link in Model.Links)
+                    {
+                        <div><input name="Links[]" placeholder="URL (post:XXX, https:/...)" value="@link" /></div>
+                        <div><button type="button" class="koti-btn" onclick="if (confirm('Really delete link?')) { this.parentElement.previousElementSibling.remove(); this.parentElement.remove(); }">Remove</button></div>
+                    }
+                </div>
+                <template id="link-template">
+                    <div><input name="Links[]" placeholder="URL (post:XXX, https:/...)" /></div>
+                    <div><button type="button" class="koti-btn" onclick="if (confirm('Really delete link?')) { this.parentElement.previousElementSibling.remove(); this.parentElement.remove(); }">Remove</button></div>
+                </template>
+                <div class="mt">
+                    <button type="button" class="koti-btn" onclick="$id('links').insertAdjacentHTML('beforeend', $id('link-template').innerHTML);">Add link</button>
+                    @Html.ValidationMessageFor(m => m.Links)
+                </div>
+            </div>
+
+            <div>
+                <input id="draft" type="checkbox" asp-for="Draft"/>
+                <label for="draft">Draft</label>
+                @Html.ValidationMessageFor(m => m.Draft)
+            </div>
+        </fieldset>
+    </koti-tab>
+    
+    <koti-tab name="Places in area">
+        <koti-dnd-order class="area-places-list" field-prefix="PlaceLinks">
+            @foreach (var item in Model.PlaceLinks.Select((value, i) => (value, i)))
+            {
+                <div draggable="true">
+                    @* all inputs hidden, just to pass through to model on server and back *@
+                    <input type="hidden" name="PlaceLinks[@item.i][Id]" value="@item.value.Id"/>
+                    <input type="hidden" name="PlaceLinks[@item.i][Title]" value="@item.value.Title"/>
+                    <input type="hidden" name="PlaceLinks[@item.i][Icon]" value="@item.value.Icon"/>
+                    <input type="hidden" name="PlaceLinks[@item.i][LanguageExists]" value="@(item.value.LanguageExists ? "true" : "false")"/>
+                    <a class="koti-btn place-btn" href="/app/Places/@item.value.Id/@Model.Language/"
+                       title="@item.value.Title">
+                        <img src="/map-icons/@(item.value.Icon).png" alt="@item.value.Icon" />
+                        <span>
+                            @if (item.value.LanguageExists)
+                            {
+                                @item.value.Title
+                            }
+                            else
+                            {
+                                <text>
+                                    <span class="muted">@item.value.Title</span> 
+                                    (language does not exist)
+                                </text>
+                            }
+                        </span>
+                    </a>
+                </div>
+            }
+        </koti-dnd-order>
+    </koti-tab>
+</koti-tabs>

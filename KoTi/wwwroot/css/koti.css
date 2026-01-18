@@ -137,7 +137,7 @@
     padding: 9px;
     font-size: 29px;
     line-height: 25px;
-    width: 173px;
+    flex-shrink: 0;
     
     &::before {
       position: absolute;
@@ -224,6 +224,15 @@
 
       &:disabled {
         background: var(--color-bad-bg);
+      }
+    }
+    
+    &.dragging, .dragging & {
+      background: var(--color-bg-shade);
+      opacity: 0.6;
+      &:active:not(:disabled) {
+        top: 0;
+        border-bottom: 2px solid var(--color-bg-shade);
       }
     }
   }
@@ -739,12 +748,77 @@
     }
   }
 
+  .simple-link-list {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 5px;
+    & input {
+      width: 100%;
+    }
+  }
+  
   koti-geo-external-links {
     display: grid;
     grid-template-columns: 1fr 3fr auto;
     gap: 5px;
     & input {
       width: 100%;
+    }
+  }
+  
+  koti-explore-status-picker {
+    & .color-box {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+    }
+    
+    & koti-popover > div {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    & koti-popover button {
+      width: 250px;
+      text-align: left;
+    }
+  }
+  
+  koti-dnd-order {
+    display: flex;
+    flex-direction: column;
+    & > * {
+      margin-top: 2px;
+      margin-bottom: 2px;
+      
+      &:first-child {
+        margin-top: 0;
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .area-places-list {
+    & a {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      
+      & span {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      
+      & img {
+        width: 20px;
+        height: 23px;
+      }
     }
   }
 }

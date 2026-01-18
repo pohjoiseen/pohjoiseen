@@ -3,6 +3,7 @@ using System;
 using Holvi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Holvi.Migrations
 {
     [DbContext(typeof(HolviDbContext))]
-    partial class HolviDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260118170300_AreaPlaceLocalizations")]
+    partial class AreaPlaceLocalizations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
@@ -57,10 +60,6 @@ namespace Holvi.Migrations
                     b.Property<int>("RegionId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -72,8 +71,6 @@ namespace Holvi.Migrations
                     b.HasIndex("IsPrivate");
 
                     b.HasIndex("RegionId");
-
-                    b.HasIndex("Slug");
 
                     b.ToTable("Areas");
                 });
@@ -371,10 +368,6 @@ namespace Holvi.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -392,8 +385,6 @@ namespace Holvi.Migrations
                     b.HasIndex("IsPrivate");
 
                     b.HasIndex("Rating");
-
-                    b.HasIndex("Slug");
 
                     b.ToTable("Places");
                 });

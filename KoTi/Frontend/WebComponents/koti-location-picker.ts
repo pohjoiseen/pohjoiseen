@@ -68,4 +68,6 @@ window.customElements.define('koti-location-picker', class extends HTMLElement {
         });
         observer.observe(this);
     }
+    
+    getMap = () => this.#map;
 });

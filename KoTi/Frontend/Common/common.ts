@@ -5,6 +5,20 @@ export const $id = (id: string) => document.getElementById(id);
 
 export const generateId = () =>  Math.random().toString(36).substring(2, 15);
 
+// reindex name, id, for atributes on <input>, <textarea>, <label> and also <koti-location-picker>.
+// This is a bit hacky, especially since we might be changing these attributes from under a few other web components,
+// but should work fine.
+export const reindexElements = (parentEl: HTMLElement, prefix: string, index: number) => {
+    parentEl.querySelectorAll('input, textarea, label, koti-location-picker').forEach((el) => {
+        const name = el.getAttribute('name');
+        if (name) el.setAttribute('name', name.replace(new RegExp(`^${prefix}\\[\\d+]`), `${prefix}[${index}]`));
+        const id = el.getAttribute('id');
+        if (id) el.setAttribute('id', id.replace(/-\d+$/, '-' + index));
+        const labelFor = el.getAttribute('for');
+        if (labelFor) el.setAttribute('for', labelFor.replace(/-\d+$/, '-' + index));
+    });
+};
+
 // remember ephemeral state of some UI elements and restore it on page load or htmx update
 
 function saveAndRestoreListState(pictureListEl: Element) {

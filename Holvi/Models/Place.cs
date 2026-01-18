@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Holvi.Models;
 
+// note that field naming is fairly inconsistent between areas/places and posts/articles,
+// since these were originally created for entirely different purposes
+[Index(nameof(Slug))]
 [Index(nameof(Category))]
 [Index(nameof(ExploreStatus))]
 [Index(nameof(IsPrivate))]
@@ -14,6 +17,8 @@ public class Place
     public int AreaId { get; set; }
 
     [JsonIgnore] public Area Area { get; set; } = null!;
+    
+    public string Slug { get; set; } = "";
 
     public string Name { get; set; } = "";
 
@@ -50,4 +55,6 @@ public class Place
     public IList<Picture> Pictures { get; } = [];
 
     public IList<Tag> Tags { get; set; } = [];
+    
+    public IList<PlaceLocalization> Localizations { get; set; } = [];
 }

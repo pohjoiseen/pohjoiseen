@@ -32,19 +32,6 @@ export const getPost = async (id: number): Promise<Post> => {
     return postToFrontend(await response.json());
 }
 
-export const putPost = async (id: number, post: Post) => {
-    const response = await fetch(`api/Posts/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(post),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok || response.status !== 204) {
-        await handleError(response);
-    }
-};
-
 export const postPost = async (post: Post): Promise<Post> => {
     const response = await fetch(`api/Posts`, {
         method: 'POST',
@@ -57,13 +44,4 @@ export const postPost = async (post: Post): Promise<Post> => {
         await handleError(response);
     }
     return await response.json();
-}
-
-export const deletePost = async (id: number): Promise<void> => {
-    const response = await fetch(`api/Posts/${id}`, {
-        method: 'DELETE',
-    });
-    if (!response.ok || response.status !== 204) {
-        await handleError(response);
-    }
 }

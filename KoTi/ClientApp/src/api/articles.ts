@@ -29,19 +29,6 @@ export const getArticle = async (id: number): Promise<Article> => {
     return articleToFrontend(await response.json());
 }
 
-export const putArticle = async (id: number, article: Article) => {
-    const response = await fetch(`api/Articles/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(article),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok || response.status !== 204) {
-        await handleError(response);
-    }
-};
-
 export const postArticle = async (article: Article): Promise<Article> => {
     const response = await fetch(`api/Articles`, {
         method: 'POST',
@@ -54,13 +41,4 @@ export const postArticle = async (article: Article): Promise<Article> => {
         await handleError(response);
     }
     return await response.json();
-}
-
-export const deleteArticle = async (id: number): Promise<void> => {
-    const response = await fetch(`api/Articles/${id}`, {
-        method: 'DELETE',
-    });
-    if (!response.ok || response.status !== 204) {
-        await handleError(response);
-    }
 }

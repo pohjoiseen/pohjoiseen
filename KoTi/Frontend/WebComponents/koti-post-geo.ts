@@ -2,6 +2,7 @@
 // <koti-post-geo>: geo tab for post form, handles adding/removing subforms
 //
 import htmx from 'htmx.org';
+import { reindexElements } from '../Common/common.ts';
 
 window.customElements.define('koti-post-geo', class extends HTMLElement {
     #container: HTMLElement = null!;
@@ -33,19 +34,8 @@ window.customElements.define('koti-post-geo', class extends HTMLElement {
                 e.target.closest('fieldset')?.nextElementSibling?.remove();  // <hr>
                 e.target.closest('fieldset')?.remove(); // subform itself
                 
-                // replace name, id, for atributes on <input>, <textarea>, <label> and also <koti-location-picker>
-                // (the latter has id which is important for hx-preserve).  This is a bit hacky, especially since we are
-                // changing these attributes from under a few other web components, but should work fine.
-                this.querySelectorAll('.geo > fieldset').forEach((subformEl, i) => {
-                    subformEl.querySelectorAll('input, textarea, label, koti-location-picker').forEach((el) => {
-                        const name = el.getAttribute('name');
-                        if (name) el.setAttribute('name', name.replace(/^Geo\[\d+]/, 'Geo[' + i + ']'));
-                        const id = el.getAttribute('id');
-                        if (id) el.setAttribute('id', id.replace(/-\d+$/, '-' + i));
-                        const labelFor = el.getAttribute('for');
-                        if (labelFor) el.setAttribute('for', labelFor.replace(/-\d+$/, '-' + i));
-                    });
-                });
+                this.querySelectorAll('.geo > fieldset').forEach((subformEl, i) => 
+                    reindexElements(subformEl as HTMLElement, 'Geo', i));
             }
         })
     }

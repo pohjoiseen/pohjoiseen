@@ -52,46 +52,6 @@ public class ArticlesApiController(HolviDbContext dbContext) : ControllerBase
         return article;
     }
     
-    // PUT: api/Articles/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutArticle(int id, ArticleRequestDTO requestDto)
-    {
-        var article = await dbContext.Articles
-            .Where(a => a.Id == id)
-            .FirstOrDefaultAsync();
-        if (article == null)
-        {
-            return NotFound();
-        }
-        
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        requestDto.ToModel(article);
-        
-        dbContext.Entry(article).State = EntityState.Modified;
-
-        try
-        {
-            await dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ArticleExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
-    }
-
     // POST: api/Articles
     [HttpPost]
     public async Task<ActionResult<Article>> PostArticle(ArticleRequestDTO requestDto)
@@ -107,26 +67,5 @@ public class ArticlesApiController(HolviDbContext dbContext) : ControllerBase
         await dbContext.SaveChangesAsync();
 
         return CreatedAtAction("GetArticle", new { id = article.Id }, article);
-    }
-
-    // DELETE: api/Articles/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteArticle(int id)
-    {
-        var article = await dbContext.Articles.FindAsync(id);
-        if (article == null)
-        {
-            return NotFound();
-        }
-
-        dbContext.Articles.Remove(article);
-        await dbContext.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    private bool ArticleExists(int id)
-    {
-        return dbContext.Articles.Any(e => e.Id == id);
     }
 }

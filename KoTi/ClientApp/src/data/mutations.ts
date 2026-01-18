@@ -9,15 +9,15 @@ import { deleteRegion, postRegion, putRegion, reorderAreasInRegion } from '../ap
 import { deleteArea, postArea, putArea, reorderPlacesInArea } from '../api/areas';
 import { deletePlace, postPlace, putPlace } from '../api/places';
 import Picture from '../model/Picture';
-import { deletePicture, deletePictures, ensureWebSizes, postPicture, putPicture } from '../api/pictures';
+import { deletePicture, deletePictures, postPicture, putPicture } from '../api/pictures';
 import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 import Tag from '../model/Tag';
 import { postTag } from '../api/tags';
 import Post from '../model/Post';
-import { deletePost, postPost, putPost } from '../api/posts';
+import { postPost } from '../api/posts';
 import Article from '../model/Article';
-import { deleteArticle, postArticle, putArticle } from '../api/articles';
+import { postArticle } from '../api/articles';
 import Redirect from '../model/Redirect';
 import { deleteRedirect, postRedirect } from '../api/redirects';
 import { publish } from '../api/home';
@@ -273,12 +273,6 @@ export const useDeletePicturesMutation = () => {
     });
 };
 
-export const useEnsurePictureWebSizesMutation = () => {
-    return useMutation({
-        mutationFn: async (picture: Picture | number) => await ensureWebSizes(typeof picture === 'number' ? picture : picture.id!)
-    });
-};
-
 export const useCreatePictureSetMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -350,29 +344,6 @@ export const useCreatePostMutation = () => {
     })
 };
 
-export const useUpdatePostMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (post: Post) => {
-            queryClient.setQueryData([QueryKeys.POST, post.id], post);
-            await putPost(post.id, post);
-            await queryClient.invalidateQueries([QueryKeys.POSTS]);
-            return post;
-        }
-    });
-};
-
-export const useDeletePostMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (post: Post) => {
-            await deletePost(post.id);
-            await queryClient.invalidateQueries([QueryKeys.POSTS]);
-            await queryClient.invalidateQueries([QueryKeys.POST, post.id]);
-        }
-    });
-};
-
 export const useCreateArticleMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -382,29 +353,6 @@ export const useCreateArticleMutation = () => {
             return article;
         },
     })
-};
-
-export const useUpdateArticleMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (article: Article) => {
-            queryClient.setQueryData([QueryKeys.ARTICLE, article.id], article);
-            await putArticle(article.id, article);
-            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
-            return article;
-        }
-    });
-};
-
-export const useDeleteArticleMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (article: Article) => {
-            await deleteArticle(article.id);
-            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
-            await queryClient.invalidateQueries([QueryKeys.ARTICLE, article.id]);
-        }
-    });
 };
 
 export const useCreateRedirectMutation = () => {

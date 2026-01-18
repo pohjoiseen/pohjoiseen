@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="~/css/koti.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/frontend/koti.css" asp-append-version="true" />
 
+    @* Need to do Html.Raw() because Htmx overwrites this meta and doesn't actually support responseHandling parameter which we need *@
     @Html.Raw(@"
         <meta
             name=""htmx-config""

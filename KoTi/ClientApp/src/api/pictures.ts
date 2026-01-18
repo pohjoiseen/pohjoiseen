@@ -128,12 +128,3 @@ export const deletePictures = async (ids: number[]): Promise<void> => {
         await handleError(response);
     }
 };
-
-export const ensureWebSizes = async (id: number): Promise<void> => {
-    const response = await fetch(`api/Pictures/${id}/WebSizes`, {
-        method: 'POST',
-    });
-    if (!response.ok || response.status !== 204) {
-        await handleError(response);
-    }
-};

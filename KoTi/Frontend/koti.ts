@@ -3,6 +3,8 @@ import './Common/common.ts';
 // register web components
 import './WebComponents/koti-content-editor.ts';
 import './WebComponents/koti-content-item.ts';
+import './WebComponents/koti-dnd-order.ts';
+import './WebComponents/koti-explore-status-picker.ts';
 import './WebComponents/koti-fullscreen-picture.ts';
 import './WebComponents/koti-geo-external-links.ts';
 import './WebComponents/koti-geo-icon-picker.ts';

@@ -23,6 +23,7 @@ var part = new AssemblyPart(f3Assembly);
 builder.Services.AddControllersWithViews().ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
 builder.Services.AddScoped<PostViewModelFactory>();
 builder.Services.AddScoped<ArticleViewModelFactory>();
+builder.Services.AddScoped<AreaViewModelFactory>();
 
 var app = builder.Build();
 
