@@ -96,10 +96,10 @@ public class SearchApiController : ControllerBase
                 return $"/pictures/folders/?folderId={tableId}";
             
             case "Posts":
-                return $"/post/{tableId}";
+                return $"/app/Posts/{tableId}/";
             
             case "Articles":
-                return $"/article/{tableId}";
+                return $"/app/Articles/{tableId}/";
 
             default:
                 throw new Exception("Unknown table name: " + tableName);

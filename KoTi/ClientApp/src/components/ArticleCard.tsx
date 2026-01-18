@@ -43,7 +43,7 @@ const ArticleCard = ({ id, selected, onSelect }: ArticleCardProps) => {
         <Card className={(selected ? 'shadow-inset ' : '') + (article?.draft ? 'bg-warning-subtle' : '')} draggable={true} innerRef={ref}>
             <CardBody>
                 {article && <>
-                    <CardTitle tag="h5"><Link to={`/article/${id}`} onClick={onClick} draggable={false}>{article.title}</Link></CardTitle>
+                    <CardTitle tag="h5"><a href={`/app/Articles/${id}`} onClick={onClick} draggable={false}>{article.title}</a></CardTitle>
                     <p className="small m-0">{article.name}</p>
                 </>}
                 {articleQuery.isLoading && <Spinner size="sm" />}

@@ -3,9 +3,7 @@
 //
 using Fennica3;
 using Holvi;
-using Holvi.Models;
 using KoTi.ModelFactories;
-using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;

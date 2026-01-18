@@ -27,4 +27,9 @@ public class PostsController(PostViewModelFactory modelFactory)
         return ViewComponent("PostCoatOfArms", new { index, url, size });
     }
     
+    [HttpGet("Geo")]
+    public async Task<IActionResult> Geo(int index)
+    {
+        return ViewComponent("PostGeo", new { index });
+    }
 }

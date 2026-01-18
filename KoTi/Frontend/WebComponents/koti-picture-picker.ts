@@ -1,6 +1,6 @@
-///
-/// <koti-picture-picker>: picture picker component interactivity (dialog-related)
-///
+//
+// <koti-picture-picker>: picture picker component interactivity (dialog-related).
+//
 import htmx from 'htmx.org';
 
 window.customElements.define('koti-picture-picker', class extends HTMLElement {
@@ -34,7 +34,7 @@ window.customElements.define('koti-picture-picker', class extends HTMLElement {
             const customEvent = e as CustomEvent<{text: string}>;
             e.stopPropagation();
             const id = customEvent.detail.text.replace('picture:', '');
-            inputEl.value = id;
+            inputEl.value = inputEl.dataset.stringField == 'true' ? 'picture:' + id : id; 
             selectButtonEl.textContent = 'Select: ' + id;
             selectButtonEl.disabled = false;
             selectButtonEl.click();

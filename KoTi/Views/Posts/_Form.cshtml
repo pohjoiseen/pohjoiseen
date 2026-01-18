@@ -1,11 +1,8 @@
 @model PostViewModel
 
-<div class="koti-tabs" data-remember-state="posttab">
-    <div>
-        <input type="radio" value="main" id="posttab-main" asp-for="ViewStatePostTab" />
-        <label for="posttab-main" tabindex="0">General</label>
-        <div class="content">
-            <fieldset>
+<koti-tabs component-id="posttab">
+    <koti-tab name="General">
+        <fieldset>
                 <div style="display: grid; grid-template-columns: 120px 1fr; grid-gap: 5px; grid-auto-flow: column;">
                     <div>
                         <label for="date">Date:</label>
@@ -26,7 +23,7 @@
                 </div>
 
                 <div>
-                    <label for="description">Description (for blog index):</label>
+                    <label for="description">Description (for blog index, Markdown allowed):</label>
                     <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
                     @Html.ValidationMessageFor(m => m.Title)
                 </div>
@@ -50,28 +47,21 @@
                     <label for="mini">Mini</label>
                     @Html.ValidationMessageFor(m => m.Draft)
                 </div>
-
-                <div class="alert">
-                    The new post editor is a work in progress. More properties can be set in the old editor.
-                    <a class="koti-btn" href="/post/@Model.Id">Go to old editor</a>
-                </div>
             </fieldset>
-        </div>
-    </div>
-    
-    <div>
-        <input type="radio" value="titleimage" id="posttab-titlepicture" asp-for="ViewStatePostTab" />
-        <label for="posttab-titlepicture" tabindex="0">Title Picture</label>
-        <koti-post-title-picture class="content" picker-component-id="picture-picker-post-@Model.Id">
-            <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId" />
-            
+    </koti-tab>
+
+    <koti-tab name="Title Picture">
+        <koti-post-title-picture picker-component-id="picture-picker-post-@Model.Id">
+            <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId"/>
+            @Html.ValidationMessageFor(m => m.TitlePictureId)
+
             <div class="mt">
                 <div class="title-image-in-text-container" hidden="@(Model.TitlePictureId is null)">
                     <input id="title-image-in-text" type="checkbox" asp-for="TitleImageInText"/>
                     <label for="title-image-in-text">Place into post body rather than header</label>
                     @Html.ValidationMessageFor(m => m.TitleImageInText)
                 </div>
-                
+
                 <div class="input-inline title-image-offset-y-container" hidden="@(Model.TitlePictureId is null || Model.TitleImageInText)">
                     <label for="title-image-offset-y">Title image vertical position:</label>
                     <input type="number" min="0" max="100" placeholder="50" id="title-image-offset-y" asp-for="TitleImageOffsetY"/>
@@ -87,22 +77,37 @@
                 </div>
             </div>
         </koti-post-title-picture>
-    </div>
+    </koti-tab>
 
-    <div>
-        <input type="radio" value="coatsofarms" id="posttab-coatsofarms" asp-for="ViewStatePostTab" />
-        <label for="posttab-coatsofarms" tabindex="0">Coats of Arms</label>
-        <koti-post-coats-of-arms class="content">
+    <koti-tab name="Coats of Arms">
+        <koti-post-coats-of-arms>
             <div class="coats-of-arms">
                 @foreach (var item in Model.CoatsOfArms.Select((value, i) => (value, i)))
                 {
                     <vc:post-coat-of-arms url="@item.value.Url" size="@item.value.Size" index="@item.i"/>
                 }
             </div>
+            @Html.ValidationMessageFor(m => m.CoatsOfArms)
             <button class="koti-btn primary add-coa-btn" type="button">
                 <i class="bi bi-plus-lg"></i> Add coat of arms...
             </button>
             <partial name="~/Views/Pictures/_UploadModal.cshtml" model="@(new { ComponentId = "coa-upload", TargetSet = "Coats of Arms" })"/>
         </koti-post-coats-of-arms>
-    </div>
-</div>
+    </koti-tab>
+
+    <koti-tab name="Geo">
+        <koti-post-geo>
+            <div class="geo">
+                @foreach (var item in Model.Geo.Select((value, i) => (value, i)))
+                {
+                    <vc:post-geo geo="@item.value" index="@item.i"/>
+                    @Html.ValidationMessageFor(m => m.Geo[item.i])
+                }
+            </div>
+            <button class="koti-btn primary add-geo-btn" type="button">
+                <i class="bi bi-plus-lg"></i> Add geo...
+            </button>
+        </koti-post-geo>
+    </koti-tab>
+
+</koti-tabs>

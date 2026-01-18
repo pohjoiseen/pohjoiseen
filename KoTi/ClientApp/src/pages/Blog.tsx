@@ -39,7 +39,7 @@ const Blog = () => {
     
     const create = async (post: Post) => {
         post = await createPostMutation.mutateAsync(post);
-        navigate(`/post/${post.id}`);
+        navigate(`/app/Posts/${post.id}`);
     };
     
     return <div>

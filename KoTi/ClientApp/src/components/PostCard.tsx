@@ -43,8 +43,8 @@ const PostCard = ({ id, selected, onSelect }: PostCardProps) => {
         <Card className={(selected ? 'shadow-inset ' : '') + (post?.draft ? 'bg-warning-subtle' : '')} draggable={true} innerRef={ref}>
             <CardBody>
                 {post && <>
-                    {post.titlePicture && <Link to={`/post/${id}`} onClick={onClick} draggable={false}><img draggable={false} alt="" className="w-100 mb-1" src={post.titlePicture.thumbnailUrl} /></Link>}
-                    <CardTitle tag="h5"><Link to={`/post/${id}`} onClick={onClick} draggable={false}>{post.title}</Link></CardTitle>
+                    {post.titlePicture && <a href={`/app/Posts/${id}`} onClick={onClick} draggable={false}><img draggable={false} alt="" className="w-100 mb-1" src={post.titlePicture.thumbnailUrl} /></a>}
+                    <CardTitle tag="h5"><a href={`/app/Posts/${id}`} onClick={onClick} draggable={false}>{post.title}</a></CardTitle>
                     <p className="small m-0">{post.date.toISOString().substring(0, 10)}-{post.name}</p>
                 </>}
                 {postQuery.isLoading && <Spinner size="sm" />}

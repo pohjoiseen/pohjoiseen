@@ -7,4 +7,14 @@
     </h2>
 }
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert mb">
+        <div>
+            Save failed due to the following validation errors:
+            @Html.ValidationSummary()
+        </div>
+    </div>
+}
+
 @await Component.InvokeAsync((Type)ViewData["FormViewComponentType"]!, new { model = Model })

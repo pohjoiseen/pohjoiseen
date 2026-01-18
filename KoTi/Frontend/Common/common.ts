@@ -3,24 +3,9 @@ import htmx from 'htmx.org';
 export const $id = (id: string) => document.getElementById(id);
 (window as any).$id = $id;
 
-// remember ephemeral state of some UI elements and restore it on page load or htmx update
+export const generateId = () =>  Math.random().toString(36).substring(2, 15);
 
-function saveAndRestoreTabState(tabsEl: Element) {
-    const key = window.location.pathname + '#tabs#' + (tabsEl as HTMLElement).dataset.rememberState;
-    const savedValue = window.localStorage.getItem(key);
-    if (savedValue) {
-        try {
-            (tabsEl.querySelector(`& > div > input[type=radio][id=${savedValue}]`) as HTMLInputElement).checked = true;
-        } catch (e) {
-            window.localStorage.removeItem(key);
-        }
-    }
-    tabsEl.querySelectorAll('& > div > input[type=radio]').forEach((radioEl: Element) =>
-        radioEl.addEventListener('change', () => {
-            if ((radioEl as HTMLInputElement).checked) window.localStorage.setItem(key, radioEl.id);
-        }
-    ));
-}
+// remember ephemeral state of some UI elements and restore it on page load or htmx update
 
 function saveAndRestoreListState(pictureListEl: Element) {
     const key = window.location.pathname + '#list#' + (pictureListEl as HTMLElement).dataset.rememberState + '#scroll';
@@ -43,6 +28,5 @@ function handleElements(rootEl: HTMLElement, selector: string, callback: (el: El
 }
 
 htmx.onLoad((el) => {
-    handleElements(el as HTMLElement, '.koti-tabs[data-remember-state]', saveAndRestoreTabState);
     handleElements(el as HTMLElement, '.list[data-remember-state]', saveAndRestoreListState);
 });

@@ -2,6 +2,7 @@ namespace KoTi.ViewModels;
 
 public class ArticleViewModel : AbstractContentViewModel
 {
+    public override string KindLink => "article";
     public override string KindPlural => "Articles";
 
     public string Name { get; set; } = "";

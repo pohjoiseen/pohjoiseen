@@ -1,9 +1,9 @@
-///
-/// <koti-picture-uploader>: friendly picture upload panel.  This is implemented entirely in JS without htmx,
-/// with the basic unit being <koti-picture> also used in server-side picture list.  This uploads pictures
-/// one by one, from file input, drag and drop, or pasting, shows progress and handles errors, allows retry in case
-/// of errors, allows to view uploaded pictures in fullscreen.
-///
+//
+// <koti-picture-uploader>: friendly picture upload panel.  This is implemented entirely in JS without htmx,
+// with the basic unit being <koti-picture> also used in server-side picture list.  This uploads pictures
+// one by one, from file input, drag and drop, or pasting, shows progress and handles errors, allows retry in case
+// of errors, allows to view uploaded pictures in fullscreen.
+//
 window.customElements.define('koti-picture-uploader', class extends HTMLElement {
     // list of blobs to be uploaded or picture ids already uploaded
     #pictures: (File | number)[] = [];
@@ -21,6 +21,9 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
     }
     
     connectedCallback() {
+        // do not re-initialize if already initialized
+        if (this.#pictureList) return;
+        
         // add DOM and store important elements
         this.innerHTML = `
             <div class="picture-uploader">

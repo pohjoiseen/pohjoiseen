@@ -11,13 +11,17 @@ public class Post : IContentEntity
     /// </summary>
     public record GeoPoint
     {
+        // approx. Vaasa, Finland
+        const double DefaultLat = 63.1;
+        const double DefaultLng = 21.6;
+
         public string? Title { get; init; }
         public string? Subtitle { get; init; }
         public string? Description { get; init; }
         public string? TitleImage { get; init; }
         public string? Anchor { get; init; }
-        public double Lat { get; init; }
-        public double Lng { get; init; }
+        public double Lat { get; init; } = DefaultLat;
+        public double Lng { get; init; } = DefaultLng;
         public int? Zoom { get; init; }
         public string? Icon { get; init; }
         public IList<string>? Maps { get; init; }

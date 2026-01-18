@@ -1,6 +1,6 @@
-///
-/// <koti-picture-upload-modal>: single picture uploader modal
-///
+//
+// <koti-picture-upload-modal>: single picture uploader modal, wraps <koti-picture-uploader>.
+//
 import htmx from 'htmx.org';
 
 window.customElements.define('koti-picture-upload-modal', class extends HTMLElement {

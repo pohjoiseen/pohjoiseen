@@ -4,6 +4,7 @@ public abstract class AbstractContentViewModel
 {
     public int Id { get; init;  }
 
+    public abstract string KindLink { get; }
     public abstract string KindPlural { get; }
     public abstract string FennicaURL { get; }
     

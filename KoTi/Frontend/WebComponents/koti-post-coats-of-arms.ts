@@ -1,6 +1,6 @@
-///
-/// <koti-post-coats-of-arms>: coats of arms form interactivity (add/remove buttons)
-///
+//
+// <koti-post-coats-of-arms>: coats of arms form interactivity (add/remove buttons).
+//
 import htmx from 'htmx.org';
 
 window.customElements.define('koti-post-coats-of-arms', class extends HTMLElement {
@@ -11,6 +11,9 @@ window.customElements.define('koti-post-coats-of-arms', class extends HTMLElemen
     }
     
     connectedCallback() {
+        // do not re-initialize if already initialized
+        if (this.#uploadModal) return;
+        
         this.#uploadModal = this.querySelector('koti-picture-upload-modal')!;
         this.addEventListener('click', this);
         this.#uploadModal.addEventListener('picture-upload-modal:selected', (e) => this.onAdded((e as CustomEvent<{pictureId: number}>).detail.pictureId));

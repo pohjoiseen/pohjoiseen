@@ -1,7 +1,7 @@
-///
-/// <koti-content-editor>: content edit page, main page of the app.  This hooks up the Monaco editor, the properties form
-/// and various other things together.  The element <koti-content-editor> 
-///
+//
+// <koti-content-editor>: content edit page, main page of the app.  This hooks up the Monaco editor, the properties form
+// and various other things together.  The element <koti-content-editor> 
+//
 import * as monaco from 'monaco-editor';
 import { $id } from '../Common/common.ts';
 import { apiEnsureWebSizes, apiGetArticle, apiGetPicture, apiGetPost } from '../Common/api.ts';
@@ -403,7 +403,9 @@ window.customElements.define('koti-content-editor', class extends HTMLElement {
     // Ask for confirmation before leaving page if anything has been modified
     setupExitConfirmation() {
         // serialize form, without viewState*** properties, on page load
-        this.#lastSavedFormData = this.getFormData();
+        // must however wait until all components are initialized, some are creating hidden
+        // inputs dynamically.  This is hacky but 0.1s seems enough
+        setTimeout(() => this.#lastSavedFormData = this.getFormData(), 100);
 
         // put editor value back into form on submit, remember serialized form state
         this.#formEl.addEventListener('htmx:configRequest', (e: Event) => {
@@ -427,6 +429,8 @@ window.customElements.define('koti-content-editor', class extends HTMLElement {
         window.addEventListener('beforeunload', e => {
             const formData = this.getFormData();
             if (formData !== this.#lastSavedFormData) {
+                //console.log("last saved data", this.#lastSavedFormData);
+                //console.log("current data", formData);
                 e.preventDefault();
                 return 'prevent';
             }

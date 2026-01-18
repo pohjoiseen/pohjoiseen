@@ -31,7 +31,7 @@ const Articles = () => {
     
     const create = async (article: Article) => {
         article = await createArticleMutation.mutateAsync(article);
-        navigate(`/article/${article.id}`);
+        navigate(`/app/Articles/${article.id}`);
     };
 
     return <div>

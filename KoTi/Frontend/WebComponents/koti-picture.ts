@@ -1,7 +1,7 @@
-///
-/// <koti-picture> web component, handling diplaying a picture thumbnail (both for picture list and picture
-/// uploader) and associated behaviors.
-///
+//
+// <koti-picture> web component, handling diplaying a picture thumbnail (both for picture list and picture
+// uploader) and associated behaviors.
+//
 import htmx from 'htmx.org';
 
 window.customElements.define('koti-picture', class extends HTMLElement {
@@ -56,8 +56,15 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     }
     
     connectedCallback() {
-        // create DOM (button with img and span inside)
+        // bind custom event listeners to parent
         this.#parent = this.parentElement!;
+        this.#parent.addEventListener('koti-picture:select', this);
+        this.#parent.addEventListener('koti-picture:deselect-all', this);
+        
+        // do not re-initialize further if already initialized
+        if (this.#button) return;
+        
+        // create DOM (button with img and span inside)
         this.#button = document.createElement('button');
         this.#button.classList.add('koti-btn', 'picture');
         this.#img = document.createElement('img');
@@ -68,10 +75,6 @@ window.customElements.define('koti-picture', class extends HTMLElement {
         this.#button.appendChild(this.#text);
         this.update();
 
-        // bind custom event listeners
-        this.#parent.addEventListener('koti-picture:select', this);
-        this.#parent.addEventListener('koti-picture:deselect-all', this);
-        
         // bind event listeners to button
         
         // on click, select/deselect picture; if selected, deselect all others

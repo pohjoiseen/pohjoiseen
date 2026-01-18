@@ -10,7 +10,7 @@ public class Fennica3
 
     public static readonly string Author = "Alexander Ulyanov";
 
-    public static readonly string Copyright = "© 2015-2025";
+    public static readonly string Copyright = "© 2015-2026";
 
     public static readonly string FaviconLink = "/favicon.png";
 
@@ -18,7 +18,7 @@ public class Fennica3
 
     public static readonly string FooterLink = "https://www.pohjoiseen.fi/";
 
-    public static readonly IList<string> Languages = new List<string> { "ru" };
+    public static readonly IList<string> Languages = new List<string> { "ru", "en" };
     
     public static readonly IList<string> Maps = new List<string> { "index", "osm" };
 

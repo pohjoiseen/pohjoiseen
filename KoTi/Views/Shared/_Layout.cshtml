@@ -1,3 +1,4 @@
+@using Htmx.TagHelpers
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,25 +25,27 @@
     <link rel="stylesheet" href="~/css/koti.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/frontend/koti.css" asp-append-version="true" />
 
-    <meta
-        name="htmx-config"
-        content='{
-        "responseHandling":[
-            {"code":"204", "swap": false},
-            {"code":"[23]..", "swap": true},
-            {"code":"400", "swap": true},
-            {"code":"[45]..", "swap": false, "error":true},
-            {"code":"...", "swap": true}
-        ]
-    }'
-    />
+    @Html.Raw(@"
+        <meta
+            name=""htmx-config""
+            content='{
+            ""responseHandling"":[
+                {""code"":""204"", ""swap"": false},
+                {""code"":""[23].."", ""swap"": true},
+                {""code"":""400"", ""swap"": true},
+                {""code"":""[45].."", ""swap"": false, ""error"":true},
+                {""code"":""..."", ""swap"": true}
+            ]
+        }'
+        />
+        ")
 </head>
 <body class="@ViewData["BodyClass"]">
 <header>
     <h1 class="koti-title">
         <a href="/">
             <img width="24" height="24" alt="KoTi" src="/koti-logo.svg"/>
-            KoTi
+            Fennica
         </a>
     </h1>
     <h2 id="header-title">@await RenderSectionAsync("HeaderTitle")</h2>

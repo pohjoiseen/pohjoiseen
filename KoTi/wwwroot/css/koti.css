@@ -78,6 +78,10 @@
     height: 2px;
     border: 1px solid var(--color-bg-shade);
   }
+  
+  li {
+    margin-left: 20px;
+  }
 }
 
 @layer layout {
@@ -149,7 +153,7 @@
     }
   }
 
-  .koti-btn, .koti-tabs > div > label {
+  .koti-btn, koti-tabs > div > label {
     margin: 0;
     padding: 3px 15px 3px 15px;
     display: inline-block;
@@ -165,13 +169,18 @@
     cursor: pointer;
     text-decoration: none;
     text-align: center;
+    
+    &:focus {
+      outline: 2px solid var(--color-primary);
+    }
 
     &:hover:not(:disabled) {
       background-color: var(--color-bg-highlight);
     }
 
     &:active:not(:disabled) {
-      margin-top: 1px;
+      position: relative;
+      top: 1px;
       border-bottom: 1px solid var(--color-bg-shade);
     }
     
@@ -179,11 +188,15 @@
       background-color: var(--color-bg-shade);
     }
 
+    &.selected:focus {
+      outline: none;
+    }
+    
     &.primary, &.selected {
       background-color: var(--color-primary);
       color: var(--color-primary-invert);
       border-color: var(--color-primary-shade);
-
+      
       &:hover:not(:disabled) {
         background-color: var(--color-primary-highlight);
       }
@@ -262,45 +275,6 @@
 
   .field-validation-error {
     color: var(--color-bad);
-  }
-
-  .koti-tabs {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-
-    & > div > input[type="radio"] {
-      position: fixed;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    & > div > .content {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: 31px;
-      border: 1px solid var(--color-bg-shade);
-      padding: 5px;
-      display: none;
-      overflow-y: auto;
-    }
-
-    & > div > input[type="radio"]:checked + label {
-      background-color: var(--color-primary);
-      color: var(--color-primary-invert);
-      border-color: var(--color-primary-shade);
-
-      &:hover {
-        background-color: var(--color-primary-highlight);
-      }
-    }
-
-    & > div > input[type="radio"]:checked + label + .content {
-      display: block;
-    }
   }
 
   @keyframes spinner-grow {
@@ -406,6 +380,56 @@
       padding: 10px;
     }
   }
+  
+  koti-tabs {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+
+    & > div > input[type="radio"] {
+      position: fixed;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    & > div > label, & > button {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      z-index: 1;
+    }
+
+    & > koti-tab {
+      /* Do not display tabs until component initialized (then they will move to wrapper div) */
+      display: none;
+    }
+
+    & > div > koti-tab {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 31px;
+      border: 1px solid var(--color-bg-shade);
+      padding: 5px;
+      display: none;
+      overflow-y: auto;
+    }
+
+    & > div > input[type="radio"]:checked + label {
+      background-color: var(--color-primary);
+      color: var(--color-primary-invert);
+      border-color: var(--color-primary-shade);
+
+      &:hover {
+        background-color: var(--color-primary-highlight);
+      }
+    }
+
+    & > div > input[type="radio"]:checked + label + koti-tab {
+      display: block;
+    }
+  }
 }
 
 @layer components-page-specific {
@@ -453,7 +477,7 @@
         margin-right: 5px;
       }
     }
-    
+
     & .list {
       grid-area: 2 / 1 / 3 / 2;
     }
@@ -495,12 +519,12 @@
       & img {
         max-height: 125px;
       }
-      
+
       &.pending, &.uploading, &.error {
         background: var(--color-bg-shade);
         opacity: 0.8;
       }
-      
+
       & span {
         position: absolute;
         left: 0;
@@ -515,7 +539,7 @@
         font-weight: bold;
       }
     }
-    
+
     & .item {
       padding: 5px;
       position: relative;
@@ -538,10 +562,10 @@
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: 1fr;
-    
+
     & .list {
       position: relative;
-      
+
       &.drop-hover::before {
         content: "";
         position: absolute;
@@ -557,7 +581,7 @@
         pointer-events: none;
       }
     }
-    
+
     & .placeholder-heading {
       position: absolute;
       left: 0;
@@ -569,7 +593,7 @@
       align-items: center;
       min-height: 150px;
     }
-    
+
     & .footer {
       text-align: center;
       margin-top: 5px;
@@ -579,14 +603,17 @@
   .picture-picker-dialog, .picture-upload-dialog {
     min-height: 33vh;
     min-width: 66vw;
+
     &:open {
       display: grid;
       grid-template-rows: auto 1fr;
-      grid-template-columns: 1fr; 
+      grid-template-columns: 1fr;
     }
+
     & header {
       grid-area: 1 / 1 / 2 / 2;
     }
+
     & .picture-list {
       min-height: 0;
     }
@@ -598,9 +625,126 @@
     grid-template-columns: 200px 1fr;
     gap: 5px;
   }
+
+  koti-location-picker {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    position: relative;
+
+    & .crossbar-h {
+      background: rgba(0, 0, 0, 0.8);
+      position: absolute;
+      left: 50%;
+      top: 25%;
+      width: 1px;
+      bottom: 25%;
+      z-index: 1000;
+    }
+
+    & > .crossbar-v {
+      background: rgba(0, 0, 0, 0.8);
+      position: absolute;
+      left: 25%;
+      top: 50%;
+      height: 1px;
+      right: 25%;
+      z-index: 1000;
+    }
+  }
+
+  koti-popover {
+    position-area: bottom;
+    padding: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-bg-shade);
+    border-radius: var(--border-radius);
+    margin-top: 10px;
+    overflow: visible;
+    display: none;
+    
+    &.open {
+      display: block;
+    }
+    
+    &::before {
+      content: "";
+      position: absolute;
+      left: calc(50% - 10px);
+      right: calc(50% - 10px);
+      top: -10px;
+      height: 10px;
+      clip-path: polygon(0 10px, 10px 0, 20px 10px);
+      background: var(--color-bg-shade);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: calc(50% - 9px);
+      right: calc(50% - 9px);
+      top: -9px;
+      height: 9px;
+      clip-path: polygon(0 9px, 9px 0, 18px 9px);
+      background: var(--color-bg);
+      z-index: 1;
+    }
+
+    &.alternate-position {
+      position-area: top;
+      margin-top: 0;
+      margin-bottom: 10px;
+
+      &::before {
+        top: auto;
+        bottom: -10px;
+        clip-path: polygon(0 0, 10px 10px, 20px 0);
+      }
+
+      &::after {
+        top: auto;
+        bottom: -9px;
+        height: 9px;
+        clip-path: polygon(0 0, 9px 9px, 18px 0);
+      }
+    }
+  }
+  
+  koti-geo-icon-picker {
+    & koti-popover > div {
+      display: flex;
+      flex-direction: row;
+      gap: 3px;
+      flex-wrap: wrap;
+      max-width: 550px;
+      
+      & button {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        padding: 0 3px;
+        width: 135px;
+        
+        & img {
+          width: 16px;
+        }
+      }
+    }
+  }
+
+  koti-geo-external-links {
+    display: grid;
+    grid-template-columns: 1fr 3fr auto;
+    gap: 5px;
+    & input {
+      width: 100%;
+    }
+  }
 }
 
 @layer utilities {
+  .h100 { height: 100%; }
+  .w100 { width: 100%; }
   .m { margin: 5px; }
   .ml { margin-left: 5px; }
   .mr { margin-right: 5px; }
@@ -616,4 +760,5 @@
   .flex-grow { flex-grow: 1; }
   .flex-shrink { flex-shrink: 1; }
   .flex-wrap { flex-wrap: wrap; }
+  .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
 }

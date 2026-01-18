@@ -1,7 +1,7 @@
-///
-/// <koti-fullscreen-picture>: container for fullscreen pictures.  Meant to be only one.
-/// Fullscreen here is not Fullscreen API, but not basic overlay other, rather a modal dialog.
-///
+//
+// <koti-fullscreen-picture>: container for fullscreen pictures.  Meant to be only one on page.
+// Fullscreen here is not Fullscreen API, but not basic overlay other, rather a modal dialog.
+//
 import htmx from 'htmx.org';
 
 window.customElements.define('koti-fullscreen-picture', class extends HTMLElement {

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.WebEncoders;
 
 namespace Fennica3;
@@ -30,6 +31,16 @@ public static class FennicaExtensions
             options.RequestCultureProviders = new List<IRequestCultureProvider> { 
                 new CustomRequestCultureProvider(async ctx =>
                 {
+                    // this code runs also for KoTi, as it includes Fennica3 completely;
+                    // make sure language is forced to default English if the controller is not from
+                    // Fennica3 assembly
+                    if (ctx.GetEndpoint()?.Metadata
+                            .FirstOrDefault(m => m.GetType() == typeof(ControllerActionDescriptor)) is ControllerActionDescriptor controllerActionDescriptor &&
+                        controllerActionDescriptor.ControllerTypeInfo.Assembly != typeof(Fennica3).Assembly)
+                    {
+                        return await Task.FromResult(new ProviderCultureResult("en-US"));
+                    }
+                    
                     ctx.Request.RouteValues.TryGetValue("language", out var language);
                     language ??= Fennica3.Languages[0];
 

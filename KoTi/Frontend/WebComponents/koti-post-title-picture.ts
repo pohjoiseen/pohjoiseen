@@ -1,6 +1,6 @@
-///
-/// <koti-post-title-picture>: title picture tab for post form.  Handles only showing/hiding extra fields
-///
+//
+// <koti-post-title-picture>: title picture tab for post form.  Handles only showing/hiding extra fields
+//
 window.customElements.define('koti-post-title-picture', class extends HTMLElement {
     #titleImageInTextContainer: HTMLElement = null!;
     #titleImageOffsetYContainer: HTMLElement = null!;
@@ -12,6 +12,9 @@ window.customElements.define('koti-post-title-picture', class extends HTMLElemen
     }
     
     connectedCallback() {
+        // do not re-initialize if already initialized
+        if (this.#titleImageInTextContainer) return;
+        
         this.#titleImageOffsetYContainer = this.querySelector('.title-image-offset-y-container') as HTMLElement;
         this.#titleImageInTextContainer = this.querySelector('.title-image-in-text-container') as HTMLElement;
         this.#titleImageCaptionContainer = this.querySelector('.title-image-caption-container') as HTMLElement;

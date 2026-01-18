@@ -14,9 +14,7 @@ import Pictures from './pages/Pictures';
 import Search from './pages/Search';
 import PlaceRedirect from './pages/PlaceRedirect';
 import Blog from './pages/Blog';
-import Post from './pages/Post';
 import Articles from './pages/Articles';
-import Article from './pages/Article';
 import Redirects from './pages/Redirects';
 import Publish from './pages/Publish';
 
@@ -46,10 +44,8 @@ const router = createBrowserRouter([
     { path: '/pictures/upload', element: <PicturesUpload /> },
 
     { path: '/blog', element: <Blog /> },
-    { path: '/post/:postId', element: <Post /> },
 
     { path: '/articles', element: <Articles /> },
-    { path: '/article/:articleId', element: <Article /> },
 
     { path: '/redirects', element: <Redirects /> },
 

@@ -1,8 +1,7 @@
-///
-/// <koti-content-item> web component, handling diplaying a thumbnail for post/article/etc. 
-/// and associated behaviors.  Simpler version of <koti-content-item>.
-///
-
+//
+// <koti-content-item> web component, handling diplaying a thumbnail for post/article/etc. 
+// and associated behaviors.  Simpler version of <koti-content-item>.
+//
 window.customElements.define('koti-content-item', class extends HTMLElement {
     #button: HTMLButtonElement = null!;
     #img: HTMLImageElement = null!;
@@ -46,8 +45,15 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     }
 
     connectedCallback() {
-        // create DOM (button with img and span inside)
+        // bind custom event listeners to parent
         this.#parent = this.parentElement!;
+        this.#parent.addEventListener('koti-content-item:select', this);
+        this.#parent.addEventListener('koti-content-item:deselect-all', this);
+        
+        // do not re-initialize further if already initialized
+        if (this.#button) return;
+
+        // create DOM (button with img and span inside)
         this.#button = document.createElement('button');
         this.#button.classList.add('koti-btn', 'item');
         this.#img = document.createElement('img');
@@ -58,10 +64,6 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
         this.#button.appendChild(this.#text);
         this.update();
 
-        // bind custom event listeners
-        this.#parent.addEventListener('koti-content-item:select', this);
-        this.#parent.addEventListener('koti-content-item:deselect-all', this);
-
         // bind event listeners to button
 
         // on click, select/deselect item; if selected, deselect all others
@@ -70,12 +72,12 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
             e.preventDefault();
             if (this.#button.classList.contains('selected')) {
                 this.#button.classList.remove('selected');
-                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable'));
+                this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', {bubbles: true}));
             } else {
                 this.#parent.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
                 this.#button.classList.add('selected');
                 this.#parent.dispatchEvent(new CustomEvent('content:select-insertable', 
-                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
+                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}, bubbles: true}));
             }
         });
 
@@ -89,9 +91,9 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
                 this.#parent.dispatchEvent(new CustomEvent('koti-content-item:deselect-all'));
                 this.#button.classList.add('selected');
                 this.#parent.dispatchEvent(new CustomEvent('content:select-insertable',
-                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
+                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}, bubbles: true}));
                 this.#parent.dispatchEvent(new CustomEvent('content:insert',
-                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
+                    {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}, bubbles: true}));
             } else {
                 const editUrl = this.getAttribute('edit-url');
                 if (editUrl) {
@@ -137,7 +139,7 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
         if (e.detail.kind === this.getAttribute('kind') && e.detail.id.toString() === this.getAttribute('id')) {
             this.#button.classList.add('selected');
             this.#parent.dispatchEvent(new CustomEvent('content:select-insertable',
-                {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}}));
+                {detail: {text: this.getAttribute('kind') + ':' + this.getAttribute('id')}, bubbles: true}));
         }
     }
 

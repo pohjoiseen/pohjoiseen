@@ -4,6 +4,7 @@ namespace KoTi.ViewModels;
 
 public class PostViewModel : AbstractContentViewModel
 {
+    public override string KindLink => "post";
     public override string KindPlural => "Posts";
 
     public DateOnly Date { get; set; }
@@ -23,8 +24,7 @@ public class PostViewModel : AbstractContentViewModel
     public string? TitleImageCaption { get; set; }
 
     public IList<Post.CoatOfArms> CoatsOfArms { get; set; } = new List<Post.CoatOfArms>();
-    
-    public string ViewStatePostTab { get; set; } = "main";
+    public IList<Post.GeoPoint> Geo { get; set; } = new List<Post.GeoPoint>();
     
     public override string FennicaURL => $"/{Language}/{Date.ToString("yyyy")}/{Date.ToString("MM")}/{Date.ToString("dd")}/{Name}/";
 }

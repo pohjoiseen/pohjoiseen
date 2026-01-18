@@ -1,9 +1,9 @@
 @model PicturePickerViewModel
 
 <koti-picture-picker>
-    <fieldset id="picture-picker-@Model.ComponentId" hx-get hx-controller="Pictures" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
+    <div id="picture-picker-@Model.ComponentId" hx-get hx-controller="Pictures" hx-action="Picker" hx-route-componentId="@Model.ComponentId"
               hx-route-fieldName="@Model.FieldName" hx-swap="outerHTML" hx-trigger="picture-picker:reload" hx-vals="js:{pictureId: this.querySelector('input[type=hidden]').value}">
-        <input type="hidden" name="@Model.FieldName" value="@Model.Picture?.Id" />
+        <input type="hidden" name="@Model.FieldName" value="@(Model is { StringField: true, Picture: not null } ? "picture:" : "")@Model.Picture?.Id" data-string-field="@(Model.StringField ? "true" : "false")" />
         @if (Model.Picture != null)
         {
             <img src="@Model.Picture.Url" style="max-width: 100%; display: block;"/>
@@ -12,7 +12,7 @@
         {
             <div class="muted"><i>No picture selected.</i></div>
         }
-        <div>
+        <div class="mt">
             <button class="koti-btn primary" onclick="$id('picture-picker-dialog-@Model.ComponentId').showModal(); return false">
                 @(Model.Picture == null ? "Set..." : "Change...")
             </button>
@@ -23,7 +23,7 @@
         </div>
         <dialog class="picture-picker-dialog" id="picture-picker-dialog-@Model.ComponentId">
             <header>
-                <h2>Select title picture</h2>
+                <h2>Select picture</h2>
                 <nav>
                     <button type="button" class="koti-btn primary select-btn" disabled>Select</button>
                     <button type="button" class="koti-btn unset-btn">Unset</button>
@@ -36,5 +36,5 @@
                 <div><span class="spinner"></span> Loading...</div>
             </div>
         </dialog>
-    </fieldset>
+    </div>
 </koti-picture-picker>

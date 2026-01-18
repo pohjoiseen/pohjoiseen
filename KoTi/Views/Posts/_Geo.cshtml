@@ -1,0 +1,74 @@
+@using System.Globalization
+@model PostGeoViewModel
+
+<fieldset>
+    <div>
+        <label for="geo-title-@Model.Index">Title:</label>
+        <input id="geo-title-@Model.Index" class="input-block heading-font" style="font-size: 30px;" autocomplete="off"
+               name="Geo[@Model.Index][Title]" value="@Model.Geo.Title" placeholder="default to post title"/>
+    </div>
+
+    <div>
+        <label for="geo-subtitle-@Model.Index">Subtitle (for versions in other languages):</label>
+        <input id="geo-subtitle-@Model.Index" class="input-block"
+               name="Geo[@Model.Index][Subtitle]" value="@Model.Geo.Subtitle"/>
+    </div>
+
+    <div>
+        <label>Location:</label>
+        <koti-location-picker id="geo-location-@Model.Index" hx-preserve="true"
+                              initial-lat="@Model.Geo.Lat.ToString(CultureInfo.InvariantCulture)" initial-lng="@Model.Geo.Lng.ToString(CultureInfo.InvariantCulture)"
+                              lat-field="Geo[@Model.Index][Lat]" lng-field="Geo[@Model.Index][Lng]"></koti-location-picker>
+    </div>
+
+    <div class="input-inline mt mb">
+        <label for="geo-zoom-@Model.Index">Minimal zoom level to display:</label>
+        <input type="number" min="0" max="10" placeholder="0" name="Geo[@Model.Index][Zoom]"
+               id="geo-zoom-@Model.Index" value="@Model.Geo.Zoom"/>
+    </div>
+    
+    <div class="hbox">
+        <label>Icon:</label>
+        <koti-geo-icon-picker value="@(Model.Geo.Icon ?? "star")" name="Geo[@Model.Index][Icon]" />
+    </div>
+
+    <div>
+        <label>Title picture (default to post title picture):</label>
+        <vc:picture-picker component-id="geo-title-picture-@Random.Shared.GetHexString(8)" field-name="Geo[@Model.Index][TitleImage]" string-field="@true"
+                           picture-id="@(Model.Geo.TitleImage is null ? (int?)null : Int32.Parse(Model.Geo.TitleImage.Replace("picture:", "")))"/>
+    </div>
+
+    <div>
+        <label for="geo-description-@Model.Index">Description:</label>
+        <textarea rows="5" id="geo-description-@Model.Index" class="input-block" name="Geo[@Model.Index][Description]" placeholder="default to post description">@Model.Geo.Description</textarea>
+    </div>
+    
+    <div>
+        <label>Links:</label>
+        <koti-geo-external-links>
+            @if (Model.Geo.Links is not null)
+            {
+                @foreach (var item in Model.Geo.Links.Select((link, i) => (link, i)))
+                {
+                    @* must be kept in sync with koti-geo-external-links.ts *@
+                    <div>
+                        <input type="text" class="path" name="Geo[@Model.Index][Links][@item.i][Path]" value="@item.link.Path" placeholder="URL (post:123, https://...)" />
+                    </div>
+                    <div>
+                        <input type="text" class="label" name="Geo[@Model.Index][Links][@item.i][Label]" value="@item.link.Label" placeholder="Text" />
+                    </div>
+                    <div>
+                        <button type="button" class="koti-btn remove-btn">Remove</button>
+                    </div>
+                }
+            }
+            <div><button type="button" class="koti-btn add-btn">Add link</button></div>
+        </koti-geo-external-links>
+    </div>
+
+    <div>
+        <button type="button" class="koti-btn danger remove-geo-btn"><i class="bi bi-x-lg"></i> Delete geo point</button>
+    </div>
+</fieldset>
+
+<hr/>
