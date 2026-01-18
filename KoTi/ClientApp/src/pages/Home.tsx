@@ -124,7 +124,7 @@ const Home = () => {
                 </div>}
             </>}
             <div className="mt-4 text-center text-muted small"> 
-                &copy; 2023-2025 Alexander Ulyanov.  Built on ASP.NET Core 10 + SQLite;<br/>
+                &copy; 2023-2026 Alexander Ulyanov.  Built on ASP.NET Core 10 + SQLite;<br/>
                 older frontend: SPA with React + TanStack Query + Bootstrap;<br/>
                 newer frontend: server-rendered app with Htmx + vanilla JS with Web Components<br/>
                 Version {process.env.REACT_APP_VERSION}, revision {process.env.REACT_APP_GIT_SHA} from {process.env.REACT_APP_GIT_DATE}
