@@ -3,14 +3,10 @@ import Picture, { PICTURE_SIZE_DETAILS } from '../model/Picture';
 import { dummyImageURL } from './pictureViewCommon';
 import PictureOverlay from './PictureOverlay';
 import EditableInline from './EditableInline';
-import { useCreatePlaceMutation, useDeletePictureMutation, useUpdatePictureMutation } from '../data/mutations';
+import { useDeletePictureMutation, useUpdatePictureMutation } from '../data/mutations';
 import EditableTextarea from './EditableTextarea';
 import { EditableSearchingAutocomplete } from './SearchingAutocomplete';
 import { createContext, useCallback, useContext, useState } from 'react';
-import CreatePlaceModal from './CreatePlaceModal';
-import { PlaceCategory } from '../model/PlaceCategory';
-import ExploreStatus from '../model/ExploreStatus';
-import Place from '../model/Place';
 import Rating from './Rating';
 import { Dropdown, DropdownMenu, DropdownToggle, FormGroup, Label } from 'reactstrap';
 import TagSelector from './TagSelector';
@@ -64,41 +60,9 @@ export const PictureDetailsCopyPasteContext = createContext<PictureDetailsCopyPa
 const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlace, onClick, onCopy, isError, isLoading, isNotYetUploaded }: PictureDetailsProps) => {
     const updatePictureMutation = useUpdatePictureMutation();
     const deletePictureMutation = useDeletePictureMutation();
-    const createPlaceMutation = useCreatePlaceMutation();
-    const [showCreatePlaceModal, setCreatePlaceModal] = useState('');
     const copyPasteContext = useContext(PictureDetailsCopyPasteContext);
     const [isCopyFlagsOpen, setCopyFlagsOpen] = useState(false);
     const [copyFlags, setCopyFlags] = useState({ title: true, description: true, place: true, tags: true });
-    
-    const createPlace = useCallback(async (name: string, areaId: number) => {
-        setCreatePlaceModal('');
-        if (!picture) {
-            return;
-        }
-        const newPlace: Place = {
-            id: 0,
-            areaId,
-            name,
-            alias: '',
-            category: PlaceCategory.Default,
-            exploreStatus: ExploreStatus.None,
-            notes: '',
-            links: '',
-            directions: '',
-            season: '',
-            publicTransport: '',
-            order: 0,
-            lat: 0,
-            lng: 0,
-            zoom: 0,
-            isPrivate: false,
-            rating: 0,
-            updatedAt: new Date(),
-            tags: []
-        };
-        const place = await createPlaceMutation.mutateAsync(newPlace);
-        await updatePictureMutation.mutateAsync({ ...picture, placeId: place.id, placeName: place.name });
-    }, [picture, setCreatePlaceModal, createPlaceMutation, updatePictureMutation]);
     
     const doDelete = useCallback(async () => {
         if (picture && await confirmModal('Really delete this picture?  This operation cannot be reversed.  ' +
@@ -236,8 +200,6 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                                 title={picture.placeName!}
                                 placeholder="Not set"
                                 table="Places"
-                                addNewText="Add new place: "
-                                onAddNew={(title) => setCreatePlaceModal(title)}
                                 onSelect={(id, title) => updatePictureMutation.mutate({ ...picture, placeId: id, placeName: title })}
                             />
                         </div>
@@ -321,11 +283,6 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         </div>
                     </div>
                 </div>)}
-            {showCreatePlaceModal && <CreatePlaceModal
-                defaultName={showCreatePlaceModal}
-                onClose={() => setCreatePlaceModal('')}
-                onSubmit={createPlace}
-            />}
         </div>
     );
 };

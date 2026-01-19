@@ -60,38 +60,8 @@ public class SearchApiController : ControllerBase
                 return "/pictures/all";
 
             case "Places":
-            {
-                return $"/place/{tableId}";
-            }
+                return $"/app/Places/{tableId}";
             
-            case "Areas":
-            {
-                var area = await _context.Areas
-                    .Include(a => a.Region)
-                    .Where(a => a.Id == tableId)
-                    .FirstOrDefaultAsync();
-                if (area == null)
-                {
-                    return NotFound();
-                }
-
-                return $"/country/{area.Region.CountryId}/region/{area.RegionId}/area/{area.Id}";
-            }
-            
-            case "Regions":
-            {
-                var region = await _context.Regions.FindAsync(tableId);
-                if (region == null)
-                {
-                    return NotFound();
-                }
-
-                return $"/country/{region.CountryId}/region/{region.Id}";
-            }
-
-            case "Countries":
-                return $"/country/{tableId}";
-
             case "PictureSets":
                 return $"/pictures/folders/?folderId={tableId}";
             

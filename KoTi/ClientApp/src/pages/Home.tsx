@@ -4,13 +4,12 @@ import qs from 'qs';
 import { errorMessage } from '../util';
 import { Link, useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
-import { useCountriesQuery, useStatsQuery } from '../data/queries';
+import { useStatsQuery } from '../data/queries';
 import SearchString from '../components/SearchString';
 import useTitle from '../hooks/useTitle';
 
 const Home = () => {
     const stats = useStatsQuery();
-    const countries = useCountriesQuery();
     const navigate = useNavigate();
     
     useTitle();
@@ -27,7 +26,7 @@ const Home = () => {
                 the backoffice application for <code>pohjoiseen.fi</code> and a personal photo and PoI database.
             </p>
             <SearchString onSearch={search} initialTables="Places,Areas,Regions,Countries,PictureSets,Posts,Articles" />
-            {stats.isError && <Alert color="danger">Loading stats: {errorMessage(countries.error)}</Alert>}
+            {stats.isError && <Alert color="danger">Loading stats: {errorMessage(stats.error)}</Alert>}
             {stats.isLoading && <div className="text-center"><Spinner type="grow" size="sm"/> Loading...</div>}
             {!stats.isLoading && <>
                 <h3>Blog{stats.data && <> (last published: <b>{new Date(stats.data?.databaseLastPublishedAt).toString().replace(/ \([^)]+\)$/, '')}</b>)</>}:</h3>
@@ -105,23 +104,23 @@ const Home = () => {
                 <h3 className="mt-3">Places{stats.data && <>
                     {' '}(<b>{stats.data.totalPlaces}</b>)
                 </>}:</h3>
-                {countries.isError && <Alert color="danger">{errorMessage(countries.error)}</Alert>}
-                {countries.isLoading && <div><Spinner type="grow" size="sm"/> Loading...</div>}
-                {countries.isSuccess && <div className="d-flex flex-wrap">
-                    {countries.data.map(c => <div key={c.id} className="w-25 pb-1 pe-1">
-                    <Card>
-                            <CardBody>
-                                <CardTitle>
-                                    <h2>
-                                    {c.flagEmoji}
-                                        &nbsp;
-                                        <Link to={`/country/${c.id}`}>{c.name}</Link>
-                                    </h2>
-                                </CardTitle>
-                            </CardBody>
-                        </Card>
-                    </div>)}
-                </div>}
+                <div className="d-flex flex-wrap">
+                    <Card><CardBody><CardTitle><h2>
+                        🇫🇮&nbsp;<a href="/app/Places/1060/en/">Finland</a>
+                    </h2></CardTitle></CardBody></Card>
+                    <Card><CardBody><CardTitle><h2>
+                        🇸🇪&nbsp;<a href="/app/Places/1061/en/">Sweden</a>
+                    </h2></CardTitle></CardBody></Card>
+                    <Card><CardBody><CardTitle><h2>
+                        🇳🇴&nbsp;<a href="/app/Places/1062/en/">Norway</a>
+                    </h2></CardTitle></CardBody></Card>
+                    <Card><CardBody><CardTitle><h2>
+                        🇪🇪&nbsp;<a href="/app/Places/1063/en/">Estonia</a>
+                    </h2></CardTitle></CardBody></Card>
+                    <Card><CardBody><CardTitle><h2>
+                        🇷🇺&nbsp;<a href="/app/Places/1064/en/">Russia</a>
+                    </h2></CardTitle></CardBody></Card>
+                </div>
             </>}
             <div className="mt-4 text-center text-muted small"> 
                 &copy; 2023-2026 Alexander Ulyanov.  Built on ASP.NET Core 10 + SQLite;<br/>

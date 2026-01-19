@@ -3,7 +3,6 @@
  */
 import * as React from 'react';
 import { useRef, MouseEvent, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Alert, Card, CardBody, CardTitle, Spinner } from 'reactstrap';
 import { usePostQuery } from '../data/queries';
 

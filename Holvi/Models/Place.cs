@@ -1,40 +1,43 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Holvi.Models;
 
-// note that field naming is fairly inconsistent between areas/places and posts/articles,
-// since these were originally created for entirely different purposes
-[Index(nameof(Slug))]
-[Index(nameof(Category))]
+[Index(nameof(Name))]
+[Index(nameof(Icon))]
 [Index(nameof(ExploreStatus))]
-[Index(nameof(IsPrivate))]
+[Index(nameof(Draft))]
 [Index(nameof(Rating))]
-public class Place
+public class Place : IContentEntity
 {
     public int Id { get; set; }
     
-    public int AreaId { get; set; }
+    public int? ParentId { get; set; }
 
-    [JsonIgnore] public Area Area { get; set; } = null!;
+    [JsonIgnore] public Place? Parent { get; set; } = null!;
     
-    public string Slug { get; set; } = "";
-
+    public bool IsLeaf { get; set; }
+    
+    [MaxLength(80)]
     public string Name { get; set; } = "";
 
-    public string Alias { get; set; } = "";
+    public string? Title { get; set; } = "";
 
-    public string Category { get; set; } = "";
+    public string? Subtitle { get; set; } = "";
+
+    public string? Icon { get; set; } = "";
     
-    public string Notes { get; set; } = "";
+    public string? Description { get; set; } = "";
+    
+    public string? ContentMD { get; set; } = "";
 
-    public string Links { get; set; } = "";
+    public string? Links { get; set; } = "";
 
-    public string Directions { get; set; } = "";
-
-    public string PublicTransport { get; set; } = "";
-
-    public string Season { get; set; } = "";
+    public int? TitlePictureId { get; set; }
+    public int? TitleImageOffsetY { get; set; }
+    
+    public PlaceMeta? Meta { get; set; }
     
     public ExploreStatus ExploreStatus { get; set; }
     
@@ -46,7 +49,7 @@ public class Place
     
     public int Zoom { get; set; }
     
-    public bool IsPrivate { get; set; }
+    public bool Draft { get; set; }
     
     public int Rating { get; set; }
     
@@ -57,4 +60,6 @@ public class Place
     public IList<Tag> Tags { get; set; } = [];
     
     public IList<PlaceLocalization> Localizations { get; set; } = [];
+    
+    public IList<Place> Children { get; set; } = [];
 }

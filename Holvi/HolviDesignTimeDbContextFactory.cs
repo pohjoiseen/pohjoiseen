@@ -16,6 +16,7 @@ public class HolviDesignTimeDbContextFactory : IDesignTimeDbContextFactory<Holvi
         }
         var optionsBuilder = new DbContextOptionsBuilder<HolviDbContext>();
         optionsBuilder.UseSqlite($"Data Source={args[0]}");
+        optionsBuilder.LogTo(Console.WriteLine);
         return new HolviDbContext(optionsBuilder.Options);
     }
 }

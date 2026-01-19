@@ -1,5 +1,4 @@
-﻿import qs from 'qs';
-import PictureSet from '../model/PictureSet';
+﻿import PictureSet from '../model/PictureSet';
 import { handleError } from './common';
 
 export const getPictureSets = async (): Promise<PictureSet[]> => {
@@ -17,19 +16,6 @@ export const getPictureSets = async (): Promise<PictureSet[]> => {
 
 export const getPictureSet = async (id: number): Promise<PictureSet> => {
     const response = await fetch(`api/PictureSets/${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok || response.status !== 200) {
-        await handleError(response);
-    }
-    return await response.json();
-};
-
-export const getPictureSetByName = async (name: string): Promise<PictureSet | null> => {
-    const response = await fetch(`api/PictureSets/ByName?${qs.stringify({ name })}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

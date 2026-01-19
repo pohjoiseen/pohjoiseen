@@ -26,8 +26,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
     {
         var query = dbContext.Pictures
             .Include(p => p.Place)
-            .ThenInclude(pl => pl!.Area)
-            .ThenInclude(a => a.Region)
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .AsQueryable();
@@ -48,21 +46,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
         if (placeId != null)
         {
             query = query.Where(p => p.PlaceId == placeId);
-        }
-
-        if (areaId != null)
-        {
-            query = query.Where(p => p.Place != null && p.Place.AreaId == areaId);
-        }
-
-        if (regionId != null)
-        {
-            query = query.Where(p => p.Place != null && p.Place.Area.RegionId == regionId);
-        }
-
-        if (countryId != null)
-        {
-            query = query.Where(p => p.Place != null && p.Place.Area.Region.CountryId == countryId);
         }
 
         if (minRating != null)
@@ -104,22 +87,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .Where(p => p.PlaceId == placeId)
-            .OrderByDescending(p => p.Rating)
-            .ThenByDescending(p => p.PhotographedAt)
-            .Take(limit > 0 ? limit : 25)
-            .ToListAsync();
-        return Ok(pictures.Select(PictureResponseDTO.FromModel));
-    }
-    
-    // GET: api/Pictures/ForeArea/5
-    [HttpGet("ForArea/{areaId}")]
-    public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForArea(int areaId, [FromQuery] int limit)
-    {
-        var pictures = await dbContext.Pictures
-            .Include(p => p.Place)
-            .Include(p => p.Set)
-            .Include(p => p.Tags)
-            .Where(p => p.Place != null && p.Place.AreaId == areaId)
             .OrderByDescending(p => p.Rating)
             .ThenByDescending(p => p.PhotographedAt)
             .Take(limit > 0 ? limit : 25)

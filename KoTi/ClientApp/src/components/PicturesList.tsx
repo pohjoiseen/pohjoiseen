@@ -7,13 +7,12 @@
 //   although normally should be already loaded at this point)
 // - list of actual pictures (for upload view, list exists only in memory)
 import * as React from 'react';
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useRef } from 'react';
 import Picture, { PICTURE_SIZE_THUMBNAIL } from '../model/Picture';
 import { usePictureQuery } from '../data/queries';
 import { dummyImageURL, PicturesViewMode } from './pictureViewCommon';
 import PictureThumbnail from './PictureThumbnail';
 import PictureDetails, { PictureDetailsCopyPaste, PictureDetailsCopyPasteContext } from './PictureDetails';
-import PlaceModal from './PlaceModal';
 
 interface PicturesListProps {
     viewMode: PicturesViewMode;
@@ -159,7 +158,6 @@ const PictureDetailsById = ({ id, isSelected, onOpen, onClick, onCopy, onRetryUp
 }
 
 const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSetSelection }: PicturesListProps) => {
-    const [editedPlaceId, setEditedPlaceId] = useState(0);
     const lastIndex = useRef(0);
     
     const copyPasteContext = useRef<PictureDetailsCopyPaste>({
@@ -184,7 +182,6 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSet
                         }}
                         onCopy={context => copyPasteContext.current = context}
                         onRetryUpload={() => onRetryUpload ? onRetryUpload(key) : null}
-                        onEditPlace={(placeId) => setEditedPlaceId(placeId)}
                     />
                     : <PictureDetails
                         isNotYetUploaded
@@ -200,15 +197,6 @@ const PicturesListDetails = ({ pictures, onOpen, onRetryUpload, selection, onSet
                     />
                 }
             </Fragment>)}
-            {!!editedPlaceId && <PlaceModal
-                id={editedPlaceId}
-                onSave={(/* placeName: string */) => {
-                    // TODO: should update place name in pictures, but that would be quite tricky.
-                    // Just keep showing old name if place name was updated
-                    setEditedPlaceId(0);
-                }}
-                onClose={() => setEditedPlaceId(0)}
-            />}
         </PictureDetailsCopyPasteContext.Provider>
     </div>;
 };

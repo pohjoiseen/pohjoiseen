@@ -79,7 +79,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.TitleImageOffsetY = model.TitleImageOffsetY;
         entity.CoatsOfArms = model.CoatsOfArms;
         entity.Geo = model.Geo;
-        entity.ContentMD = model.ContentMD;
+        entity.ContentMD = model.ContentMD ?? "";
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;
         await dbContext.SaveChangesAsync();

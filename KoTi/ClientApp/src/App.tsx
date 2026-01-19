@@ -6,13 +6,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import './custom.css';
 import { ModalContainer } from './components/ModalContainer';
 import Home from './pages/Home';
-import Country from './pages/Country';
-import Region from './pages/Region';
-import Area from './pages/Area';
 import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
 import Search from './pages/Search';
-import PlaceRedirect from './pages/PlaceRedirect';
 import Blog from './pages/Blog';
 import Articles from './pages/Articles';
 import Redirects from './pages/Redirects';
@@ -31,13 +27,6 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter([
     { index: true, element: <Home /> },
-    
-    { path: '/country/:countryId', element: <Country /> },
-    { path: '/country/:countryId/region/:regionId', element: <Region /> },
-    { path: '/country/:countryId/region/:regionId/area/new', element: <Area /> },
-    { path: '/country/:countryId/region/:regionId/area/:areaId', element: <Area /> },
-
-    { path: '/place/:placeId', element: <PlaceRedirect /> },
 
     { path: '/pictures/all', element: <Pictures sets={false} /> },
     { path: '/pictures/folders', element: <Pictures sets={true} /> },

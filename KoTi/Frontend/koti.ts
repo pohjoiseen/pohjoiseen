@@ -13,6 +13,7 @@ import './WebComponents/koti-picture.ts';
 import './WebComponents/koti-picture-picker.ts';
 import './WebComponents/koti-picture-upload-modal.ts';
 import './WebComponents/koti-picture-uploader.ts';
+import './WebComponents/koti-place-metadata.ts';
 import './WebComponents/koti-popover.ts';
 import './WebComponents/koti-post-coats-of-arms.ts';
 import './WebComponents/koti-post-geo.ts';

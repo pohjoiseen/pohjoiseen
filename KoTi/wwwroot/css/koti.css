@@ -237,13 +237,20 @@
     }
   }
 
-  input, textarea {
+  input, textarea, select {
     background: var(--color-text-bg);
     color: var(--color-text);
     border: 1px solid var(--color-bg-shade);
     border-radius: var(--border-radius);
     padding: 3px;
     transition: all 0.2s ease-in-out;
+  }
+  
+  select {
+    /* XXX I'm not sure why I need this padding to make selects same height as input but whatever,
+       won't investigate right now... */
+    padding-top: 4.7px;
+    padding-bottom: 4.7px;
   }
 
   input[type=checkbox] {
@@ -676,8 +683,9 @@
     border: 1px solid var(--color-bg-shade);
     border-radius: var(--border-radius);
     margin-top: 10px;
-    overflow: visible;
+    overflow: auto;
     display: none;
+    max-height: 45vh;
     
     &.open {
       display: block;
@@ -802,7 +810,7 @@
     }
   }
   
-  .area-places-list {
+  .place-children-list {
     & a {
       width: 100%;
       display: flex;
@@ -841,5 +849,6 @@
   .flex-grow { flex-grow: 1; }
   .flex-shrink { flex-shrink: 1; }
   .flex-wrap { flex-wrap: wrap; }
+  .nowrap { white-space: nowrap; }
   .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
 }

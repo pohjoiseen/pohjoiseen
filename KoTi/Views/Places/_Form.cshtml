@@ -1,0 +1,179 @@
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@model PlaceViewModel
+
+<koti-tabs component-id="placetab">
+    <koti-tab name="General">
+        <fieldset>
+            <div>
+                <label for="name">Name (URL slug):</label>
+                <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"></input>
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+            
+            <div>
+                <input id="draft" type="checkbox" asp-for="Draft"/>
+                <label for="draft">Draft</label>
+                @Html.ValidationMessageFor(m => m.Draft)
+                <input id="is-leaf" type="checkbox" asp-for="IsLeaf"/>
+                <label for="is-leaf">Leaf (don't normally show as separate page)</label>
+                @Html.ValidationMessageFor(m => m.IsLeaf)
+            </div>
+
+            <div>
+                <label for="title"><strong>
+                    @foreach (var item in Model.ParentsIds.Select((id, i) => (id, i)))
+                    {
+                        <input type="hidden" name="ParentsIds[@item.i]" value="@item.id"/>
+                        <input type="hidden" name="ParentsTitles[@item.i]" value="@Model.ParentsTitles[item.i]"/>
+                        <a href="/app/Places/@item.id/@Model.Language/">@Model.ParentsTitles[item.i]</a>
+                        <i class="bi bi-caret-right"></i>
+                    }
+                </strong></label>
+                <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title" placeholder="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div>
+                <label for="alias">Subtitle (for versions in other languages):</label>
+                <input id="alias" class="input-block" asp-for="Subtitle"/>
+                @Html.ValidationMessageFor(m => m.Subtitle)
+            </div>
+            
+            <div>
+                <label for="description">Description (short, for map, Markdown allowed):</label>
+                <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
+            </div>
+            
+            <div class="hbox">
+                <label>Icon:</label>
+                <koti-geo-icon-picker value="@Model.Icon" name="Icon" />
+            </div>
+
+            <div class="hbox">
+                <label>Explore status:</label>
+                <koti-explore-status-picker value="@Model.ExploreStatus" name="ExploreStatus" />
+            </div>
+            
+            <div>
+                <label>Links:</label>
+                <div class="simple-link-list" id="links">
+                    @foreach (var link in Model.Links)
+                    {
+                        <div><input name="Links[]" placeholder="URL (post:XXX, https:/...)" value="@link" /></div>
+                        <div><button type="button" class="koti-btn" onclick="if (confirm('Really delete link?')) { this.parentElement.previousElementSibling.remove(); this.parentElement.remove(); }">Remove</button></div>
+                    }
+                </div>
+                <template id="link-template">
+                    <div><input name="Links[]" placeholder="URL (post:XXX, https:/...)" /></div>
+                    <div><button type="button" class="koti-btn" onclick="if (confirm('Really delete link?')) { this.parentElement.previousElementSibling.remove(); this.parentElement.remove(); }">Remove</button></div>
+                </template>
+                <div class="mt">
+                    <button type="button" class="koti-btn" onclick="$id('links').insertAdjacentHTML('beforeend', $id('link-template').innerHTML);">Add link</button>
+                    @Html.ValidationMessageFor(m => m.Links)
+                </div>
+            </div>
+        </fieldset>
+    </koti-tab>
+    
+    <koti-tab name="Metadata">
+        <koti-place-metadata>
+            <fieldset>
+                <div data-meta="directions" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Directions)">
+                    <label for="directions">Address/driving directions:</label>
+                    <textarea id="directions" class="input-block" asp-for="Meta.Directions"></textarea>
+                    @Html.ValidationMessageFor(m => m.Meta.Directions)
+                </div>
+
+                <div data-meta="public-transport" hidden="@string.IsNullOrWhiteSpace(Model.Meta.PublicTransport)">
+                    <label for="public-transport">Public transport directions:</label>
+                    <textarea id="public-transport" class="input-block" asp-for="Meta.PublicTransport"></textarea>
+                    @Html.ValidationMessageFor(m => m.Meta.PublicTransport)
+                </div>
+
+                <div data-meta="season" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Season)">
+                    <label for="season">Season tips:</label>
+                    <textarea id="season" class="input-block" asp-for="Meta.Season"></textarea>
+                    @Html.ValidationMessageFor(m => m.Meta.Season)
+                </div>
+                
+                <div class="hbox">
+                    <div class="nowrap">Add metadata field:</div>
+                    <select class="add-field-select w100">
+                        <option value="" selected>Select new field...</option>
+                        <option value="directions" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.Directions))">Address/driving directions</option>
+                        <option value="public-transport" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.PublicTransport))">Public transport directions</option>
+                        <option value="season" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.Season))">Season tips</option>
+                    </select>
+                </div>
+            </fieldset>
+
+        </koti-place-metadata>
+    </koti-tab>
+    
+    <koti-tab name="Location">
+        <div>
+            <koti-location-picker id="location" hx-preserve="true"
+                                  initial-lat="@Model.Lat.ToString(CultureInfo.InvariantCulture)" initial-lng="@Model.Lng.ToString(CultureInfo.InvariantCulture)"
+                                  lat-field="Lat" lng-field="Lng"></koti-location-picker>
+            @Html.ValidationMessageFor(m => m.Lat)
+            @Html.ValidationMessageFor(m => m.Lng)
+        </div>
+
+        <div class="input-inline mt mb">
+            <label for="zoom">Default zoom level to display:</label>
+            <input type="number" min="0" max="12" placeholder="0"
+                   id="zoom" asp-for="Zoom"/>
+            <button class="koti-btn" type="button" onclick="$id('zoom').value = $id('location').getMap().getZoom();">Use current map zoom</button>
+            @Html.ValidationMessageFor(m => m.Zoom)
+        </div>
+    </koti-tab>
+    
+    <koti-tab name="Title Picture">
+        <vc:picture-picker component-id="picture-picker-post-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId"/>
+        @Html.ValidationMessageFor(m => m.TitlePictureId)
+
+        <div class="mt input-inline">
+            <label for="title-image-offset-y">Title image vertical position:</label>
+            <input type="number" min="0" max="100" placeholder="50" id="title-image-offset-y" asp-for="TitleImageOffsetY"/>
+            %
+            <br/>
+                @Html.ValidationMessageFor(m => m.TitleImageOffsetY)
+        </div>
+    </koti-tab>
+
+    
+    <koti-tab name="Children">
+        <koti-dnd-order class="place-children-list" field-prefix="Children">
+            @foreach (var item in Model.Children.Select((value, i) => (value, i)))
+            {
+                <div draggable="true">
+                    @* all inputs hidden, just to pass through to model on server and back *@
+                    <input type="hidden" name="Children[@item.i][Id]" value="@item.value.Id"/>
+                    <input type="hidden" name="Children[@item.i][Title]" value="@item.value.Title"/>
+                    <input type="hidden" name="Children[@item.i][Icon]" value="@item.value.Icon"/>
+                    <input type="hidden" name="Children[@item.i][Draft]" value="@(item.value.Draft ? "true" : "false")"/>
+                    <input type="hidden" name="Children[@item.i][IsLeaf]" value="@(item.value.IsLeaf ? "true" : "false")"/>
+                    <input type="hidden" name="Children[@item.i][LanguageExists]" value="@(item.value.LanguageExists ? "true" : "false")"/>
+                    <a class="koti-btn place-btn @(item.value.Draft ? "draft" : "")" href="/app/Places/@item.value.Id/@Model.Language/"
+                       title="@item.value.Title">
+                        <img src="/map-icons/@(item.value.Icon).png" alt="@item.value.Icon" />
+                        <span style="@(item.value.IsLeaf ? "" : "font-weight: bold;")">
+                            @if (item.value.LanguageExists)
+                            {
+                                @item.value.Title
+                            }
+                            else
+                            {
+                                <text>
+                                    <span class="muted">@item.value.Title</span> 
+                                    (language does not exist)
+                                </text>
+                            }
+                        </span>
+                    </a>
+                </div>
+            }
+        </koti-dnd-order>
+    </koti-tab>
+</koti-tabs>

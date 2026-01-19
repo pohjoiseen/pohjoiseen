@@ -5,10 +5,6 @@ namespace Holvi;
 
 public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContext(options)
 {
-    public DbSet<Country> Countries { get; init; } = null!;
-    public DbSet<Region> Regions { get; init; } = null!;
-    public DbSet<Area> Areas { get; init; } = null!;
-    public DbSet<AreaLocalization> AreaLocalizations { get; init; } = null!;
     public DbSet<Place> Places { get; init; } = null!;
     public DbSet<PlaceLocalization> PlaceLocalizations { get; init; } = null!;
     public DbSet<Picture> Pictures { get; init; } = null!;
@@ -28,5 +24,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
                 builder.ToJson();
                 builder.OwnsMany(g => g.Links);
             });
+        modelBuilder.Entity<Place>().OwnsOne(p => p.Meta, builder => builder.ToJson());
+        modelBuilder.Entity<PlaceLocalization>().OwnsOne(p => p.Meta, builder => builder.ToJson());
     }
 }

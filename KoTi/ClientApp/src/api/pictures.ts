@@ -62,24 +62,6 @@ export const getPicture = async (id: number): Promise<Picture> => {
     return pictureToFrontend(await response.json());
 }
 
-export const getPicturesForPlace = async (placeId: number, limit?: number): Promise<Picture[]> => {
-    const response = await fetch('api/Pictures/ForPlace/' + placeId + '?limit=' + (limit || 0));
-    if (!response.ok || response.status !== 200) {
-        await handleError(response);
-    }
-    const result = await response.json();
-    return result.map(pictureToFrontend);
-};
-
-export const getPicturesForArea = async (areaId: number, limit?: number): Promise<Picture[]> => {
-    const response = await fetch('api/Pictures/ForArea/' + areaId + '?limit=' + (limit || 0));
-    if (!response.ok || response.status !== 200) {
-        await handleError(response);
-    }
-    const result = await response.json();
-    return result.map(pictureToFrontend);
-};
-
 export const putPicture = async (id: number, picture: Picture) => {
     const response = await fetch(`api/Pictures/${id}`, {
         method: 'PUT',

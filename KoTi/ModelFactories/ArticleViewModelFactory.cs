@@ -54,7 +54,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
         entity.Name = model.Name;
         entity.Title = model.Title;
         entity.Language = model.Language;
-        entity.ContentMD = model.ContentMD;
+        entity.ContentMD = model.ContentMD ?? "";
         entity.Draft = model.Draft;
         await dbContext.SaveChangesAsync();
         return entity;
