@@ -1,5 +1,4 @@
 @using System.Globalization
-@using Microsoft.EntityFrameworkCore
 @model PlaceViewModel
 
 <koti-tabs component-id="placetab">
@@ -148,36 +147,22 @@
 
     
     <koti-tab name="Children">
-        <koti-dnd-order class="place-children-list" field-prefix="Children">
+        <koti-dnd-order class="place-children-list" field-prefix="Children" id="place-children-list-container">
             @foreach (var item in Model.Children.Select((value, i) => (value, i)))
             {
                 <div draggable="true">
-                    @* all inputs hidden, just to pass through to model on server and back *@
-                    <input type="hidden" name="Children[@item.i][Id]" value="@item.value.Id"/>
-                    <input type="hidden" name="Children[@item.i][Title]" value="@item.value.Title"/>
-                    <input type="hidden" name="Children[@item.i][Icon]" value="@item.value.Icon"/>
-                    <input type="hidden" name="Children[@item.i][Draft]" value="@(item.value.Draft ? "true" : "false")"/>
-                    <input type="hidden" name="Children[@item.i][IsLeaf]" value="@(item.value.IsLeaf ? "true" : "false")"/>
-                    <input type="hidden" name="Children[@item.i][LanguageExists]" value="@(item.value.LanguageExists ? "true" : "false")"/>
-                    <a class="koti-btn place-btn @(item.value.Draft ? "draft" : "")" href="/app/Places/@item.value.Id/@Model.Language/"
-                       title="@item.value.Title">
-                        <img src="/map-icons/@(item.value.Icon).png" alt="@item.value.Icon" />
-                        <span style="@(item.value.IsLeaf ? "" : "font-weight: bold;")">
-                            @if (item.value.LanguageExists)
-                            {
-                                @item.value.Title
-                            }
-                            else
-                            {
-                                <text>
-                                    <span class="muted">@item.value.Title</span> 
-                                    (language does not exist)
-                                </text>
-                            }
-                        </span>
-                    </a>
+                    <partial name="_Child" model="(item.i, Model.Language, item.value)" />
                 </div>
             }
         </koti-dnd-order>
+        
+        <div class="mt">
+            <button type="button" class="koti-btn primary"
+                    hx-get hx-controller="Places" hx-action="Create" hx-route-parentId="@Model.Id" hx-route-language="@Model.Language"
+                    hx-target="#create-place-dialog-container">
+                <i class="bi bi-plus-lg"></i> Add child place...
+            </button>
+            <div id="create-place-dialog-container"></div> 
+        </div>
     </koti-tab>
 </koti-tabs>

@@ -1,0 +1,25 @@
+@model ValueTuple<int, string, PlaceViewModel.PlaceChild>
+@* all inputs hidden, just to pass through to model on server and back *@
+<input type="hidden" name="Children[@Model.Item1][Id]" value="@Model.Item3.Id"/>
+<input type="hidden" name="Children[@Model.Item1][Title]" value="@Model.Item3.Title"/>
+<input type="hidden" name="Children[@Model.Item1][Icon]" value="@Model.Item3.Icon"/>
+<input type="hidden" name="Children[@Model.Item1][Draft]" value="@(Model.Item3.Draft ? "true" : "false")"/>
+<input type="hidden" name="Children[@Model.Item1][IsLeaf]" value="@(Model.Item3.IsLeaf ? "true" : "false")"/>
+<input type="hidden" name="Children[@Model.Item1][LanguageExists]" value="@(Model.Item3.LanguageExists ? "true" : "false")"/>
+<a class="koti-btn place-btn @(Model.Item3.Draft ? "draft" : "")" href="/app/Places/@Model.Item3.Id/@Model.Item2/"
+   title="@Model.Item3.Title">
+    <img src="/map-icons/@(Model.Item3.Icon).png" alt="@Model.Item3.Icon" />
+    <span style="@(Model.Item3.IsLeaf ? "" : "font-weight: bold;")">
+        @if (Model.Item3.LanguageExists)
+        {
+            @Model.Item3.Title
+        }
+        else
+        {
+            <text>
+                <span class="muted">@Model.Item3.Title</span> 
+                (language does not exist)
+            </text>
+        }
+    </span>
+</a>

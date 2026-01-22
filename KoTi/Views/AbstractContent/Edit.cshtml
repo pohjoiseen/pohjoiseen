@@ -11,7 +11,7 @@
 }
 
 @section HeaderNav {
-    <button class="koti-btn primary with-indicator" onclick="document.querySelector('koti-content-editor').dispatchEvent(new CustomEvent('koti-content-editor:save'))" id="save-button">
+    <button class="koti-btn primary with-indicator" onclick="document.dispatchEvent(new CustomEvent('koti-content-editor:save'))" id="save-button">
         <span id="save-button-indicator" class="spinner htmx-indicator"></span>
         <i class="bi bi-save"></i> Save
     </button>

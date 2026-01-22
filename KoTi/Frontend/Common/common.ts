@@ -44,3 +44,8 @@ function handleElements(rootEl: HTMLElement, selector: string, callback: (el: El
 htmx.onLoad((el) => {
     handleElements(el as HTMLElement, '.list[data-remember-state]', saveAndRestoreListState);
 });
+
+// custom event to open any dialog with showModal(), useful for HX-Trigger
+document.addEventListener('dialogopenmodal', (e) => {
+    if (e.target instanceof HTMLDialogElement) e.target.showModal(); 
+});

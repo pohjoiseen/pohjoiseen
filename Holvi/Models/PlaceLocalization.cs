@@ -11,7 +11,7 @@ public class PlaceLocalization
     public string Description { get; set; } = "";
     public string ContentMD { get; set; } = "";
     public string Links { get; set; } = "";
-    public PlaceMeta? Meta { get; set; }
+    public PlaceMeta Meta { get; set; } = new();
     public bool Draft { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

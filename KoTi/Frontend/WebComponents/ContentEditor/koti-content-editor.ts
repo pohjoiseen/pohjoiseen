@@ -24,7 +24,7 @@ export default class ContentEditorElement extends HTMLElement {
         //// Custom event listeners
 
         // just save everything
-        this.addEventListener('koti-content-editor:save', () => {
+        document.addEventListener('koti-content-editor:save', () => {
             this.#formEl.requestSubmit();
         });
 
@@ -66,7 +66,7 @@ export default class ContentEditorElement extends HTMLElement {
         document.addEventListener('keydown', (e) => {
             // handle Ctrl-S also if the editor itself is not focused
             if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
-                this.dispatchEvent(new Event('koti-content-editor:save'));
+                document.dispatchEvent(new Event('koti-content-editor:save'));
                 e.preventDefault();
                 e.stopPropagation();
             }

@@ -1,0 +1,51 @@
+@using System.Globalization
+@model CreatePlaceViewModel
+
+<dialog id="create-place-dialog">
+    <header>
+        <h2>Add New Place</h2>
+        <nav>
+            <button type="button" class="koti-btn primary with-indicator" id="create-place-submit-button"
+                    onclick="$id('create-place-form').requestSubmit()">
+                <span id="create-place-indicator" class="spinner htmx-indicator"></span>
+                <i class="bi bi-plus-lg"></i> Create
+            </button>
+            <button type="button" class="koti-btn cancel-btn"
+                    onclick="this.closest('dialog').close()">Cancel</button>
+        </nav>
+    </header>
+    <form style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;" id="create-place-form"
+          hx-post hx-controller="Places" hx-action="Create" hx-route-parentId="@Model.ParentId" hx-route-language="@Model.Language"
+          hx-target="closest dialog" hx-swap="outerHTML" hx-trigger="submit"
+          hx-disabled-elt="#create-place-submit-button" hx-indicator="#create-place-indicator">
+        <fieldset>
+            <input type="hidden" asp-for="ParentId"/>
+            <input type="hidden" asp-for="Language"/>
+            
+            <div>
+                <label for="create-place-name">Name (URL slug):</label>
+                <input id="create-place-name" class="input-block" required autocomplete="please-dont" asp-for="Name"></input>
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+
+            <div>
+                <label for="create-place-title">Title</label>
+                <input id="create-place-title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title" placeholder="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div>
+                <input id="create-place-is-leaf" type="checkbox" asp-for="IsLeaf"/>
+                <label for="create-place-is-leaf">Leaf (don't normally show as separate page)</label>
+                @Html.ValidationMessageFor(m => m.IsLeaf)
+            </div>
+        </fieldset>
+
+        <div>
+            <koti-location-picker id="create-place-location" hx-preserve="true"
+                                  lat="@Model.Lat.ToString(CultureInfo.InvariantCulture)" lng="@Model.Lng.ToString(CultureInfo.InvariantCulture)" />
+            @Html.ValidationMessageFor(m => m.Lat)
+            @Html.ValidationMessageFor(m => m.Lng)
+        </div>
+    </form>
+</dialog>
