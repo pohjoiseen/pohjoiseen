@@ -63,12 +63,21 @@ table {
 
 body {
     min-width: 320px;
-    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-family: Inter, sans-serif;
     font-size: 14px;
     line-height: 1.6;
     background: #fbfbfb;
     color: #333;
     overflow-x: hidden;
+}
+
+::selection {
+    background-color: #64382C;
+    color: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: Rubik, sans-serif;
 }
 
 h1 {
@@ -224,7 +233,7 @@ a {
 }
 
 a:hover {
-    color: #66c;
+    color: #64382C;
 }
 
 .muted {
