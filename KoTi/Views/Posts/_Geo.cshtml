@@ -17,8 +17,8 @@
     <div>
         <label>Location:</label>
         <koti-location-picker id="geo-location-@Model.Index" hx-preserve="true"
-                              initial-lat="@Model.Geo.Lat.ToString(CultureInfo.InvariantCulture)" initial-lng="@Model.Geo.Lng.ToString(CultureInfo.InvariantCulture)"
-                              lat-field="Geo[@Model.Index][Lat]" lng-field="Geo[@Model.Index][Lng]"></koti-location-picker>
+                              lat="@Model.Geo.Lat.ToString(CultureInfo.InvariantCulture)" lng="@Model.Geo.Lng.ToString(CultureInfo.InvariantCulture)"
+                              name-prefix="Geo[@Model.Index]" />
     </div>
 
     <div class="input-inline mt mb">

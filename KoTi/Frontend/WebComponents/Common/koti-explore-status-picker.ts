@@ -9,8 +9,9 @@ const IN_PROGRESS = 2;
 const SUFFICIENT = 3;
 
 export default class ExploreStatusPickerElement extends HTMLElement {
+    #internals: ElementInternals;
     #id: string;
-    #hiddenInputEl: HTMLInputElement = null!;
+    #value: number = NONE;
     #buttonColorBoxEl: HTMLSpanElement = null!;
     #buttonTextEl: HTMLSpanElement = null!;
     #popoverEl: HTMLDivElement = null!;
@@ -32,15 +33,15 @@ export default class ExploreStatusPickerElement extends HTMLElement {
     constructor() {
         super();
         this.#id = generateId();
+        this.#internals = this.attachInternals();
     }
 
     connectedCallback() {
         // do not re-initialize if already initialized
-        if (this.#hiddenInputEl) return;
+        if (this.#popoverEl) return;
 
         const initialValue = parseInt(this.getAttribute('value') || NONE.toString());
         this.innerHTML = `
-            <input type="hidden" name="${this.getAttribute('name')}" value="${initialValue}" />
             <button type="button" class="koti-btn open-btn" popovertarget="${this.#id}-popover">
                 <span class="color-box" style="background-color: ${this.#COLORS[initialValue]}"></span>
                 <span class="text">${this.#TEXTS[initialValue]}</span>
@@ -56,17 +57,17 @@ export default class ExploreStatusPickerElement extends HTMLElement {
                 </div>
             </koti-popover>
         `;
-        this.#hiddenInputEl = this.querySelector('input')!;
         this.#buttonColorBoxEl = this.querySelector('.open-btn .color-box')!;
         this.#buttonTextEl = this.querySelector('.open-btn .text')!;
         this.#popoverEl = this.querySelector('koti-popover')!;
+        this.value = initialValue;
 
         // on popover open, focus on selected value in the popover.
         // XXX Have to use a small setTimeout to ensure it is actually visible.
         this.#popoverEl.addEventListener('toggle', (e) => {
             if (e.newState === 'open') {
                 setTimeout(() =>
-                    (this.querySelector(`.select-btn[data-value="${this.#hiddenInputEl.value}"`) as HTMLElement | null)?.focus(), 25);
+                    (this.querySelector(`.select-btn[data-value="${this.#value}"`) as HTMLElement | null)?.focus(), 25);
             }
         });
 
@@ -74,9 +75,27 @@ export default class ExploreStatusPickerElement extends HTMLElement {
         this.querySelectorAll('.select-btn').forEach(btn => btn.addEventListener('click', (e) => {
             const value = parseInt((e.currentTarget as HTMLElement).dataset.value!);
             this.#popoverEl.hidePopover();
-            this.#hiddenInputEl.value = value.toString();
+            this.value = value;
             this.#buttonColorBoxEl.style.backgroundColor = this.#COLORS[value]!;
             this.#buttonTextEl.textContent = this.#TEXTS[value]!;
         }));
     }
+    
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        if (name === 'value' && oldValue !== newValue) {
+            this.value = parseInt(newValue ?? NONE.toString());
+            this.#buttonColorBoxEl.style.backgroundColor = this.#COLORS[parseInt(newValue ?? NONE.toString())]!;
+            this.#buttonTextEl.textContent = this.#TEXTS[parseInt(newValue ?? NONE.toString())]!;
+        }
+    }
+    
+    get value(): number { return this.#value; }
+    set value(value: number) {
+        this.#value = value;
+        this.#internals.setFormValue(value.toString());
+        this.setAttribute('value', value.toString());
+    }
+    
+    static get observedAttributes() { return ['value']; }
+    static formAssociated = true;
 };

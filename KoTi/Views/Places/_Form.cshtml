@@ -119,8 +119,7 @@
     <koti-tab name="Location">
         <div>
             <koti-location-picker id="location" hx-preserve="true"
-                                  initial-lat="@Model.Lat.ToString(CultureInfo.InvariantCulture)" initial-lng="@Model.Lng.ToString(CultureInfo.InvariantCulture)"
-                                  lat-field="Lat" lng-field="Lng"></koti-location-picker>
+                                  lat="@Model.Lat.ToString(CultureInfo.InvariantCulture)" lng="@Model.Lng.ToString(CultureInfo.InvariantCulture)" />
             @Html.ValidationMessageFor(m => m.Lat)
             @Html.ValidationMessageFor(m => m.Lng)
         </div>

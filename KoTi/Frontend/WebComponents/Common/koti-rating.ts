@@ -17,6 +17,7 @@ export default class RatingElement extends HTMLElement {
         
         // create star spans
         this.#value = parseInt(this.getAttribute('value') ?? '0');
+        this.#internals.setFormValue(this.#value.toString());
         for (let i = 0; i < 5; i++) {
             const star = document.createElement('span');
             star.dataset.index = (i + 1).toString();
@@ -30,20 +31,22 @@ export default class RatingElement extends HTMLElement {
             if (target.dataset.index !== undefined) {
                 let newValue = parseInt(target.dataset.index);
                 if (newValue === this.#value) newValue = 0;
-                this.updateStars(newValue);
+                this.value = newValue;
             }
         });
     }
     
     attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
         if (name === 'value' && this.#initialized && oldValue !== newValue) {
-            this.updateStars(parseInt(newValue ?? '0'));
+            this.value = parseInt(newValue ?? '0');
         }
     }
     
-    updateStars(value: number) {
+    get value(): number { return this.#value; }
+    set value(value: number) {
         this.#value = value;
         this.#internals.setFormValue(value.toString());
+        this.setAttribute('value', value.toString());
         for (let i = 0; i < 5; i++) {
             const star = this.children[i] as HTMLElement;
             if (this.#value > i) {

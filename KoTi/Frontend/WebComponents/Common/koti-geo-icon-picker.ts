@@ -5,9 +5,10 @@ import { generateId } from '../../Common/common.ts';
 
 export default class GeoIconPickerElement extends HTMLElement {
     #id: string;
-    #hiddenInputEl: HTMLInputElement = null!;
+    #value: string = '';
     #selectedIconImgEl: HTMLImageElement = null!;
     #popoverEl: HTMLDivElement = null!;
+    #internals: ElementInternals;
 
     readonly #ICONS = [
         'archaeology.m',
@@ -79,16 +80,16 @@ export default class GeoIconPickerElement extends HTMLElement {
     constructor() {
         super();
         this.#id = generateId();
+        this.#internals = this.attachInternals();
     }
     
     connectedCallback() {
         // do not re-initialize if already initialized
-        if (this.#hiddenInputEl) return;
+        if (this.#popoverEl) return;
         
         this.innerHTML = `
-            <input type="hidden" name="${this.getAttribute('name')}" value="${this.getAttribute('value')}" />
             <button type="button" class="koti-btn open-btn" popovertarget="${this.#id}-popover">
-                <img src="/map-icons/${this.getAttribute('value')}.png" alt="${this.getAttribute('value')}" />
+                <img />
             </button>
             <koti-popover id="${this.#id}-popover">
                 <div>
@@ -101,16 +102,17 @@ export default class GeoIconPickerElement extends HTMLElement {
                 </div>
             </koti-popover>
         `;
-        this.#hiddenInputEl = this.querySelector('input')!;
         this.#selectedIconImgEl = this.querySelector('.open-btn img')!;
         this.#popoverEl = this.querySelector('koti-popover')!;
+        
+        this.value = this.getAttribute('value') ?? '';
         
         // on popover open, focus on selected icon button in the popover.
         // XXX Have to use a small setTimeout to ensure icon is actually visible.
         this.#popoverEl.addEventListener('toggle', (e) => {
             if (e.newState === 'open') {
                 setTimeout(() =>
-                    (this.querySelector(`.select-btn[data-icon="${this.#hiddenInputEl.value}"`) as HTMLElement | null)?.focus(), 25);
+                    (this.querySelector(`.select-btn[data-icon="${this.value}"`) as HTMLElement | null)?.focus(), 25);
             } 
         });
         
@@ -118,9 +120,25 @@ export default class GeoIconPickerElement extends HTMLElement {
         this.querySelectorAll('.select-btn').forEach(btn => btn.addEventListener('click', (e) => {
             const selectedIcon = (e.currentTarget as HTMLElement).dataset.icon!;
             this.#popoverEl.hidePopover(); 
-            this.#hiddenInputEl.value = selectedIcon;
-            this.#selectedIconImgEl.src = `/map-icons/${selectedIcon}.png`;
-            this.#selectedIconImgEl.alt = selectedIcon;
+            this.value = selectedIcon;
         }));
     }
+    
+    get value(): string { return this.#value; }
+    set value(value: string) {
+        this.#value = value;
+        this.#internals.setFormValue(value);
+        this.setAttribute('value', value);
+        this.#selectedIconImgEl.src = `/map-icons/${value}.png`;
+        this.#selectedIconImgEl.alt = value;
+    }
+    
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        if (name === 'value' && oldValue !== newValue) {
+            this.value = newValue ?? '';
+        }
+    }
+    
+    static get observedAttributes() { return ['value']; }
+    static formAssociated = true;
 };

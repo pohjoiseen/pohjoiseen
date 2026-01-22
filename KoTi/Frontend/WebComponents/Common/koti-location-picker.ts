@@ -5,13 +5,13 @@
 import L from 'leaflet';
 
 export default class LocationPickerElement extends HTMLElement {
-    #latInput: HTMLInputElement = null!;
-    #lngInput: HTMLInputElement = null!;
     #map: L.Map = null!;
     #canUpdateLocation = false;
+    #internals: ElementInternals;
     
     constructor() {
         super();
+        this.#internals = this.attachInternals();
     }
     
     connectedCallback() {
@@ -25,26 +25,13 @@ export default class LocationPickerElement extends HTMLElement {
         crossbarV.classList.add('crossbar-v');
         this.appendChild(crossbarV);
         
-        if (!this.getAttribute('lat-field') || !this.getAttribute('lng-field') ||
-            !this.getAttribute('initial-lat') || !this.getAttribute('initial-lng')) {
-            throw new Error('initial-lat, initial-lng, lat-field and lng-field attributes must be set on <koti-location-picker> element.');    
+        if (this.getAttribute('lat') == null || this.getAttribute('lng') == null) {
+            throw new Error('LocationPickerElement must have lat and lng attributes');
         }
         
-        const initialLat = parseFloat(this.getAttribute('initial-lat')!),
-            initialLng = parseFloat(this.getAttribute('initial-lng')!),
+        const initialLat = parseFloat(this.getAttribute('lat')!),
+            initialLng = parseFloat(this.getAttribute('lng')!),
             initialZoom = parseInt(this.getAttribute('initial-zoom') || '15', 10);
-        
-        this.#latInput = document.createElement('input');
-        this.#latInput.setAttribute('type', 'hidden');
-        this.#latInput.setAttribute('name', this.getAttribute('lat-field')!);
-        this.#latInput.setAttribute('value', initialLat.toFixed(6));
-        this.appendChild(this.#latInput);
-        
-        this.#lngInput = document.createElement('input');
-        this.#lngInput.setAttribute('type', 'hidden');
-        this.#lngInput.setAttribute('name', this.getAttribute('lng-field')!);
-        this.#lngInput.setAttribute('value', initialLng.toFixed(6));
-        this.appendChild(this.#lngInput);
 
         this.#map = L.map(this);
         this.#map.attributionControl.setPrefix(false);
@@ -54,6 +41,7 @@ export default class LocationPickerElement extends HTMLElement {
             detectRetina: true
         }).addTo(this.#map);
         this.#map.setView([initialLat, initialLng], initialZoom);
+        this.updateValue(initialLat, initialLng);
 
         // handle map move/zoom by updating values in hidden inputs
         const onMapMove = () => {
@@ -61,8 +49,7 @@ export default class LocationPickerElement extends HTMLElement {
             // otherwise map centering might already shift the position a little bit
             // and cause among other things spurious "unsaved changed, really leave?" prompts
             if (this.#canUpdateLocation) {
-                this.#latInput.value = this.#map.getCenter().lat.toFixed(6)
-                this.#lngInput.value = this.#map.getCenter().lng.toFixed(6);
+                this.updateValue(this.#map.getCenter().lat, this.#map.getCenter().lng);
             }
         }
         this.#map.on('moveend', onMapMove);
@@ -70,12 +57,31 @@ export default class LocationPickerElement extends HTMLElement {
         
         // map must be sized appropriately when revealed
         const observer = new IntersectionObserver((entries) => {
-            if (!entries[0]!.isIntersecting) return;
-            this.#map.invalidateSize();
-            setTimeout(() => this.#canUpdateLocation = true, 100);
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                this.#map.invalidateSize();
+                setTimeout(() => this.#canUpdateLocation = true, 100);
+            });
         });
         observer.observe(this);
     }
     
+    private updateValue(lat: number, lng: number) {
+        const formData = new FormData();
+        const namePrefix = this.getAttribute('name-prefix');
+        formData.set(namePrefix ? `${namePrefix}[Lat]` : 'Lat', lat.toFixed(6));
+        formData.set(namePrefix ? `${namePrefix}[Lng]` : 'Lng', lng.toFixed(6));
+        this.#internals.setFormValue(formData);
+    }
+    
     getMap = () => this.#map;
+
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+        if (this.#map && oldValue !== newValue) {
+            this.#map.setView([parseFloat(this.getAttribute('lat') ?? '0'), parseFloat(this.getAttribute('lng') ?? '0')]);
+        }
+    }
+
+    static get observedAttributes() { return ['lat', 'lng']; }
+    static formAssociated = true;
 };
