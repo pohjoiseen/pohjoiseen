@@ -1,9 +1,9 @@
 //
 // <koti-dnd-order>: drag-and-drop order handling
 //
-import { reindexElements } from '../Common/common.ts';
+import { reindexElements } from '../../Common/common.ts';
 
-window.customElements.define('koti-dnd-order', class extends HTMLElement {
+export default class DndOrderElement extends HTMLElement {
     #initialized = false;
     #draggedEl: HTMLElement | null = null;
     #blankImg: HTMLImageElement;
@@ -99,4 +99,4 @@ window.customElements.define('koti-dnd-order', class extends HTMLElement {
             }
         });
     }
-});
+};

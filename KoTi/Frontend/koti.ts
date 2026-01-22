@@ -1,21 +1,52 @@
 import './Common/common.ts';
+import DndOrderElement from './WebComponents/Common/koti-dnd-order.ts';
+import ExploreStatusPickerElement from './WebComponents/Common/koti-explore-status-picker.ts';
+import GeoIconPickerElement from './WebComponents/Common/koti-geo-icon-picker.ts';
+import LocationPickerElement from './WebComponents/Common/koti-location-picker.ts';
+import PopoverElement from './WebComponents/Common/koti-popover.ts';
+import RatingElement from './WebComponents/Common/koti-rating.ts';
+import TabsElement from './WebComponents/Common/koti-tabs.ts';
+import ContentEditorElement from './WebComponents/ContentEditor/koti-content-editor.ts';
+import ContentItemElement from './WebComponents/ContentEditor/koti-content-item.ts';
+import FullscreenPictureElement from './WebComponents/Pictures/koti-fullscreen-picture.ts';
+import PictureItemElement from './WebComponents/Pictures/koti-picture.ts';
+import PicturePickerElement from './WebComponents/Pictures/koti-picture-picker.ts';
+import PictureUploadModalElement from './WebComponents/Pictures/koti-picture-upload-modal.ts';
+import PictureUploaderElement from './WebComponents/Pictures/koti-picture-uploader.ts';
+import PlaceMetadataElement from './WebComponents/Places/koti-place-metadata.ts';
+import GeoExternalLinksElement from './WebComponents/Posts/koti-geo-external-links.ts';
+import PostCoatsOfArmsElement from './WebComponents/Posts/koti-post-coats-of-arms.ts';
+import PostGeoElement from './WebComponents/Posts/koti-post-geo.ts';
+import PostTitlePictureElement from './WebComponents/Posts/koti-post-title-picture.ts';
 
 // register web components
-import './WebComponents/koti-content-editor.ts';
-import './WebComponents/koti-content-item.ts';
-import './WebComponents/koti-dnd-order.ts';
-import './WebComponents/koti-explore-status-picker.ts';
-import './WebComponents/koti-fullscreen-picture.ts';
-import './WebComponents/koti-geo-external-links.ts';
-import './WebComponents/koti-geo-icon-picker.ts';
-import './WebComponents/koti-location-picker.ts';
-import './WebComponents/koti-picture.ts';
-import './WebComponents/koti-picture-picker.ts';
-import './WebComponents/koti-picture-upload-modal.ts';
-import './WebComponents/koti-picture-uploader.ts';
-import './WebComponents/koti-place-metadata.ts';
-import './WebComponents/koti-popover.ts';
-import './WebComponents/koti-post-coats-of-arms.ts';
-import './WebComponents/koti-post-geo.ts';
-import './WebComponents/koti-post-title-picture.ts';
-import './WebComponents/koti-tabs.ts';
+
+// common
+customElements.define('koti-dnd-order', DndOrderElement);
+customElements.define('koti-explore-status-picker', ExploreStatusPickerElement);
+customElements.define('koti-geo-icon-picker', GeoIconPickerElement);
+customElements.define('koti-location-picker', LocationPickerElement);
+customElements.define('koti-popover', PopoverElement);
+customElements.define('koti-rating', RatingElement);
+customElements.define('koti-tabs', TabsElement);
+
+// content editor
+customElements.define('koti-content-editor', ContentEditorElement);
+customElements.define('koti-content-item', ContentItemElement);
+
+// pictures
+customElements.define('koti-fullscreen-picture', FullscreenPictureElement);
+customElements.define('koti-picture', PictureItemElement);
+customElements.define('koti-picture-picker', PicturePickerElement);
+customElements.define('koti-picture-upload-modal', PictureUploadModalElement);
+customElements.define('koti-picture-uploader', PictureUploaderElement);
+
+// places
+customElements.define('koti-place-metadata', PlaceMetadataElement);
+
+// posts
+customElements.define('koti-geo-external-links', GeoExternalLinksElement);
+customElements.define('koti-post-coats-of-arms', PostCoatsOfArmsElement);
+customElements.define('koti-post-geo', PostGeoElement);
+customElements.define('koti-post-title-picture', PostTitlePictureElement);
+

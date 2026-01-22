@@ -3,7 +3,7 @@
 //
 import htmx from 'htmx.org';
 
-window.customElements.define('koti-picture-upload-modal', class extends HTMLElement {
+export default class PictureUploadModalElement extends HTMLElement {
     #selectedPictureId: number | null = null;
     
     constructor() {
@@ -50,4 +50,4 @@ window.customElements.define('koti-picture-upload-modal', class extends HTMLElem
         // on click on "Cancel" button close dialog and don't do anything else
         dialogEl.querySelector('.cancel-btn')!.addEventListener('click', () => dialogEl.close());
     }
-})
+};

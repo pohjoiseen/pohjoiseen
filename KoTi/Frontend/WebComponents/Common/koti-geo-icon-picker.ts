@@ -1,9 +1,9 @@
 //
 // <koti-geo-icon-picker>: popover to pick a map icon.
 //
-import { generateId } from '../Common/common.ts';
+import { generateId } from '../../Common/common.ts';
 
-window.customElements.define('koti-geo-icon-picker', class extends HTMLElement {
+export default class GeoIconPickerElement extends HTMLElement {
     #id: string;
     #hiddenInputEl: HTMLInputElement = null!;
     #selectedIconImgEl: HTMLImageElement = null!;
@@ -123,4 +123,4 @@ window.customElements.define('koti-geo-icon-picker', class extends HTMLElement {
             this.#selectedIconImgEl.alt = selectedIcon;
         }));
     }
-});
+};

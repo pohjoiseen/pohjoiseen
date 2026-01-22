@@ -2,9 +2,9 @@
 // <koti-post-geo>: geo tab for post form, handles adding/removing subforms
 //
 import htmx from 'htmx.org';
-import { reindexElements } from '../Common/common.ts';
+import { reindexElements } from '../../Common/common.ts';
 
-window.customElements.define('koti-post-geo', class extends HTMLElement {
+export default class PostGeoElement extends HTMLElement {
     #container: HTMLElement = null!;
     
     constructor() {
@@ -41,4 +41,4 @@ window.customElements.define('koti-post-geo', class extends HTMLElement {
     }
     
     countSubforms = () => this.querySelectorAll('.geo > fieldset').length;
-});
+};

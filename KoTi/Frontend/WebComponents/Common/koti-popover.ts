@@ -2,7 +2,7 @@
 // <koti-popover>: popover handling, mostly based on browser popover API.  The popover must have
 // id and be opened through popovertarget set on some other element.
 //
-window.customElements.define('koti-popover', class extends HTMLElement {
+export default class PopoverElement extends HTMLElement {
     constructor() {
         super();
     }
@@ -37,4 +37,4 @@ window.customElements.define('koti-popover', class extends HTMLElement {
             }
         });
     }
-})
+};

@@ -4,7 +4,7 @@
 //
 import htmx from 'htmx.org';
 
-window.customElements.define('koti-fullscreen-picture', class extends HTMLElement {
+export default class FullscreenPictureElement extends HTMLElement {
     constructor() {
         super();
     }
@@ -34,4 +34,4 @@ window.customElements.define('koti-fullscreen-picture', class extends HTMLElemen
             }
         });
     }
-})
+};

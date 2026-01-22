@@ -2,7 +2,7 @@
 // <koti-content-item> web component, handling diplaying a thumbnail for post/article/etc. 
 // and associated behaviors.  Simpler version of <koti-content-item>.
 //
-window.customElements.define('koti-content-item', class extends HTMLElement {
+export default class ContentItemElement extends HTMLElement {
     #button: HTMLButtonElement = null!;
     #img: HTMLImageElement = null!;
     #text: HTMLSpanElement = null!;
@@ -146,6 +146,6 @@ window.customElements.define('koti-content-item', class extends HTMLElement {
     onDeselectAll() {
         this.#button.classList.remove('selected');
     }
-})
+};
 
 export type KotiContentItemSelectEvent = CustomEvent<{kind: string, id: number}>;

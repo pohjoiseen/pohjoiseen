@@ -1,7 +1,7 @@
 //
 // <koti-place-metadata>: metadata tab for place form, handles adding (=unhiding) fields
 //
-window.customElements.define('koti-place-metadata', class extends HTMLElement {
+export default class PlaceMetadataElement extends HTMLElement {
     #select: HTMLSelectElement = null!;
     
     constructor() {
@@ -18,4 +18,4 @@ window.customElements.define('koti-place-metadata', class extends HTMLElement {
             this.#select.value = '';
         });
     }
-});
+};

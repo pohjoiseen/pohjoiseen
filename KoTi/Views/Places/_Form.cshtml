@@ -40,6 +40,11 @@
                 @Html.ValidationMessageFor(m => m.Subtitle)
             </div>
             
+            <div class="hbox">
+                Rating:
+                <koti-rating name="Rating" value="@Model.Rating" />
+            </div>
+            
             <div>
                 <label for="description">Description (short, for map, Markdown allowed):</label>
                 <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>

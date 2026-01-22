@@ -3,7 +3,7 @@
 //
 import htmx from 'htmx.org';
 
-window.customElements.define('koti-post-coats-of-arms', class extends HTMLElement {
+export default class PostCoatsOfArmsElement extends HTMLElement {
     #uploadModal: HTMLElement = null!;
     
     constructor() {
@@ -56,4 +56,4 @@ window.customElements.define('koti-post-coats-of-arms', class extends HTMLElemen
             el.querySelector('label')?.setAttribute('for', `coat-of-arms-size-${i}`);
         });
     }
-});
+};

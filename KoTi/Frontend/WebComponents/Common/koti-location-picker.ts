@@ -4,7 +4,7 @@
 //
 import L from 'leaflet';
 
-window.customElements.define('koti-location-picker', class extends HTMLElement {
+export default class LocationPickerElement extends HTMLElement {
     #latInput: HTMLInputElement = null!;
     #lngInput: HTMLInputElement = null!;
     #map: L.Map = null!;
@@ -61,7 +61,6 @@ window.customElements.define('koti-location-picker', class extends HTMLElement {
             // otherwise map centering might already shift the position a little bit
             // and cause among other things spurious "unsaved changed, really leave?" prompts
             if (this.#canUpdateLocation) {
-                console.debug("updating location");
                 this.#latInput.value = this.#map.getCenter().lat.toFixed(6)
                 this.#lngInput.value = this.#map.getCenter().lng.toFixed(6);
             }
@@ -79,4 +78,4 @@ window.customElements.define('koti-location-picker', class extends HTMLElement {
     }
     
     getMap = () => this.#map;
-});
+};

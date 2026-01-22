@@ -4,7 +4,7 @@
 //
 import htmx from 'htmx.org';
 
-window.customElements.define('koti-picture', class extends HTMLElement {
+export default class PictureItemElement extends HTMLElement {
     #button: HTMLButtonElement = null!;
     #img: HTMLImageElement = null!;
     #text: HTMLSpanElement = null!;
@@ -182,6 +182,6 @@ window.customElements.define('koti-picture', class extends HTMLElement {
     onDeselectAll() {
         this.#button.classList.remove('selected');
     }
-})
+};
 
 export type KotiPictureSelectEvent = CustomEvent<{id: number}>;

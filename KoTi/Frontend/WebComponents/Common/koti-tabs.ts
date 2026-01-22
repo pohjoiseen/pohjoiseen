@@ -3,9 +3,9 @@
 // across page reloads.  <koti-tab> elements must have "name" attribute, one of them may be "selected".
 // Currently tabs must be defined statically, won't be updated if anything changes.
 //
-import { generateId } from '../Common/common.ts';
+import { generateId } from '../../Common/common.ts';
 
-window.customElements.define('koti-tabs', class extends HTMLElement {
+export default class TabsElement extends HTMLElement {
     #id: string = '';
     #tabs: { [name: string]: HTMLElement } = {};
     #selected: string = '';
@@ -80,4 +80,4 @@ window.customElements.define('koti-tabs', class extends HTMLElement {
             wrapperEl.appendChild(tab);
         }
     }
-});
+};

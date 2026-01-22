@@ -3,10 +3,10 @@
 // and various other things together.  The element <koti-content-editor> 
 //
 import * as monaco from 'monaco-editor';
-import { $id } from '../Common/common.ts';
-import { apiEnsureWebSizes, apiGetArticle, apiGetPicture, apiGetPost } from '../Common/api.ts';
+import { $id } from '../../Common/common.ts';
+import { apiEnsureWebSizes, apiGetArticle, apiGetPicture, apiGetPost } from '../../Common/api.ts';
 
-window.customElements.define('koti-content-editor', class extends HTMLElement {
+export default class ContentEditorElement extends HTMLElement {
     #editor: monaco.editor.IStandaloneCodeEditor = null!;
     #formEl: HTMLFormElement = null!;
     #insertButtonEl: HTMLButtonElement = null!;
@@ -436,4 +436,4 @@ window.customElements.define('koti-content-editor', class extends HTMLElement {
             }
         });
     }
-});
+};

@@ -1,14 +1,14 @@
 //
 // <koti-explore-status-picker>: popover to pick explore status (green-yellow-orange-red).
 //
-import { generateId } from '../Common/common.ts';
+import { generateId } from '../../Common/common.ts';
 
 const NONE = 0;
 const MINIMAL = 1;
 const IN_PROGRESS = 2;
 const SUFFICIENT = 3;
 
-window.customElements.define('koti-explore-status-picker', class extends HTMLElement {
+export default class ExploreStatusPickerElement extends HTMLElement {
     #id: string;
     #hiddenInputEl: HTMLInputElement = null!;
     #buttonColorBoxEl: HTMLSpanElement = null!;
@@ -79,4 +79,4 @@ window.customElements.define('koti-explore-status-picker', class extends HTMLEle
             this.#buttonTextEl.textContent = this.#TEXTS[value]!;
         }));
     }
-});
+};

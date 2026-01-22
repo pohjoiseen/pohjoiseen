@@ -1,7 +1,7 @@
 //
 // <koti-post-title-picture>: title picture tab for post form.  Handles only showing/hiding extra fields
 //
-window.customElements.define('koti-post-title-picture', class extends HTMLElement {
+export default class PostTitlePictureElement extends HTMLElement {
     #titleImageInTextContainer: HTMLElement = null!;
     #titleImageOffsetYContainer: HTMLElement = null!;
     #titleImageCaptionContainer: HTMLElement = null!;
@@ -52,4 +52,4 @@ window.customElements.define('koti-post-title-picture', class extends HTMLElemen
             this.#titleImageCaptionContainer.setAttribute('hidden', 'hidden');
         }
     }
-})
+};

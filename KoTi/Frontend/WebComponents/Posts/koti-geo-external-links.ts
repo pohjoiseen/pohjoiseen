@@ -2,7 +2,7 @@
 // <koti-geo-external-links>: links list in geo tab for post, handles add/remove rows
 // TODO: should allow picking post link properly (in a modal) but whatever, this is a little used feature
 //
-window.customElements.define('koti-geo-external-links', class extends HTMLElement {
+export default class GeoExternalLinksElement extends HTMLElement {
     #initialized = false;
     
     constructor() {
@@ -71,4 +71,4 @@ window.customElements.define('koti-geo-external-links', class extends HTMLElemen
         if (!match) return '';
         return match[0];
     }
-});
+};

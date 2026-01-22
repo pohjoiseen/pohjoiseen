@@ -3,7 +3,7 @@
 //
 import htmx from 'htmx.org';
 
-window.customElements.define('koti-picture-picker', class extends HTMLElement {
+export default class PicturePickerElement extends HTMLElement {
     constructor() {
         super();
     }
@@ -54,4 +54,4 @@ window.customElements.define('koti-picture-picker', class extends HTMLElement {
         // on click on "Cancel" button close dialog and don't do anything else
         dialogEl.querySelector('.cancel-btn')!.addEventListener('click', () => dialogEl.close());
     }
-})
+};

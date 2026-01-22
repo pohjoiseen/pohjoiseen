@@ -4,7 +4,7 @@
 // one by one, from file input, drag and drop, or pasting, shows progress and handles errors, allows retry in case
 // of errors, allows to view uploaded pictures in fullscreen.
 //
-window.customElements.define('koti-picture-uploader', class extends HTMLElement {
+export default class PictureUploaderElement extends HTMLElement {
     // list of blobs to be uploaded or picture ids already uploaded
     #pictures: (File | number)[] = [];
     #isUploading = false;
@@ -231,4 +231,4 @@ window.customElements.define('koti-picture-uploader', class extends HTMLElement 
             console.error(e);
         }
     }
-});
+};
