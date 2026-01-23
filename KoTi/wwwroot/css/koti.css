@@ -242,6 +242,10 @@
       }
     }
     
+    &.draft {
+      background: var(--color-bg-shade);
+    }
+    
     &.dragging, .dragging & {
       background: var(--color-bg-shade);
       opacity: 0.6;
