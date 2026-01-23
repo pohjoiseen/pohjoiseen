@@ -28,6 +28,10 @@
   input, button, textarea, select {
     font: inherit;
   }
+  
+  [hidden] {
+    display: none !important;
+  }
 }
 
 @layer variables {
@@ -66,9 +70,6 @@
   }
   
   fieldset {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
     border: none;
   }
   
@@ -851,6 +852,26 @@
   koti-rating {
     cursor: pointer;
   }
+  
+  koti-place-metadata {
+    & > fieldset > fieldset {
+      padding-left: 5px;
+      margin-left: 21px;
+      border-left: 1px solid var(--color-bg-shade);
+      position: relative;
+    }
+    
+    & .remove-btn {
+      position: absolute;
+      padding: 0;
+      top: 0;
+      left: -21px;
+      font-size: 8px;
+      height: 18px;
+      width: 16px;
+      min-height: 0;
+    }
+  }
 }
 
 @layer utilities {
@@ -873,4 +894,5 @@
   .flex-wrap { flex-wrap: wrap; }
   .nowrap { white-space: nowrap; }
   .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
+  .formbox {  display: flex; flex-direction: column; gap: 20px; }
 }

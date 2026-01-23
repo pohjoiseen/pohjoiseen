@@ -13,6 +13,7 @@ import PictureItemElement from './WebComponents/Pictures/koti-picture.ts';
 import PicturePickerElement from './WebComponents/Pictures/koti-picture-picker.ts';
 import PictureUploadModalElement from './WebComponents/Pictures/koti-picture-upload-modal.ts';
 import PictureUploaderElement from './WebComponents/Pictures/koti-picture-uploader.ts';
+import MetaCoatOfArmsElement from './WebComponents/Places/koti-meta-coat-of-arms.ts';
 import PlaceMetadataElement from './WebComponents/Places/koti-place-metadata.ts';
 import GeoExternalLinksElement from './WebComponents/Posts/koti-geo-external-links.ts';
 import PostCoatsOfArmsElement from './WebComponents/Posts/koti-post-coats-of-arms.ts';
@@ -42,6 +43,7 @@ customElements.define('koti-picture-upload-modal', PictureUploadModalElement);
 customElements.define('koti-picture-uploader', PictureUploaderElement);
 
 // places
+customElements.define('koti-meta-coat-of-arms', MetaCoatOfArmsElement);
 customElements.define('koti-place-metadata', PlaceMetadataElement);
 
 // posts

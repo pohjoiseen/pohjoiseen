@@ -24,7 +24,25 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
                 builder.ToJson();
                 builder.OwnsMany(g => g.Links);
             });
-        modelBuilder.Entity<Place>().OwnsOne(p => p.Meta, builder => builder.ToJson());
-        modelBuilder.Entity<PlaceLocalization>().OwnsOne(p => p.Meta, builder => builder.ToJson());
+        modelBuilder.Entity<Place>().OwnsOne(p => p.Meta, builder =>
+        {
+            builder.ToJson();
+            builder.OwnsOne(m => m.Population);
+            builder.OwnsOne(m => m.Area);
+            builder.OwnsOne(m => m.Established);
+            builder.OwnsOne(m => m.LanguagePercent);
+            builder.OwnsOne(m => m.TrailDistance);
+            builder.OwnsOne(m => m.CoatOfArms);
+        });
+        modelBuilder.Entity<PlaceLocalization>().OwnsOne(p => p.Meta, builder =>
+        {
+            builder.ToJson();
+            builder.OwnsOne(m => m.Population);
+            builder.OwnsOne(m => m.Area);
+            builder.OwnsOne(m => m.Established);
+            builder.OwnsOne(m => m.LanguagePercent);
+            builder.OwnsOne(m => m.TrailDistance);
+            builder.OwnsOne(m => m.CoatOfArms);
+        });
     }
 }

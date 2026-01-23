@@ -2,72 +2,72 @@
 
 <koti-tabs component-id="posttab">
     <koti-tab name="General">
-        <fieldset>
-                <div style="display: grid; grid-template-columns: 120px 1fr; grid-gap: 5px; grid-auto-flow: column;">
-                    <div>
-                        <label for="date">Date:</label>
-                        <input type="date" id="date" class="input-block" required asp-for="Date"/>
-                        @Html.ValidationMessageFor(m => m.Date)
-                    </div>
-                    <div>
-                        <label for="name">Name (URL slug):</label>
-                        <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"/>
-                        @Html.ValidationMessageFor(m => m.Name)
-                    </div>
+        <fieldset class="formbox">
+            <div style="display: grid; grid-template-columns: 120px 1fr; grid-gap: 5px; grid-auto-flow: column;">
+                <div>
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" class="input-block" required asp-for="Date"/>
+                    @Html.ValidationMessageFor(m => m.Date)
                 </div>
+                <div>
+                    <label for="name">Name (URL slug):</label>
+                    <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"/>
+                    @Html.ValidationMessageFor(m => m.Name)
+                </div>
+            </div>
 
-                <div>
-                    <label for="title">Title:</label>
-                    <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title"/>
-                    @Html.ValidationMessageFor(m => m.Title)
-                </div>
+            <div>
+                <label for="title">Title:</label>
+                <input id="title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
 
-                <div>
-                    <label for="description">Description (for blog index, Markdown allowed):</label>
-                    <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
-                    @Html.ValidationMessageFor(m => m.Description)
-                </div>
+            <div>
+                <label for="description">Description (for blog index, Markdown allowed):</label>
+                <textarea rows="5" id="description" class="input-block" asp-for="Description"></textarea>
+                @Html.ValidationMessageFor(m => m.Description)
+            </div>
 
-                <div>
-                    <label for="date-description">Date description (when photos and text were authored):</label>
-                    <textarea rows="1" id="date-description" class="input-block" asp-for="DateDescription"></textarea>
-                    @Html.ValidationMessageFor(m => m.DateDescription)
-                </div>
+            <div>
+                <label for="date-description">Date description (when photos and text were authored):</label>
+                <textarea rows="1" id="date-description" class="input-block" asp-for="DateDescription"></textarea>
+                @Html.ValidationMessageFor(m => m.DateDescription)
+            </div>
 
-                <div>
-                    <label for="location-description">Location description (short):</label>
-                    <textarea rows="1" id="location-description" class="input-block" asp-for="LocationDescription"></textarea>
-                    @Html.ValidationMessageFor(m => m.LocationDescription)
-                </div>
+            <div>
+                <label for="location-description">Location description (short):</label>
+                <textarea rows="1" id="location-description" class="input-block" asp-for="LocationDescription"></textarea>
+                @Html.ValidationMessageFor(m => m.LocationDescription)
+            </div>
 
-                <div>
-                    <label for="address">Address/driving directions:</label>
-                    <textarea rows="1" id="address" class="input-block" asp-for="Address"></textarea>
-                    @Html.ValidationMessageFor(m => m.Address)
-                </div>
+            <div>
+                <label for="address">Address/driving directions:</label>
+                <textarea rows="1" id="address" class="input-block" asp-for="Address"></textarea>
+                @Html.ValidationMessageFor(m => m.Address)
+            </div>
 
-                <div>
-                    <label for="public-transport">Public transport directions:</label>
-                    <textarea rows="1" id="public-transport" class="input-block" asp-for="PublicTransport"></textarea>
-                    @Html.ValidationMessageFor(m => m.PublicTransport)
-                </div>
+            <div>
+                <label for="public-transport">Public transport directions:</label>
+                <textarea rows="1" id="public-transport" class="input-block" asp-for="PublicTransport"></textarea>
+                @Html.ValidationMessageFor(m => m.PublicTransport)
+            </div>
 
-                <div>
-                    <input id="draft" type="checkbox" asp-for="Draft"/>
-                    <label for="draft">Draft</label>
-                    <input id="mini" type="checkbox" asp-for="Mini"/>
-                    <label for="mini">Mini</label>
-                    @Html.ValidationMessageFor(m => m.Draft)
-                </div>
-                
-                <div>
-                    <button type="button" class="koti-btn danger"
-                            hx-delete hx-controller="Posts" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
-                            hx-confirm="Are you really sure you want to delete this post?  This cannot be undone, consider changing to draft instead.  If you're certain, type 'yes, please'"
-                            hx-confirm-strong>
-                        <i class="bi bi-x-lg"></i> Delete post
-                    </button>
-                </div>
+            <div>
+                <input id="draft" type="checkbox" asp-for="Draft"/>
+                <label for="draft">Draft</label>
+                <input id="mini" type="checkbox" asp-for="Mini"/>
+                <label for="mini">Mini</label>
+                @Html.ValidationMessageFor(m => m.Draft)
+            </div>
+            
+            <div>
+                <button type="button" class="koti-btn danger"
+                        hx-delete hx-controller="Posts" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                        hx-confirm="Are you really sure you want to delete this post?  This cannot be undone, consider changing to draft instead.  If you're certain, type 'yes, please'"
+                        hx-confirm-strong>
+                    <i class="bi bi-x-lg"></i> Delete post
+                </button>
+            </div>
         </fieldset>
     </koti-tab>
 

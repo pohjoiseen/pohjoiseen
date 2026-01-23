@@ -62,7 +62,8 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
                 {
                     Place = place,
                     Language = model.Language,
-                    Title = model.Title
+                    Title = model.Title,
+                    Draft = true
                 };
                 dbContext.PlaceLocalizations.Add(localization);
             }
@@ -108,5 +109,11 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
         
         Response.Headers.Append("HX-Redirect", Url.Action("Edit", new { id = places.ParentId, language }));
         return NoContent();
+    }
+
+    [HttpGet("/Meta/CoatOfArms")]
+    public IActionResult MetaCoatOfArms([FromQuery] int? pictureId)
+    {
+        return ViewComponent("PlaceMetaCoatOfArms", new { pictureId });
     }
 }

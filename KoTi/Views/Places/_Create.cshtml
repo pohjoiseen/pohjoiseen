@@ -18,7 +18,7 @@
           hx-post hx-controller="Places" hx-action="Create" hx-route-parentId="@Model.ParentId" hx-route-language="@Model.Language"
           hx-target="closest dialog" hx-swap="outerHTML" hx-trigger="submit"
           hx-disabled-elt="#create-place-submit-button" hx-indicator="#create-place-indicator">
-        <fieldset>
+        <fieldset class="formbox">
             <input type="hidden" asp-for="ParentId"/>
             <input type="hidden" asp-for="Language"/>
             

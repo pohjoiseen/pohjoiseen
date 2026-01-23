@@ -1,9 +1,10 @@
 @using System.Globalization
+@using Holvi.Models
 @model PlaceViewModel
 
 <koti-tabs component-id="placetab">
     <koti-tab name="General">
-        <fieldset>
+        <fieldset class="formbox">
             <div>
                 <label for="name">Name (URL slug):</label>
                 <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name"></input>
@@ -105,29 +106,166 @@
     
     <koti-tab name="Metadata">
         <koti-place-metadata>
-            <fieldset>
-                <div data-meta="directions" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Directions)">
+            <fieldset class="formbox">
+                <fieldset data-meta="population" hidden="@(Model.Meta.Population is null)">
+                    <div style="display: grid; grid-template: auto auto / auto auto; gap: 5px; width: fit-content; align-items: center;">
+                        <label for="population-number">Population:</label>
+                        <div>
+                            <input type="number" min="0" max="10000000000" style="width: 100px;"
+                                   id="population-number" asp-for="Meta.Population!.Number"/>
+                            @Html.ValidationMessageFor(m => m.Meta.Population!.Number)
+                        </div>
+                        <label for="population-year">As of year:</label>
+                        <div>
+                            <input type="number" min="1800" max="@DateTime.Now.Year" style="width: 100px;"
+                                   id="population-year" asp-for="Meta.Population!.Year"/>
+                            @Html.ValidationMessageFor(m => m.Meta.Population!.Year)
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset data-meta="area" hidden="@(Model.Meta.Area is null)">
+                    <div class="hbox">
+                        <label for="area-sqkm">Area:</label>
+                        <input type="number" min="0" max="10000000000" step="any" style="width: 100px;"
+                               id="area-sqkm" class="input-block" asp-for="Meta.Area!.SqKm"/>
+                        <span>sq. km</span>
+                        <input type="checkbox" id="area-excludes-sea-areas" asp-for="Meta.Area!.ExcludesSeaAreas"/>
+                        <label for="area-excludes-sea-areas" class="ml">Excluding sea areas</label>
+                        @Html.ValidationMessageFor(m => m.Meta.Area!.SqKm)
+                        @Html.ValidationMessageFor(m => m.Meta.Area!.ExcludesSeaAreas)
+                    </div>
+                </fieldset>
+
+                <fieldset data-meta="established" hidden="@(Model.Meta.Established is null)">
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; width: fit-content; align-items: center;">
+                        <label for="established-year">Established in:</label>
+                        <div>
+                            <input type="number" min="0" max="@DateTime.Now.Year" style="width: 100px;"
+                                   id="established-year" asp-for="Meta.Established!.Year"/>
+                            @Html.ValidationMessageFor(m => m.Meta.Established!.Year)
+                        </div>
+                        <label for="established-label">Custom year label:</label>
+                        <div>
+                            <input type="text" id="established-label" asp-for="Meta.Established!.Label" placeholder="Established in" />
+                            @Html.ValidationMessageFor(m => m.Meta.Established!.Label)
+                        </div>
+                        <label for="established-alt-year">First mentioned in:</label>
+                        <div>
+                            <input type="number" min="0" max="@DateTime.Now.Year" style="width: 100px;"
+                                   id="established-alt-year" asp-for="Meta.Established!.AltYear"/>
+                            @Html.ValidationMessageFor(m => m.Meta.Established!.AltYear)
+                        </div>
+                        <label for="established-label">Custom year label:</label>
+                        <div>
+                            <input type="text" id="established-alt-label" asp-for="Meta.Established!.AltLabel" placeholder="First mentioned in" />
+                            @Html.ValidationMessageFor(m => m.Meta.Established!.AltLabel)
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset data-meta="coat-of-arms" hidden="@(Model.Meta.CoatOfArms is null)">
+                    <div>Coat of arms:</div>
+                    <vc:place-meta-coat-of-arms picture-id="Model.Meta.CoatOfArms?.PictureId"/>
+                    @Html.ValidationMessageFor(m => m.Meta.CoatOfArms!.PictureId)
+                    <div class="input-inline mt mb">
+                        <label for="coat-of-arms-override-size">Size:</label>
+                        <input type="number" id="coat-of-arms-override-size"
+                               min="0" max="1000" placeholder="150" asp-for="Meta.CoatOfArms!.OverrideSize" />
+                        px
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Meta.CoatOfArms!.OverrideSize)
+                </fieldset>
+
+                <fieldset data-meta="language-percent" hidden="@(Model.Meta.LanguagePercent is null)">
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 5px; width: fit-content; align-items: center;">
+                        <label for="language-percent-finnish">Finnish:</label>
+                        <div>
+                            <input type="number" min="0" max="100" step="any" style="width: 100px;"
+                                   id="language-percent-finnish" asp-for="Meta.LanguagePercent!.FinnishPercent"/>
+                            %
+                            @Html.ValidationMessageFor(m => m.Meta.LanguagePercent!.FinnishPercent)
+                        </div>
+                        <label for="language-percent-swedish">Finnish:</label>
+                        <div>
+                            <input type="number" min="0" max="100" step="any" style="width: 100px;"
+                                   id="language-percent-swedish" asp-for="Meta.LanguagePercent!.SwedishPercent"/>
+                            %
+                            @Html.ValidationMessageFor(m => m.Meta.LanguagePercent!.SwedishPercent)
+                        </div>
+                        <label for="language-percent-sami">Sami:</label>
+                        <div>
+                            <input type="number" min="0" max="100" step="any" style="width: 100px;"
+                                   id="language-percent-sami" asp-for="Meta.LanguagePercent!.SamiPercent"/>
+                            %
+                            @Html.ValidationMessageFor(m => m.Meta.LanguagePercent!.SamiPercent)
+                        </div>
+                        <label for="language-percent-foreign">Foreign:</label>
+                        <div>
+                            <input type="number" min="0" max="100" step="any" style="width: 100px;"
+                                   id="language-percent-foreign" asp-for="Meta.LanguagePercent!.ForeignPercent"/>
+                            %
+                            @Html.ValidationMessageFor(m => m.Meta.LanguagePercent!.ForeignPercent)
+                        </div>
+                        <label for="language-year">As of year:</label>
+                        <div>
+                            <input type="number" min="0" max="@DateTime.Now.Year" style="width: 100px;"
+                                   id="language-year" asp-for="Meta.LanguagePercent!.Year"/>
+                            @Html.ValidationMessageFor(m => m.Meta.LanguagePercent!.Year)
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <fieldset data-meta="trail-distance" hidden="@(Model.Meta.TrailDistance is null)">
+                    <div style="display: grid; grid-template: auto auto / auto auto; gap: 5px; width: fit-content; align-items: center;">
+                        <label for="trail-distance-kilometers">Trail length:</label>
+                        <div>
+                            <input type="number" min="0" max="10000" step="any" style="width: 100px;"
+                                   id="trail-distance-kilometers" asp-for="Meta.TrailDistance!.Kilometers"/>
+                            <span>km</span>
+                            @Html.ValidationMessageFor(m => m.Meta.TrailDistance!.Kilometers)
+                        </div>
+                        <label for="trail-distance-type">Type:</label>
+                        <div>
+                            <select id="trail-distance-type" asp-for="Meta.TrailDistance!.Type">
+                                <option value="@PlaceMeta.PlaceMetaTrailDistanceType.Circular">Circular</option>
+                                <option value="@PlaceMeta.PlaceMetaTrailDistanceType.ThereAndBack">There and back</option>
+                                <option value="@PlaceMeta.PlaceMetaTrailDistanceType.EndToEnd">End to end</option>
+                            </select>
+                            @Html.ValidationMessageFor(m => m.Meta.TrailDistance!.Type)
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset data-meta="directions" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Directions)">
                     <label for="directions">Address/driving directions:</label>
                     <textarea id="directions" class="input-block" asp-for="Meta.Directions"></textarea>
                     @Html.ValidationMessageFor(m => m.Meta.Directions)
-                </div>
+                </fieldset>
 
-                <div data-meta="public-transport" hidden="@string.IsNullOrWhiteSpace(Model.Meta.PublicTransport)">
+                <fieldset data-meta="public-transport" hidden="@string.IsNullOrWhiteSpace(Model.Meta.PublicTransport)">
                     <label for="public-transport">Public transport directions:</label>
                     <textarea id="public-transport" class="input-block" asp-for="Meta.PublicTransport"></textarea>
                     @Html.ValidationMessageFor(m => m.Meta.PublicTransport)
-                </div>
+                </fieldset>
 
-                <div data-meta="season" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Season)">
+                <fieldset data-meta="season" hidden="@string.IsNullOrWhiteSpace(Model.Meta.Season)">
                     <label for="season">Season tips:</label>
                     <textarea id="season" class="input-block" asp-for="Meta.Season"></textarea>
                     @Html.ValidationMessageFor(m => m.Meta.Season)
-                </div>
-                
+                </fieldset>
+
                 <div class="hbox">
                     <div class="nowrap">Add metadata field:</div>
                     <select class="add-field-select w100">
                         <option value="" selected>Select new field...</option>
+                        <option value="population" hidden="@(Model.Meta.Population is not null)">Population</option>
+                        <option value="area" hidden="@(Model.Meta.Area is not null)">Area</option>
+                        <option value="established" hidden="@(Model.Meta.Established)">Established in</option>
+                        <option value="coat-of-arms" hidden="@(Model.Meta.CoatOfArms)">Coat of arms</option>
+                        <option value="language-percent" hidden="@(Model.Meta.LanguagePercent is not null)">Language percentages</option>
+                        <option value="trail-distance" hidden="@(Model.Meta.TrailDistance is not null)">Trail length</option>
                         <option value="directions" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.Directions))">Address/driving directions</option>
                         <option value="public-transport" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.PublicTransport))">Public transport directions</option>
                         <option value="season" hidden="@(!string.IsNullOrWhiteSpace(Model.Meta.Season))">Season tips</option>

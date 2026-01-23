@@ -33,7 +33,7 @@ export default class PictureUploaderElement extends HTMLElement {
                 <div class="footer">
                     <div class="alert mb" style="display: none;">
                         <span>Error uploading picture: <span class="error-message"></span></span>
-                        <button class="koti-btn primary retry-button">Retry</button>
+                        <button type="button" class="koti-btn primary retry-button">Retry</button>
                     </div>
                     <button type="button" class="koti-btn primary upload-button with-indicator">
                         <span class="spinner"></span>

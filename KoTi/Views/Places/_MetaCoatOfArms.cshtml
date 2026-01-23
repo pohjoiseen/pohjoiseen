@@ -1,0 +1,16 @@
+@model Holvi.Models.Picture?
+
+<koti-meta-coat-of-arms hx-get hx-controller="Places" hx-action="MetaCoatOfArms" hx-trigger="koti-meta-coat-of-arms:reload"
+                        hx-swap="outerHTML" hx-vals='js:{"pictureId":$id("coat-of-arms-picture-id").value}'>
+    <input type="hidden" id="coat-of-arms-picture-id" name="Meta.CoatOfArms.PictureId" value="@Model?.Id" />
+    @if (Model is not null)
+    {
+        <img src="@Model.Url" alt="" class="mb" />
+    }
+    else
+    {
+        <div class="muted">Select a picture.</div>
+    }
+    <button type="button" class="upload-btn koti-btn primary">Upload...</button>
+    <partial name="~/Views/Pictures/_UploadModal.cshtml" model="@(new { ComponentId = "place-meta-coa-upload", TargetSet = "Coats of Arms" })"/>
+</koti-meta-coat-of-arms>
