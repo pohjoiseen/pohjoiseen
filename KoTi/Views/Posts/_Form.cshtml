@@ -59,7 +59,16 @@
                     <label for="mini">Mini</label>
                     @Html.ValidationMessageFor(m => m.Draft)
                 </div>
-            </fieldset>
+                
+                <div>
+                    <button type="button" class="koti-btn danger"
+                            hx-delete hx-controller="Posts" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                            hx-confirm="Are you really sure you want to delete this post?  This cannot be undone, consider changing to draft instead.  If you're certain, type 'yes, please'"
+                            hx-confirm-strong>
+                        <i class="bi bi-x-lg"></i> Delete post
+                    </button>
+                </div>
+        </fieldset>
     </koti-tab>
 
     <koti-tab name="Title Picture">

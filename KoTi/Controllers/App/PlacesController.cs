@@ -85,4 +85,28 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
 
         return View("_Create", model);
     }
+    
+    [HttpDelete("{id}/{language}")]
+    public async Task<IActionResult> Delete(int id, string language)
+    {
+        var places = await dbContext.Places
+            .Include(p => p.Children)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        if (places == null)
+        {
+            return NotFound();
+        }
+
+        // cannot delete top-level places or places with children
+        if (places.ParentId is null || places.Children.Any())
+        {
+            return BadRequest();
+        }
+        
+        dbContext.Places.Remove(places);
+        await dbContext.SaveChangesAsync();
+        
+        Response.Headers.Append("HX-Redirect", Url.Action("Edit", new { id = places.ParentId, language }));
+        return NoContent();
+    }
 }

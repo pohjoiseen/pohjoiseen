@@ -70,4 +70,20 @@ public class ArticlesController(ArticleViewModelFactory modelFactory, HolviDbCon
 
         return View("_Create", model);
     }
+
+    [HttpDelete("{id}/{language}")]
+    public async Task<IActionResult> Delete(int id, string language)
+    {
+        var article = await dbContext.Articles.FindAsync(id);
+        if (article == null)
+        {
+            return NotFound();
+        }
+        
+        dbContext.Articles.Remove(article);
+        await dbContext.SaveChangesAsync();
+        
+        Response.Headers.Append("HX-Redirect", Url.Action("Index", new { language }));
+        return NoContent();
+    }
 }

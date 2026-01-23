@@ -43,9 +43,9 @@
     --color-primary-shade: #301b15;
     --color-primary-highlight: #965442;
     --color-primary-disabled: #635450;
-    --color-bad: #ff0000;
-    --color-bad-shade: #cc0000;
-    --color-bad-highlight: #ff4040;
+    --color-bad: #cc0000;
+    --color-bad-shade: #aa0000;
+    --color-bad-highlight: #cc4040;
     --color-bad-bg: #ffc0c0;
     --border-radius: 3px;
   }

@@ -77,6 +77,29 @@
                     @Html.ValidationMessageFor(m => m.Links)
                 </div>
             </div>
+            
+            @if (Model.ParentsIds.Count > 0)
+            {
+                @if (Model.Children.Count == 0)
+                {
+                    <div>
+                        <button type="button" class="koti-btn danger"
+                                hx-delete hx-controller="Places" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                                hx-confirm="Are you really sure you want to delete this place?  This cannot be undone, and will delete ALL LANGUAGE VERSIONS, consider changing to draft instead.  If you're certain, type 'yes, please'"
+                                hx-confirm-strong>
+                            <i class="bi bi-x-lg"></i> Delete place
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <button type="button" class="koti-btn danger" disabled title="Cannot delete a place with children">
+                            <i class="bi bi-x-lg"></i> Delete place
+                        </button>
+                    </div>
+                }
+            }
         </fieldset>
     </koti-tab>
     

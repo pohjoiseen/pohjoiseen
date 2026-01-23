@@ -18,4 +18,13 @@
         <label for="draft">Draft</label>
         @Html.ValidationMessageFor(m => m.Draft)
     </div>
+    
+    <div>
+        <button type="button" class="koti-btn danger"
+                hx-delete hx-controller="Articles" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                hx-confirm="Are you really sure you want to delete this article?  This cannot be undone, consider changing to draft instead.  If you're certain, type 'yes, please'"
+                hx-confirm-strong>
+            <i class="bi bi-x-lg"></i> Delete article
+        </button>
+    </div>
 </fieldset>

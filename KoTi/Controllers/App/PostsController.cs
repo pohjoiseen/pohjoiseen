@@ -82,4 +82,20 @@ public class PostsController(PostViewModelFactory modelFactory, HolviDbContext d
 
         return View("_Create", model);
     }
+
+    [HttpDelete("{id}/{language}")]
+    public async Task<IActionResult> Delete(int id, string language)
+    {
+        var posts = await dbContext.Posts.FindAsync(id);
+        if (posts == null)
+        {
+            return NotFound();
+        }
+        
+        dbContext.Posts.Remove(posts);
+        await dbContext.SaveChangesAsync();
+        
+        Response.Headers.Append("HX-Redirect", Url.Action("Index", new { language }));
+        return NoContent();
+    }
 }

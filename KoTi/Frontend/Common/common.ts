@@ -49,3 +49,17 @@ htmx.onLoad((el) => {
 document.addEventListener('dialogopenmodal', (e) => {
     if (e.target instanceof HTMLDialogElement) e.target.showModal(); 
 });
+
+// override default hx-confirm to use optionally the stronger version (prompt() instead of confirm())
+document.addEventListener('htmx:confirm', (e) => {
+    const customEvent = e as CustomEvent<{question: string, issueRequest: (confirmed: boolean) => void}>;
+    // The event is triggered on every trigger for a request, so we need to check if the element
+    // that triggered the request has a confirm question set via the hx-confirm attribute,
+    // if not we can return early and let the default behavior happen
+    if (!customEvent.detail.question) return
+
+    if (e.target instanceof HTMLElement && e.target.hasAttribute('hx-confirm-strong')) {
+        e.preventDefault();
+        if (prompt(customEvent.detail.question) === 'yes, please') customEvent.detail.issueRequest(true);
+    }
+});
