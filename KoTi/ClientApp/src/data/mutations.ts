@@ -6,10 +6,6 @@ import PictureSet from '../model/PictureSet';
 import { deletePictureSet, movePicturesToPictureSet, postPictureSet, putPictureSet } from '../api/pictureSets';
 import Tag from '../model/Tag';
 import { postTag } from '../api/tags';
-import Post from '../model/Post';
-import { postPost } from '../api/posts';
-import Article from '../model/Article';
-import { postArticle } from '../api/articles';
 import Redirect from '../model/Redirect';
 import { deleteRedirect, postRedirect } from '../api/redirects';
 import { publish } from '../api/home';
@@ -117,28 +113,6 @@ export const useCreateTagMutation = () => {
             tag = await postTag(tag);
             await queryClient.invalidateQueries([QueryKeys.TAGS]);
             return tag;
-        },
-    })
-};
-
-export const useCreatePostMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (post: Post) => {
-            post = await postPost(post);
-            await queryClient.invalidateQueries([QueryKeys.POSTS]);
-            return post;
-        },
-    })
-};
-
-export const useCreateArticleMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (article: Article) => {
-            article = await postArticle(article);
-            await queryClient.invalidateQueries([QueryKeys.ARTICLES]);
-            return article;
         },
     })
 };

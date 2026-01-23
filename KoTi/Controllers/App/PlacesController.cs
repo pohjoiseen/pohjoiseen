@@ -48,6 +48,7 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
                 IsLeaf = model.IsLeaf,
                 Name = model.Name,
                 Icon = "star",
+                Draft = true,
                 Order = await dbContext.Places.Where(p => p.ParentId == model.ParentId).CountAsync() + 1
             };
             dbContext.Places.Add(place);
@@ -68,7 +69,7 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
             await dbContext.SaveChangesAsync();
 
             // append entry to list
-            return View("CreateSuccess", (place.Order - 1, model.Language, new PlaceViewModel.PlaceChild
+            return View("_CreateSuccess", (place.Order - 1, model.Language, new PlaceViewModel.PlaceChild
             {
                 Id = place.Id,
                 Draft = place.Draft,
@@ -82,6 +83,6 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
         // the view renders a <dialog>, make sure it is opened
         Response.Headers.Append("HX-Trigger-After-Swap", "{\"dialogopenmodal\":{\"target\":\"#create-place-dialog\"}}");
 
-        return View("~/Views/Places/Create.cshtml", model);
+        return View("_Create", model);
     }
 }

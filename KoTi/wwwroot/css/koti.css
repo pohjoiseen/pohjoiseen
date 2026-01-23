@@ -85,9 +85,24 @@
 }
 
 @layer layout {
-  body.body-2col {
+  body {
     display: grid;
     height: 100vh;
+    grid-template-rows: 50px 1fr;
+    grid-template-columns: 1fr;
+
+    & header {
+      grid-area: 1 / 1 / 2 / 2;
+      overflow: hidden;
+    }
+    & header + * {
+      grid-area: 2 / 1 / 3 / 2;
+      overflow: auto;
+      padding: 5px;
+    }
+  }
+
+  body.body-2col {
     grid-template-rows: 50px 1fr;
     grid-template-columns: 1fr 1fr;
     

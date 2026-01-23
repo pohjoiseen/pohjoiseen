@@ -1,0 +1,36 @@
+@model CreateContentViewModel
+
+<dialog id="create-post-dialog">
+    <header>
+        <h2>Add New Post</h2>
+        <nav>
+            <button type="button" class="koti-btn primary with-indicator" id="create-post-submit-button"
+                    onclick="$id('create-post-form').requestSubmit()">
+                <span id="create-post-indicator" class="spinner htmx-indicator"></span>
+                <i class="bi bi-plus-lg"></i> Create
+            </button>
+            <button type="button" class="koti-btn cancel-btn"
+                    onclick="this.closest('dialog').close()">Cancel</button>
+        </nav>
+    </header>
+    <form id="create-post-form"
+          hx-post hx-controller="Posts" hx-action="Create" hx-route-language="@Model.Language"
+          hx-target="closest dialog" hx-swap="outerHTML" hx-trigger="submit"
+          hx-disabled-elt="#create-post-submit-button" hx-indicator="#create-post-indicator">
+        <fieldset>
+            <input type="hidden" asp-for="Language"/>
+            
+            <div>
+                <label for="create-post-name">Name (URL slug):</label>
+                <input id="create-post-name" class="input-block" required autocomplete="please-dont" asp-for="Name"></input>
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+
+            <div>
+                <label for="create-post-title">Title</label>
+                <input id="create-post-title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title" postholder="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+        </fieldset>
+    </form>
+</dialog>

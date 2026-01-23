@@ -32,10 +32,6 @@ const router = createBrowserRouter([
     { path: '/pictures/folders', element: <Pictures sets={true} /> },
     { path: '/pictures/upload', element: <PicturesUpload /> },
 
-    { path: '/blog', element: <Blog /> },
-
-    { path: '/articles', element: <Articles /> },
-
     { path: '/redirects', element: <Redirects /> },
 
     { path: '/publish', element: <Publish /> },

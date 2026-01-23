@@ -31,17 +31,3 @@ export const getPost = async (id: number): Promise<Post> => {
     }
     return postToFrontend(await response.json());
 }
-
-export const postPost = async (post: Post): Promise<Post> => {
-    const response = await fetch(`api/Posts`, {
-        method: 'POST',
-        body: JSON.stringify(post),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok || response.status !== 201) {
-        await handleError(response);
-    }
-    return await response.json();
-}

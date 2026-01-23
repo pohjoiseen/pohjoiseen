@@ -51,21 +51,4 @@ public class ArticlesApiController(HolviDbContext dbContext) : ControllerBase
 
         return article;
     }
-    
-    // POST: api/Articles
-    [HttpPost]
-    public async Task<ActionResult<Article>> PostArticle(ArticleRequestDTO requestDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var article = new Article { Language = Fennica3.Fennica3.Languages[0] };
-        requestDto.ToModel(article);
-        dbContext.Articles.Add(article);
-        await dbContext.SaveChangesAsync();
-
-        return CreatedAtAction("GetArticle", new { id = article.Id }, article);
-    }
 }

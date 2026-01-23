@@ -8,4 +8,5 @@ public class PostListViewModel : PaginatedViewModel
     public required string Language { get; set; }
     public required IList<Post> Posts { get; set; }
     public string? PostSearchQuery { get; set; }
+    public bool LinkOnly { get; set; }
 }

@@ -15,7 +15,8 @@ public class ArticleListViewComponent(HolviDbContext dbContext, IMemoryCache mem
         string language,
         int limit,
         int offset,
-        string? articleSearch)
+        string? articleSearch,
+        bool? linkOnly = false)
     {
         // cache articleSearch and offset per componentId
         // allow using cached values if special parameters are passed
@@ -70,7 +71,8 @@ public class ArticleListViewComponent(HolviDbContext dbContext, IMemoryCache mem
             Limit = limit > 0 ? limit : DefaultLimit,
             Offset = offset,
             Articles = await queryPaginated.ToListAsync(),
-            ArticleSearchQuery = articleSearch
+            ArticleSearchQuery = articleSearch,
+            LinkOnly = linkOnly ?? false
         });
     }
 }

@@ -1,0 +1,23 @@
+@{
+    ViewBag.Title = "Articles";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Articles
+}
+
+@section HeaderNav {
+    <button class="koti-btn primary with-indicator" id="create-button"
+            hx-get hx-controller="Articles" hx-action="Create" hx-route-language="@ViewData["Language"]"
+            hx-target="#create-article-dialog-container" hx-disabled-elt="this" hx-indicator="#create-button-indicator">
+        <span id="create-button-indicator" class="spinner htmx-indicator"></span>
+        <i class="bi bi-plug-lg"></i> Add article...
+    </button>
+}
+
+<form id="article-index" class="content-list" hx-swap="innerHTML">
+    <vc:article-list component-id="article-index" language="@ViewData["Language"]" limit="0" offset= "-1" article-search="#" link-only="true" />
+</form>
+
+<div id="create-article-dialog-container"></div>

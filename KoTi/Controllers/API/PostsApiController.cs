@@ -60,21 +60,4 @@ public class PostsApiController(HolviDbContext dbContext) : ControllerBase
 
         return post;
     }
-    
-    // POST: api/Posts
-    [HttpPost]
-    public async Task<ActionResult<Post>> PostPost(PostRequestDTO requestDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var post = new Post { Language = Fennica3.Fennica3.Languages[0] };
-        requestDto.ToModel(post);
-        dbContext.Posts.Add(post);
-        await dbContext.SaveChangesAsync();
-
-        return CreatedAtAction("GetPost", new { id = post.Id }, post);
-    }
 }

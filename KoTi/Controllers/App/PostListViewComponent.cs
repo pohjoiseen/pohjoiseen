@@ -16,7 +16,8 @@ public class PostListViewComponent(HolviDbContext dbContext, IMemoryCache memory
         string language,
         int limit,
         int offset,
-        string? postSearch)
+        string? postSearch,
+        bool? linkOnly = false)
     {
         // cache postSearch and offset per componentId
         // allow using cached values if special parameters are passed
@@ -72,7 +73,8 @@ public class PostListViewComponent(HolviDbContext dbContext, IMemoryCache memory
             Limit = limit > 0 ? limit : DefaultLimit,
             Offset = offset,
             Posts = await queryPaginated.ToListAsync(),
-            PostSearchQuery = postSearch
+            PostSearchQuery = postSearch,
+            LinkOnly = linkOnly ?? false
         });
     }
 }

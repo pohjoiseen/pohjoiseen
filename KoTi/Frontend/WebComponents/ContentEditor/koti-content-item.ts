@@ -3,7 +3,7 @@
 // and associated behaviors.  Simpler version of <koti-content-item>.
 //
 export default class ContentItemElement extends HTMLElement {
-    #button: HTMLButtonElement = null!;
+    #button: HTMLButtonElement | HTMLAnchorElement = null!;
     #img: HTMLImageElement = null!;
     #text: HTMLSpanElement = null!;
     #parent: HTMLElement = null!;
@@ -53,8 +53,12 @@ export default class ContentItemElement extends HTMLElement {
         // do not re-initialize further if already initialized
         if (this.#button) return;
 
-        // create DOM (button with img and span inside)
-        this.#button = document.createElement('button');
+        // create DOM (button/link with img and span inside)
+        const linkOnly = !!this.getAttribute('link-only');
+        this.#button = document.createElement(linkOnly ? 'a' : 'button');
+        if (linkOnly) {
+            this.#button.setAttribute('href', this.getAttribute('edit-url') || '#');
+        }
         this.#button.classList.add('koti-btn', 'item');
         this.#img = document.createElement('img');
         this.#img.setAttribute('loading', 'lazy');
@@ -63,6 +67,9 @@ export default class ContentItemElement extends HTMLElement {
         this.#button.appendChild(this.#img);
         this.#button.appendChild(this.#text);
         this.update();
+        
+        // for plain links don't bind any events
+        if (this.#button instanceof HTMLAnchorElement) return;        
 
         // bind event listeners to button
 
@@ -123,6 +130,7 @@ export default class ContentItemElement extends HTMLElement {
     }
 
     disconnectedCallback() {
+        if (this.#button instanceof HTMLAnchorElement) return;
         this.#parent.removeEventListener('koti-content-item:select', this);
         this.#parent.removeEventListener('koti-content-item:deselect-all', this);
     }

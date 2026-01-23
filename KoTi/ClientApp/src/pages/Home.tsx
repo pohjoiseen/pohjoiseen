@@ -36,7 +36,7 @@ const Home = () => {
                             <h2>
                                 <i className="bi bi-file-earmark-richtext"/>
                                 &nbsp;
-                                <Link to="/blog">{stats.data ? `${stats.data.totalPosts} post(s)` : 'Loading...'}</Link>
+                                <a href="/app/Posts/">{stats.data ? `${stats.data.totalPosts} post(s)` : 'Loading...'}</a>
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
@@ -45,7 +45,7 @@ const Home = () => {
                             <h2>
                                 <i className="bi bi-file-earmark"/>
                                 &nbsp;
-                                <Link to="/articles">{stats.data ? `${stats.data.totalArticles} article(s)` : 'Loading...'}</Link>
+                                <a href="/app/Articles/">{stats.data ? `${stats.data.totalArticles} article(s)` : 'Loading...'}</a>
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
@@ -105,21 +105,21 @@ const Home = () => {
                     {' '}(<b>{stats.data.totalPlaces}</b>)
                 </>}:</h3>
                 <div className="d-flex flex-wrap">
-                    <Card><CardBody><CardTitle><h2>
+                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
                         🇫🇮&nbsp;<a href="/app/Places/1060/en/">Finland</a>
-                    </h2></CardTitle></CardBody></Card>
-                    <Card><CardBody><CardTitle><h2>
+                    </h2></CardTitle></CardBody></Card></div>
+                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
                         🇸🇪&nbsp;<a href="/app/Places/1061/en/">Sweden</a>
-                    </h2></CardTitle></CardBody></Card>
-                    <Card><CardBody><CardTitle><h2>
+                    </h2></CardTitle></CardBody></Card></div>
+                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
                         🇳🇴&nbsp;<a href="/app/Places/1062/en/">Norway</a>
-                    </h2></CardTitle></CardBody></Card>
-                    <Card><CardBody><CardTitle><h2>
+                    </h2></CardTitle></CardBody></Card></div>
+                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
                         🇪🇪&nbsp;<a href="/app/Places/1063/en/">Estonia</a>
-                    </h2></CardTitle></CardBody></Card>
-                    <Card><CardBody><CardTitle><h2>
+                    </h2></CardTitle></CardBody></Card></div>
+                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
                         🇷🇺&nbsp;<a href="/app/Places/1064/en/">Russia</a>
-                    </h2></CardTitle></CardBody></Card>
+                    </h2></CardTitle></CardBody></Card></div>
                 </div>
             </>}
             <div className="mt-4 text-center text-muted small"> 

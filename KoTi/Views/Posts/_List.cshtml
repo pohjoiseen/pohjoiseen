@@ -5,7 +5,7 @@
      <label for="@Model.ComponentId-post-search-input" style="text-wrap-mode: nowrap;" class="mr">Search for posts:</label>
      <input type="text" id="@Model.ComponentId-post-search-input" class="input-block picture-set-search-input" value="@Model.PostSearchQuery" hx-get hx-target="#@Model.ComponentId"
             hx-trigger="keyup changed delay:500ms" hx-controller="Posts" hx-action="List" hx-route-componentId="@Model.ComponentId" hx-route-language="@Model.Language"
-            hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"postSearch":this.value}'/>
+            hx-route-limit="@Model.Limit" hx-route-offset="0" hx-route-linkOnly="@Model.LinkOnly" hx-vals='js:{"postSearch":this.value}'/>
 </div>
 
 <div class="list" data-remember-state="@Model.ComponentId-offset@(Model.Offset)">
@@ -13,10 +13,10 @@
      {
           <koti-content-item kind="post" id="@post.Id" src="@post.TitlePicture?.DetailsUrl" name="@post.Date.ToString("yyyy-MM-dd")-@post.Name" title="@post.Title" draft="@(post.Draft ? "true" : "")" 
                              height="@Picture.ThumbnailSize" width="@Math.Floor(post.TitlePicture?.Width * 1.0 / post.TitlePicture?.Height * Picture.ThumbnailSize ?? 0)"
-                             edit-url="@Url.Action("Edit", "Posts", new { id = post.Id, language = post.Language })"></koti-content-item>
+                             edit-url="@Url.Action("Edit", "Posts", new { id = post.Id, language = post.Language })" link-only="@Model.LinkOnly"></koti-content-item>
      }
 </div>
 
 <partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
-                                        BaseUrl = Url.Action("List", "Posts", new { componentId = Model.ComponentId, language = Model.Language, postSearch = Model.PostSearchQuery })!})" />
+                                        BaseUrl = Url.Action("List", "Posts", new { componentId = Model.ComponentId, language = Model.Language, postSearch = Model.PostSearchQuery, linkOnly = Model.LinkOnly })!})" />
 

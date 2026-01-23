@@ -28,17 +28,3 @@ export const getArticle = async (id: number): Promise<Article> => {
     }
     return articleToFrontend(await response.json());
 }
-
-export const postArticle = async (article: Article): Promise<Article> => {
-    const response = await fetch(`api/Articles`, {
-        method: 'POST',
-        body: JSON.stringify(article),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!response.ok || response.status !== 201) {
-        await handleError(response);
-    }
-    return await response.json();
-}
