@@ -9,8 +9,6 @@ import Home from './pages/Home';
 import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
 import Search from './pages/Search';
-import Blog from './pages/Blog';
-import Articles from './pages/Articles';
 import Redirects from './pages/Redirects';
 import Publish from './pages/Publish';
 

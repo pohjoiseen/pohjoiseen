@@ -45,6 +45,6 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         }
         
         ViewData["FormViewComponentType"] = typeof(TFormViewComponent);
-        return View("~/Views/AbstractContent/Save.cshtml", model);
+        return View("~/Views/AbstractContent/_Save.cshtml", model);
     }
 }
