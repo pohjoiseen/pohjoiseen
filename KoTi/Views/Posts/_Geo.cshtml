@@ -65,6 +65,14 @@
             <div><button type="button" class="koti-btn add-btn">Add link</button></div>
         </koti-geo-external-links>
     </div>
+    
+    <div>
+        <label>Show on maps:</label>
+        <input id="geo-map-default-@Model.Index" type="checkbox" name="Geo[@Model.Index][Maps][]" value="index" checked="@Model.Geo.Maps?.Contains("index")"/>
+        <label for="geo-map-default-@Model.Index">Default (Finland MML)</label>
+        <input id="geo-map-osm-@Model.Index" type="checkbox" name="Geo[@Model.Index][Maps][]" value="osm" checked="@Model.Geo.Maps?.Contains("osm")"/>
+        <label for="geo-map-osm-@Model.Index">Global OSM</label>
+    </div>
 
     <div>
         <button type="button" class="koti-btn danger remove-geo-btn"><i class="bi bi-x-lg"></i> Delete geo point</button>
