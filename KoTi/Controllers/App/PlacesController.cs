@@ -111,7 +111,7 @@ public class PlacesController(HolviDbContext dbContext, PlaceViewModelFactory mo
         return NoContent();
     }
 
-    [HttpGet("/Meta/CoatOfArms")]
+    [HttpGet("Meta/CoatOfArms")]
     public IActionResult MetaCoatOfArms([FromQuery] int? pictureId)
     {
         return ViewComponent("PlaceMetaCoatOfArms", new { pictureId });
