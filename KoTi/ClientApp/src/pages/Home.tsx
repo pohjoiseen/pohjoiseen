@@ -52,6 +52,15 @@ const Home = () => {
                     <div className="w-25 pb-1 pe-1">
                         <Card><CardBody><CardTitle>
                             <h2>
+                                <i className="bi bi-book"/>
+                                &nbsp;
+                                <a href="/app/Books/">Books</a>
+                            </h2>
+                        </CardTitle></CardBody></Card>
+                    </div>
+                    <div className="w-25 pb-1 pe-1">
+                        <Card><CardBody><CardTitle>
+                            <h2>
                                 <i className="bi bi-arrow-90deg-right"/>
                                 &nbsp;
                                 <Link to="/redirects">Redirects</Link>
@@ -100,26 +109,6 @@ const Home = () => {
                             </h2>
                         </CardTitle></CardBody></Card>
                     </div>
-                </div>
-                <h3 className="mt-3">Places{stats.data && <>
-                    {' '}(<b>{stats.data.totalPlaces}</b>)
-                </>}:</h3>
-                <div className="d-flex flex-wrap">
-                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
-                        🇫🇮&nbsp;<a href="/app/Places/1060/en/">Finland</a>
-                    </h2></CardTitle></CardBody></Card></div>
-                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
-                        🇸🇪&nbsp;<a href="/app/Places/1061/en/">Sweden</a>
-                    </h2></CardTitle></CardBody></Card></div>
-                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
-                        🇳🇴&nbsp;<a href="/app/Places/1062/en/">Norway</a>
-                    </h2></CardTitle></CardBody></Card></div>
-                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
-                        🇪🇪&nbsp;<a href="/app/Places/1063/en/">Estonia</a>
-                    </h2></CardTitle></CardBody></Card></div>
-                    <div className="w-25 pb-1 pe-1"><Card><CardBody><CardTitle><h2>
-                        🇷🇺&nbsp;<a href="/app/Places/1064/en/">Russia</a>
-                    </h2></CardTitle></CardBody></Card></div>
                 </div>
             </>}
             <div className="mt-4 text-center text-muted small"> 

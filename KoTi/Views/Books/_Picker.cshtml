@@ -1,0 +1,36 @@
+@model BookPickerViewModel
+
+<koti-book-picker>
+    <div id="book-picker-@Model.ComponentId" hx-get hx-controller="Books" hx-action="Picker" hx-route-componentId="@Model.ComponentId" hx-route-language="@Model.Language"
+              hx-route-fieldName="@Model.FieldName" hx-swap="outerHTML" hx-trigger="book-picker:reload" hx-vals="js:{bookId: this.querySelector('input[type=hidden]').value}">
+        <input type="hidden" name="@Model.FieldName" value="@Model.Book?.Id" />
+        @if (Model.Book != null)
+        {
+            <h3><b>@Model.Book.Title</b> <i>(@Model.Book.Name)</i></h3>
+        }
+        else
+        {
+            <div class="muted"><i>No book selected.</i></div>
+        }
+        <div class="mt">
+            <button class="koti-btn primary" onclick="$id('book-picker-dialog-@Model.ComponentId').showModal(); return false">
+                @(Model.Book == null ? "Set..." : "Change...")
+            </button>
+        </div>
+        <dialog class="book-picker-dialog" id="book-picker-dialog-@Model.ComponentId">
+            <header>
+                <h2 class="mr">Select book</h2>
+                <nav>
+                    <button type="button" class="koti-btn primary select-btn" disabled>Select</button>
+                    <button type="button" class="koti-btn unset-btn">Unset</button>
+                    <button type="button" class="koti-btn cancel-btn">Cancel</button>
+                </nav>
+            </header>
+            <div class="book-list" id="title-book-picker-@Model.ComponentId" hx-swap="innerHTML" hx-params="language,limit,offset"
+                 hx-get="@Url.Action("List", "Books", new { componentId = $"title-book-picker-{Model.ComponentId}", language = Model.Language })"
+                 hx-trigger="intersect once">
+                <div><span class="spinner"></span> Loading...</div>
+            </div>
+        </dialog>
+    </div>
+</koti-book-picker>

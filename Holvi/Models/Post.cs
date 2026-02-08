@@ -118,6 +118,17 @@ public class Post : IContentEntity
 
     public IList<GeoPoint>? Geo { get; set; }
     
+    /// <summary>
+    /// Book to which this post belongs, if any.
+    /// </summary>
+    public int? BookId { get; set; }
+    public Book? Book { get; set; }
+    
+    /// <summary>
+    /// Order within book.
+    /// </summary>
+    public int Order { get; set; }
+    
     public DateTime UpdatedAt { get; set; }
 
     public override string ToString()

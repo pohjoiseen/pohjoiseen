@@ -24,6 +24,8 @@ public class PostViewModel : AbstractContentViewModel
     public int? TitleImageOffsetY { get; set; }
     public bool TitleImageInText { get; set; }
     public string? TitleImageCaption { get; set; }
+    
+    public int? BookId { get; set; }
 
     public IList<Post.CoatOfArms> CoatsOfArms { get; set; } = new List<Post.CoatOfArms>();
     public IList<Post.GeoPoint> Geo { get; set; } = new List<Post.GeoPoint>();

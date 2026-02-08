@@ -133,11 +133,34 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
 
                 link.SetAttributeValue("href", helpers.ArticleLink(article) + hash);
             }
+            else if (href.Value.StartsWith("book:"))
+            {
+                var match = Regex.Match(href.Value, "book:([0-9]+)(#.*)?");
+                if (!match.Success)
+                {
+                    logger.LogWarning("Malformed book link: {href}", href.Value);
+                    continue;
+                }
+
+                var bookId = Int32.Parse(match.Groups[1].Value);
+                var hash = match.Length > 1 ? match.Groups[2].Value : "";
+
+                // book links are rare, look up and replace right away
+                var book = dbContext.Books.FirstOrDefault(b => b.Id == bookId);
+                if (book == null)
+                {
+                    logger.LogWarning("Book not found for book link: {href}", href.Value);
+                    continue;
+                }
+
+                link.SetAttributeValue("href", helpers.BookLink(book) + hash);
+            }
         }
 
         // second step, resolve all posts at once
         var posts = await dbContext.Posts
             .Where(p => links.Select(l => l.Item2).Contains(p.Id))
+            .Include(p => p.Book)
             .ToDictionaryAsync(p => p.Id);
         foreach (var (link, postId, hash) in links)
         {

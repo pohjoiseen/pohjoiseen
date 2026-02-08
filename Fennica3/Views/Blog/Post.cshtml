@@ -1,4 +1,5 @@
-﻿@model PostModel
+﻿@using Holvi.Models
+@model PostModel
 @inject Helpers Helpers
 @inject ContentFormatter ContentFormatter
 @{
@@ -17,6 +18,13 @@
         </div>
     }   
     <div class="post-title">
+        @if (Model.Post.BookId is not null)
+        {
+            <h2>
+                <a href="@Url.Action("Book", new { language = Model.Post.Language, bookName = Model.Post.Book!.Name })">@Model.Post.Book.Title</a>
+                <i class="fa fa-arrow-down"></i>
+            </h2>
+        }
         <h1>@Model.Post.Title</h1>
         @if (!String.IsNullOrEmpty(Model.Post.DateDescription))
         {
@@ -28,15 +36,17 @@
         }
         @if (Model.PrevPost != null)
         {
-            <h4><span class="prev">@Localizer.GetString("previous"):
+            <h4>
+                <span class="prev">@Localizer.GetString("previous"):
                     <a href="@Helpers.PostLink(Model.PrevPost)">@Model.PrevPost.Title</a>
-            </span></h4>
+                </span></h4>
         }
         @if (Model.NextPost != null)
         {
-            <h4><span class="next">@Localizer.GetString("next"):
+            <h4>
+                <span class="next">@Localizer.GetString("next"):
                     <a href="@Helpers.PostLink(Model.NextPost)">@Model.NextPost.Title</a>
-            </span></h4>
+                </span></h4>
         }
     </div>
 </div>

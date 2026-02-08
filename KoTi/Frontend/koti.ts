@@ -1,4 +1,5 @@
 import './Common/common.ts';
+import BookPickerElement from './WebComponents/Books/koti-book-picker.ts';
 import DndOrderElement from './WebComponents/Common/koti-dnd-order.ts';
 import ExploreStatusPickerElement from './WebComponents/Common/koti-explore-status-picker.ts';
 import GeoIconPickerElement from './WebComponents/Common/koti-geo-icon-picker.ts';
@@ -13,8 +14,6 @@ import PictureItemElement from './WebComponents/Pictures/koti-picture.ts';
 import PicturePickerElement from './WebComponents/Pictures/koti-picture-picker.ts';
 import PictureUploadModalElement from './WebComponents/Pictures/koti-picture-upload-modal.ts';
 import PictureUploaderElement from './WebComponents/Pictures/koti-picture-uploader.ts';
-import MetaCoatOfArmsElement from './WebComponents/Places/koti-meta-coat-of-arms.ts';
-import PlaceMetadataElement from './WebComponents/Places/koti-place-metadata.ts';
 import GeoExternalLinksElement from './WebComponents/Posts/koti-geo-external-links.ts';
 import PostCoatsOfArmsElement from './WebComponents/Posts/koti-post-coats-of-arms.ts';
 import PostGeoElement from './WebComponents/Posts/koti-post-geo.ts';
@@ -35,16 +34,15 @@ customElements.define('koti-tabs', TabsElement);
 customElements.define('koti-content-editor', ContentEditorElement);
 customElements.define('koti-content-item', ContentItemElement);
 
+// books
+customElements.define('koti-book-picker', BookPickerElement);
+
 // pictures
 customElements.define('koti-fullscreen-picture', FullscreenPictureElement);
 customElements.define('koti-picture', PictureItemElement);
 customElements.define('koti-picture-picker', PicturePickerElement);
 customElements.define('koti-picture-upload-modal', PictureUploadModalElement);
 customElements.define('koti-picture-uploader', PictureUploaderElement);
-
-// places
-customElements.define('koti-meta-coat-of-arms', MetaCoatOfArmsElement);
-customElements.define('koti-place-metadata', PlaceMetadataElement);
 
 // posts
 customElements.define('koti-geo-external-links', GeoExternalLinksElement);

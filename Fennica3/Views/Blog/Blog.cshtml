@@ -4,19 +4,25 @@
 @{
     int miniCounter = 0;
     bool firstPost = true;
+    bool useTitleImage = Model.Book?.TitlePictureId is not null;
 }
 
+@if (Model.Book != null)
+{
+    <div class="post-heading-blog @(useTitleImage ? "post-heading" : "post-heading-no-pic")"
+         style="@(useTitleImage ? $"background-image: url({Model.Book.TitlePicture!.Url}), url({Model.Book.TitlePicture!.ThumbnailUrl}); background-position: 50% 50%;" : "")">
+        <div class="post-title">
+            <h1>@Model.Book.Title</h1>
+        </div>
+    </div>
+
+}
 <main class="blog-main">
     @if (Model.Page == 1)
     {
         <article class="article-main" style="overflow: hidden;">
             <hr/>
-            @Html.Raw(Helpers.BeginPostMaps(Model.LayoutParams.Language))
-            @if (Model.MapAsideText != null)
-            {
-                @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.MapAsideText))
-            }
-            @Html.Raw(Helpers.EndPostMaps())
+            @Html.Raw(Helpers.OutputPostMaps(Model.LayoutParams.Language, Model.Book?.Id))
             @if (Model.IntroText != null)
             {
                 @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.IntroText))
@@ -78,7 +84,10 @@
                     <div class="post-list-entry-top">
                         <div class="post-list-entry-title">
                             <h2><a href="@Helpers.PostLink(post)">@post.Title</a></h2>
-                            <h4><time datetime="@post.Date.ToString("yyyy-MM-dd")">@post.Date.ToLongDateString()</time></h4>
+                            @if (Model.Book is null)
+                            {
+                                <h4><time datetime="@post.Date.ToString("yyyy-MM-dd")">@post.Date.ToLongDateString()</time></h4>
+                            }
                         </div>
                         @if (post.CoatsOfArms is { Count: > 0 })
                         {

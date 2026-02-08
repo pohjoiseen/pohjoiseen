@@ -49,6 +49,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
             Mini = entity.Mini,
+            BookId = entity.BookId,
             AllLanguages = await dbContext.Posts
                 .Where(p => p.Name == entity.Name && p.Date == entity.Date)
                 .Select(p => p.Language).Distinct().ToListAsync()
@@ -80,6 +81,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.CoatsOfArms = model.CoatsOfArms;
         entity.Geo = model.Geo;
         entity.ContentMD = model.ContentMD ?? "";
+        entity.BookId = model.BookId;
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;
         await dbContext.SaveChangesAsync();

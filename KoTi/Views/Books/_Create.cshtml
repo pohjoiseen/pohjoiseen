@@ -1,0 +1,36 @@
+@model CreateContentViewModel
+
+<dialog id="create-book-dialog">
+    <header>
+        <h2>Add New Book</h2>
+        <nav>
+            <button type="button" class="koti-btn primary with-indicator" id="create-book-submit-button"
+                    onclick="$id('create-book-form').requestSubmit()">
+                <span id="create-book-indicator" class="spinner htmx-indicator"></span>
+                <i class="bi bi-plus-lg"></i> Create
+            </button>
+            <button type="button" class="koti-btn cancel-btn"
+                    onclick="this.closest('dialog').close()">Cancel</button>
+        </nav>
+    </header>
+    <form id="create-book-form"
+          hx-post hx-controller="Books" hx-action="Create" hx-route-language="@Model.Language"
+          hx-target="closest dialog" hx-swap="outerHTML" hx-trigger="submit"
+          hx-disabled-elt="#create-book-submit-button" hx-indicator="#create-book-indicator">
+        <fieldset class="formbox">
+            <input type="hidden" asp-for="Language"/>
+            
+            <div>
+                <label for="create-book-name">Name (URL slug):</label>
+                <input id="create-book-name" class="input-block" required autocomplete="please-dont" asp-for="Name"></input>
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+
+            <div>
+                <label for="create-book-title">Title</label>
+                <input id="create-book-title" class="input-block heading-font" style="font-size: 30px;" required autocomplete="off" asp-for="Title" bookholder="Title"/>
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+        </fieldset>
+    </form>
+</dialog>

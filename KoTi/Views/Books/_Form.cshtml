@@ -1,0 +1,74 @@
+@model BookViewModel
+
+<koti-tabs component-id="bookstab">
+    <koti-tab name="General">
+
+        <fieldset class="formbox">
+            <div>
+                <label for="name">Name (URL slug):</label>
+                <input id="name" class="input-block" required autocomplete="please-dont" asp-for="Name" />
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+
+            <div>
+                <label for="title">Title:</label>
+                <input id="title" class="input-block heading-font" style="font-size: 30px;" required asp-for="Title" />
+                @Html.ValidationMessageFor(m => m.Title)
+            </div>
+
+            <div>
+                <input id="draft" type="checkbox" asp-for="Draft" />
+                <label for="draft">Draft</label>
+                @Html.ValidationMessageFor(m => m.Draft)
+            </div>
+            
+            <div>
+                @if (Model.Posts.Count == 0)
+                {
+                    <button type="button" class="koti-btn danger"
+                            hx-delete hx-controller="Books" hx-action="Delete" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                            hx-confirm="Are you really sure you want to delete this book?  This cannot be undone.  If you're certain, type 'yes, please'"
+                            hx-confirm-strong>
+                        <i class="bi bi-x-lg"></i> Delete book
+                    </button>
+                }
+                else
+                {
+                    <div>
+                        <button type="button" class="koti-btn danger" disabled title="Cannot delete a non-empty book">
+                            <i class="bi bi-x-lg"></i> Delete book
+                        </button>
+                    </div>
+                }
+            </div>
+        </fieldset>
+    </koti-tab>
+    
+    <koti-tab name="Title Picture">
+        <koti-post-title-picture picker-component-id="picture-picker-book-@Model.Id">
+            <vc:picture-picker component-id="picture-picker-book-@Model.Id" field-name="TitlePictureId" picture-id="@Model.TitlePictureId"/>
+            @Html.ValidationMessageFor(m => m.TitlePictureId)
+        </koti-post-title-picture>
+    </koti-tab>
+    
+    <koti-tab name="Posts">
+        <div class="mb">
+            This book contains @Model.Posts.Count post(s).  Assign posts to book through the regular post editing pages.
+            Posts can be reordered within a book here.
+        </div>
+        <koti-dnd-order field-prefix="Posts" id="post-posts-list-container">
+            @foreach (var item in Model.Posts.Select((value, i) => (value, i)))
+            {
+                <div draggable="true">
+                    <input type="hidden" name="Posts[@item.i][Id]" value="@item.value.Id"/>
+                    <input type="hidden" name="Posts[@item.i][Title]" value="@item.value.Title"/>
+                    <input type="hidden" name="Posts[@item.i][Draft]" value="@(item.value.Draft ? "true" : "false")"/>
+                    <a class="koti-btn w100 align-left @(item.value.Draft ? "draft" : "")" href="/app/Posts/@item.value.Id/"
+                       title="@item.value.Title">
+                        <span>@item.value.Title</span>
+                    </a>
+                </div>
+            }
+        </koti-dnd-order>
+    </koti-tab>
+</koti-tabs>

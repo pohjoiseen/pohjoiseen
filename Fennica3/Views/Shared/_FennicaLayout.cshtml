@@ -117,10 +117,12 @@
                 @if (layoutParams.Language == "ru")
                 {
                     <text>
-                        <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" ? "active" : "")">@(Localizer["blog"].Value)</a> |
+                        <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" && !layoutParams.CanonicalLink.Contains("book") ? "active" : "")">@(Localizer["blog"].Value)</a> |
+                        Регионы: <a href="/@layoutParams.Language/book/kainuu/" class="@(layoutParams.CanonicalLink.Contains("/book/kainuu/") ? "active" : "")">Кайнуу</a>
+                        <br/>
                         <a href="/@layoutParams.Language/article/contents/" class="@(layoutParams.BigHeaderPage == "contents" ? "active" : "")">@(Localizer["contents"])</a> |
                         <a href="/@layoutParams.Language/article/about/" class="@(layoutParams.BigHeaderPage == "about" ? "active" : "")">@(Localizer["about-website"])</a> |
-                        <a href="@Fennica3.Telegram"><img class="telegram" alt="Telegram" src="/telegram-white.svg" />Telegram</a>
+                        <a href="@Fennica3.Telegram" style="text-wrap: nowrap;"><img class="telegram" alt="Telegram" src="/telegram-white.svg" />Telegram</a>
                         <br class="onlymobile-inline" />
                     </text>
                 }
@@ -195,32 +197,38 @@
 
     @RenderBody()
 
-<footer>
-    @if (layoutParams.PrevPath.Length > 0 || layoutParams.NextPath.Length > 0)
-    {
+    <footer>
+        @if (layoutParams.UpPath.Length > 0)
+        {
+            <p>
+                <a href="@layoutParams.UpPath"><i class="fas fa-arrow-up"></i></a>@Html.Raw("&nbsp;")<a href="@layoutParams.UpPath" class="text">@layoutParams.UpTitle</a>
+            </p>
+        }
+        @if (layoutParams.PrevPath.Length > 0 || layoutParams.NextPath.Length > 0)
+        {
+            <p>
+                @if (layoutParams.PrevPath.Length > 0)
+                {
+                    <text><a href="@layoutParams.PrevPath"><i class="fas fa-arrow-left"></i></a>@Html.Raw("&nbsp;")<a href="@layoutParams.PrevPath" class="text">@layoutParams.PrevTitle</a></text>
+                }
+                @if (layoutParams.PrevPath.Length > 0 && layoutParams.NextPath.Length > 0)
+                {
+                    <text>@Html.Raw("\u00A0| ")</text>
+                }
+                @if (layoutParams.NextPath.Length > 0)
+                {
+                    <text><a href="@layoutParams.NextPath" class="text">@layoutParams.NextTitle</a>@Html.Raw("&nbsp;")<a href="@layoutParams.NextPath"><i class="fas fa-arrow-right"></i></a></text>
+                }
+            </p>
+        }
+        else
+        {
+            <p>@(Localizer["last-updated-on"].Value): @File.GetLastWriteTime(configuration["Holvi:DatabaseFile"]!).ToLongDateString()</p>
+        }
         <p>
-            @if (layoutParams.PrevPath.Length > 0)
-            {
-                <text><a href="@layoutParams.PrevPath"><i class="fas fa-arrow-left"></i></a>@Html.Raw("&nbsp;")<a href="@layoutParams.PrevPath" class="text">@layoutParams.PrevTitle</a></text>
-            }
-            @if (layoutParams.PrevPath.Length > 0 && layoutParams.NextPath.Length > 0)
-            {
-                <text>@Html.Raw("\u00A0| ")</text>
-            }
-            @if (layoutParams.NextPath.Length > 0)
-            {
-                <text><a href="@layoutParams.NextPath" class="text">@layoutParams.NextTitle</a>@Html.Raw("&nbsp;")<a href="@layoutParams.NextPath"><i class="fas fa-arrow-right"></i></a></text>
-            }
+            @Fennica3.Copyright <a href="@Fennica3.FooterLink">@Fennica3.Author</a>
+            <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND</a>
         </p>
-    }
-    else
-    {
-        <p>@(Localizer["last-updated-on"].Value): @File.GetLastWriteTime(configuration["Holvi:DatabaseFile"]!).ToLongDateString()</p>
-    }
-    <p>
-        @Fennica3.Copyright <a href="@Fennica3.FooterLink">@Fennica3.Author</a>
-        <a href="https://creativecommons.org/licenses/by-nd/4.0/">CC BY-ND</a>
-    </p>
-</footer>
+    </footer>
 </body>
 </html>

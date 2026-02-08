@@ -12,7 +12,4 @@ public class Tag
 
     [JsonIgnore]
     public IList<Picture> Pictures { get; } = [];
-    
-    [JsonIgnore]
-    public IList<Place> Places { get; } = [];
 }

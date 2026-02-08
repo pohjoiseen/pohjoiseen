@@ -5,13 +5,12 @@ namespace Holvi;
 
 public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContext(options)
 {
-    public DbSet<Place> Places { get; init; } = null!;
-    public DbSet<PlaceLocalization> PlaceLocalizations { get; init; } = null!;
     public DbSet<Picture> Pictures { get; init; } = null!;
     public DbSet<PictureSet> PictureSets { get; init; } = null!;
     public DbSet<Tag> Tags { get; init; } = null!;
     public DbSet<Article> Articles { get; init; } = null!;
     public DbSet<Post> Posts { get; init; } = null!;
+    public DbSet<Book> Books { get; init; } = null!;
     public DbSet<Redirect> Redirects { get; init; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,25 +23,5 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
                 builder.ToJson();
                 builder.OwnsMany(g => g.Links);
             });
-        modelBuilder.Entity<Place>().OwnsOne(p => p.Meta, builder =>
-        {
-            builder.ToJson();
-            builder.OwnsOne(m => m.Population);
-            builder.OwnsOne(m => m.Area);
-            builder.OwnsOne(m => m.Established);
-            builder.OwnsOne(m => m.LanguagePercent);
-            builder.OwnsOne(m => m.TrailDistance);
-            builder.OwnsOne(m => m.CoatOfArms);
-        });
-        modelBuilder.Entity<PlaceLocalization>().OwnsOne(p => p.Meta, builder =>
-        {
-            builder.ToJson();
-            builder.OwnsOne(m => m.Population);
-            builder.OwnsOne(m => m.Area);
-            builder.OwnsOne(m => m.Established);
-            builder.OwnsOne(m => m.LanguagePercent);
-            builder.OwnsOne(m => m.TrailDistance);
-            builder.OwnsOne(m => m.CoatOfArms);
-        });
     }
 }

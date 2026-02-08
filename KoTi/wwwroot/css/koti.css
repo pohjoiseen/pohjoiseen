@@ -895,4 +895,5 @@
   .nowrap { white-space: nowrap; }
   .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
   .formbox {  display: flex; flex-direction: column; gap: 20px; }
+  .align-left { text-align: left; }
 }

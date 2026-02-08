@@ -25,7 +25,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
         [FromQuery] int? minRating)
     {
         var query = dbContext.Pictures
-            .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .AsQueryable();
@@ -83,7 +82,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
     public async Task<ActionResult<IEnumerable<PictureResponseDTO>>> GetPicturesForPlace(int placeId, [FromQuery] int limit)
     {
         var pictures = await dbContext.Pictures
-            .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .Where(p => p.PlaceId == placeId)
@@ -99,7 +97,6 @@ public class PicturesApiController(HolviDbContext dbContext, PictureStorage pict
     public async Task<ActionResult<PictureResponseDTO>> GetPicture(int id)
     {
         var picture = await dbContext.Pictures
-            .Include(p => p.Place)
             .Include(p => p.Set)
             .Include(p => p.Tags)
             .Where(p => p.Id == id)

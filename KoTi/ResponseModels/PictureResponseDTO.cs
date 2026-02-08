@@ -42,7 +42,6 @@ public class PictureResponseDTO
             DetailsUrl = picture.DetailsUrl,
             UploadedAt = picture.UploadedAt,
             PlaceId = picture.PlaceId,
-            PlaceName = picture.Place?.Name,
             Width = picture.Width,
             Height = picture.Height,
             Size = picture.Size,

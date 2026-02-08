@@ -1,4 +1,4 @@
-/* Fennica styles -- based on Pohjoiseen.fi, originally from scratch, using only Eric Meyer's CSS reset */
+/* Fennica styles -- based on old Pohjoiseen.fi, originally from scratch, using only Eric Meyer's CSS reset */
 
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
@@ -365,7 +365,7 @@ header {
 }
 
 header.big {
-    height: 200px;
+    height: 240px;
     flex-direction: column;
     position: relative;
 }
@@ -505,7 +505,7 @@ header.big img.twitter, header.big img.telegram {
     }
 
     header.big {
-        height: 104px;
+        height: 135px;
     }
 
     .main-title {
@@ -688,21 +688,14 @@ header.big img.twitter, header.big img.telegram {
 
 .mapview-wrapper .leaflet-container {
     height: calc(100vh - 250px);
-    width: 100%;
+    width: 64%;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    float: left;
 }
 
-.mapview-wrapper.with-aside {
-    display: flex;
-    flex-direction: row;
-}
-
-    .mapview-wrapper.with-aside .leaflet-container {
-    }
-
-.mapview-wrapper.with-aside .mapview-aside {
-    width: 33%;
-    margin-left: 20px;
-    line-height: 1.4;
+.body-book .mapview-wrapper .leaflet-container {
+    height: calc(100vh - 350px);
 }
 
 .map-popup h4 {
@@ -784,6 +777,9 @@ header.big img.twitter, header.big img.telegram {
 @media (max-width: 767px) {
     .mapview-wrapper .leaflet-container {
         height: calc(100vh - 200px);
+        width: 100%;
+        float: none;
+        margin-right: 0;
     }
 
     .leaflet-control-attribution {
@@ -1021,6 +1017,15 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     height: 25vw;
 }
 
+.body-blog .post-heading.post-heading-blog {
+    height: auto;
+}
+
+.body-blog .post-heading.post-heading-blog h1 {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
 .post-heading-no-pic {
     height: auto;
     position: relative;
@@ -1068,7 +1073,7 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     text-shadow: 0 0 3px #000, 0 0 3px #000, 0 0 3px #000;
 }
 
-.post-title h1, .post-title h2, .post-title h4 {
+.post-title h1, .post-title h2, .post-title h4, .post-title a {
     margin: 5px auto 0 auto;
     max-width: 80%;
     overflow: hidden;
@@ -1076,6 +1081,15 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     color: #fff;
     position: relative;
     z-index: 1;
+}
+
+.post-title h1 {
+    margin-top: 0;
+}
+
+.post-title h2 {
+    line-height: 1;
+    overflow: visible;
 }
 
 .body-blog .post-heading-no-pic .post-title {

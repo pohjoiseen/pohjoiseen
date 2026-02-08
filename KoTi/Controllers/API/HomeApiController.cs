@@ -20,7 +20,7 @@ public class HomeApiController(HolviDbContext dbContext, IConfiguration configur
         {
             TotalPictures = await dbContext.Pictures.CountAsync(),
             TotalPicturesWithNoLocation = await dbContext.Pictures.Where(p => p.PlaceId == null).CountAsync(),
-            TotalPlaces = await dbContext.Places.CountAsync(),
+            TotalPlaces = 0,
             TotalPosts = await dbContext.Posts.CountAsync(),
             TotalArticles = await dbContext.Articles.CountAsync(),
             DatabaseLastPublishedAt = dbFileInfo.LastWriteTime,

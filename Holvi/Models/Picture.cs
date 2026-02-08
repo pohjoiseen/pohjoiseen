@@ -29,8 +29,6 @@ public class Picture
     public DateTime UploadedAt { get; set; }
     
     public int? PlaceId { get; set; }
-    [JsonIgnore]
-    public Place? Place { get; set; }
     
     public int Width { get; set; }
     public int Height { get; set; }

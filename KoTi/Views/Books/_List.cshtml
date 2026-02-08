@@ -1,0 +1,19 @@
+@model BookListViewModel
+
+<div class="content-header">
+    <label for="@Model.ComponentId-post-search-input" style="text-wrap-mode: nowrap;" class="mr">Search for books:</label>
+    <input type="text" id="@Model.ComponentId-post-search-input" class="input-block picture-set-search-input" value="@Model.BookSearchQuery" hx-get hx-target="#@Model.ComponentId"
+           hx-trigger="keyup changed delay:500ms" hx-controller="Books" hx-action="List" hx-route-componentId="@Model.ComponentId" hx-route-language="@Model.Language"
+           hx-route-linkOnly="@Model.LinkOnly" hx-route-limit="@Model.Limit" hx-route-offset="0" hx-vals='js:{"bookSearch":this.value}'/>
+</div>
+
+<div class="list" data-remember-state="@Model.ComponentId-offset@(Model.Offset)">
+    @foreach (var book in Model.Books)
+    {
+        <koti-content-item kind="book" id="@book.Id" name="@book.Name" title="@book.Title" draft="@(book.Draft ? "true" : "")"
+                           edit-url="@Url.Action("Edit", "Books", new { id = book.Id, language = book.Language })" link-only="@Model.LinkOnly"></koti-content-item>
+    }
+</div>
+
+<partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = "#" + Model.ComponentId,
+                                       BaseUrl = Url.Action("List", "Books", new { componentId = Model.ComponentId, language = Model.Language, bookSearch = Model.BookSearchQuery, linkOnly = Model.LinkOnly })!})" />

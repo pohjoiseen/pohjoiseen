@@ -23,11 +23,12 @@ var part = new AssemblyPart(f3Assembly);
 builder.Services.AddControllersWithViews().ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
 builder.Services.AddScoped<PostViewModelFactory>();
 builder.Services.AddScoped<ArticleViewModelFactory>();
-builder.Services.AddScoped<PlaceViewModelFactory>();
+builder.Services.AddScoped<BookViewModelFactory>();
 
 var app = builder.Build();
 
 // allow running migrations in production without dragging in .NET SDK
+// should we use .NET command line library?  maybe not for just single possible special command?
 if (args.Contains("--help"))
 {
     Console.WriteLine("This is Fennica3/KoTi backoffice.");

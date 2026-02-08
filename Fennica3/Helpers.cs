@@ -9,6 +9,7 @@ using GeoJSON.Text.Feature;
 using GeoJSON.Text.Geometry;
 using Holvi;
 using Holvi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fennica3;
 
@@ -29,14 +30,26 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
     /// <returns>Link (without host)</returns>
     public string PostLink(Post post)
     {
-        return linkGenerator.GetPathByAction("Post", "Blog", new
+        if (post.BookId is null)
         {
-            language = post.Language,
-            year = post.Date.Year,
-            month = post.Date.ToString("MM"),
-            day = post.Date.ToString("dd"),
-            name = post.Name
-        })!;
+            return linkGenerator.GetPathByAction("Post", "Blog", new
+            {
+                language = post.Language,
+                year = post.Date.Year,
+                month = post.Date.ToString("MM"),
+                day = post.Date.ToString("dd"),
+                name = post.Name
+            })!;
+        }
+        else
+        {
+            return linkGenerator.GetPathByAction("PostInBook", "Blog", new
+            {
+                language = post.Language,
+                bookName = post.Book!.Name,
+                name = post.Name
+            })!;
+        }
     }
     
     /// <summary>
@@ -54,17 +67,34 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
     }
     
     /// <summary>
+    /// Generates a canonical link to a book.
+    /// </summary>
+    /// <param name="book"></param>
+    /// <returns>Link (without host)</returns>
+    public string BookLink(Book book)
+    {
+        return linkGenerator.GetPathByAction("Book", "Blog", new
+        {
+            language = book.Language,
+            bookName = book.Name
+        })!;
+    }
+
+    /// <summary>
     /// Generates GeoJSON data for blog maps, in 16 zoom levels.
     /// </summary>
     /// <param name="language">Language to filter by</param>
+    /// <param name="bookId">Book ID to filter by</param>
     /// <returns>Dictionary of "map name" -> "16 GeoJSON FeatureCollection objects"</returns>
-    private IDictionary<string, FeatureCollection[]> GenerateGeoJSONFromPosts(string language)
+    private IDictionary<string, FeatureCollection[]> GenerateGeoJSONFromPosts(string language, int? bookId)
     {
         var geoJSONs = new Dictionary<string, FeatureCollection[]>(); 
         
         var posts = dbContext.Posts
             .Where(p => p.Language == language)
+            .Where(p => bookId == null || p.BookId == bookId)
             .Where(p => configuration["Fennica3:WithDrafts"] != null || !p.Draft)
+            .Include(p => p.Book)
             .ToList();
 
         foreach (var post in posts)
@@ -126,13 +156,13 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
     
     /// <summary>
     /// Generates HTML for maps on blog front page.
-    /// Leaves some divs not closed, as the HTML wraps some user-editable content.
     /// </summary>
     /// <param name="language">Language to filter by</param>
+    /// <param name="bookId">Book ID to filter by</param>
     /// <returns>HTML</returns>
-    public string BeginPostMaps(string language)
+    public string OutputPostMaps(string language, int? bookId)
     {
-        var geoJSONs = GenerateGeoJSONFromPosts(language);
+        var geoJSONs = GenerateGeoJSONFromPosts(language, bookId);
         var containersHTML = "";
         var first = true;
         foreach (var (mapName, geoJSON) in geoJSONs)
@@ -146,19 +176,9 @@ public class Helpers(HolviDbContext dbContext, LinkGenerator linkGenerator,
             first = false;
         }
         
-        StringBuilder output = new StringBuilder();
-        output.Append($"<div class=\"mapview-wrapper with-aside\" data-maps=\"{string.Join(',', geoJSONs.Keys)}\">");
-        output.Append(containersHTML);
-        output.Append("<div class=\"mapview-aside\">");
-        return output.ToString();
+        return $"<div class=\"mapview-wrapper\" data-maps=\"{string.Join(',', geoJSONs.Keys)}\">{containersHTML}</div>";
     }
 
-    /// <summary>
-    /// Closes HTML markup opened by BeginPostMaps().
-    /// </summary>
-    /// <returns>HTML</returns>
-    public string EndPostMaps() => "</div></div>\n";
-    
     /// <summary>
     /// Resolves "picture:XXX" URLs for coats of arms to actual links.
     /// </summary>

@@ -21,7 +21,11 @@ public class LayoutParams
     public string Language { get; set; } = "";
     
     public string CanonicalLink { get; set; } = "";
-    
+
+    public string UpPath { get; set; } = "";
+
+    public string UpTitle { get; set; } = "";
+
     public string PrevPath { get; set; } = "";
 
     public string NextPath { get; set; } = "";
