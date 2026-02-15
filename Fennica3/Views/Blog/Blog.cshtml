@@ -27,8 +27,11 @@
             {
                 @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.IntroText))
             }
-            <hr style="clear: both;"/>
         </article>
+        @if (Model.ExtraToCText != null)
+        {
+            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.ExtraToCText))
+        }
     }
     
     @foreach (var post in Model.Posts)
@@ -145,4 +148,6 @@
             </div>
         </nav>
     }
+    
+    <div class="clearfix"></div>
 </main>

@@ -118,7 +118,7 @@
                 {
                     <text>
                         <a href="/@layoutParams.Language/" class="@(layoutParams.BigHeaderPage == "blog" && !layoutParams.CanonicalLink.Contains("book") ? "active" : "")">@(Localizer["blog"].Value)</a> |
-                        Регионы: <a href="/@layoutParams.Language/book/kainuu/" class="@(layoutParams.CanonicalLink.Contains("/book/kainuu/") ? "active" : "")">Кайнуу</a>
+                        Регионы: <a href="/@layoutParams.Language/kainuu/" class="@(layoutParams.CanonicalLink.Contains($"/{layoutParams.Language}/kainuu/") ? "active" : "")">Кайнуу</a>
                         <br/>
                         <a href="/@layoutParams.Language/article/contents/" class="@(layoutParams.BigHeaderPage == "contents" ? "active" : "")">@(Localizer["contents"])</a> |
                         <a href="/@layoutParams.Language/article/about/" class="@(layoutParams.BigHeaderPage == "about" ? "active" : "")">@(Localizer["about-website"])</a> |

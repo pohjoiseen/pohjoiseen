@@ -1,8 +1,8 @@
 {
   "name": "fennica3-js",
-  "version": "3.0",
+  "version": "3.3",
   "private": true,
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "dev": "webpack --config webpack.config.dev.js",
     "build": "webpack --config webpack.config.prod.js"

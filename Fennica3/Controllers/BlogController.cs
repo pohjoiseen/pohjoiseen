@@ -42,6 +42,9 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         var introText = (await dbContext.Articles
             .Where(a => a.Name == "_blog-intro" && a.Language == language)
             .FirstOrDefaultAsync())?.ContentMD;
+        var extraToCText = (await dbContext.Articles
+            .Where(a => a.Name == "_blog-extra-contents" && a.Language == language)
+            .FirstOrDefaultAsync())?.ContentMD;
         
         var model = new BlogModel
         {
@@ -50,14 +53,15 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             Page = page,
             TotalPages = totalPages,
             Pagination = GetPagesForPagination(totalPages, page),
-            IntroText = introText
+            IntroText = introText,
+            ExtraToCText = extraToCText,
         };
 
         return View("Blog", model);
     }
     
-    [HttpGet("/{language}/book/{bookName}/")]
-    [HttpGet("/{language}/book/{bookName}/{page:int}/")]
+    [HttpGet("/{language}/{bookName}/")]
+    [HttpGet("/{language}/{bookName}/{page:int}/")]
     public async Task<IActionResult> Book(string language, string bookName, int page = 1)
     {
         var book = await dbContext.Books
@@ -80,8 +84,9 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         var totalPages = await CountPagesAsync(language, book.Id);
         var layoutParams = new LayoutParams
         {
-            Title = "blog",
+            Title = book.Title,
             Language = language,
+            TitleImage = book.TitlePicture?.Url ?? "",
             CanonicalLink = Url.Action("Book", new { language, bookName })!,
             BodyClass = "body-blog body-book",
         };
@@ -154,7 +159,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
     }
     
     
-    [HttpGet("/{language}/book/{bookName}/{name}/")]
+    [HttpGet("/{language}/{bookName}/{name}/")]
     public async Task<IActionResult> PostInBook(string language, string bookName, string name)
     {
         var book = await dbContext.Books
@@ -192,7 +197,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             .Where(p => p.Language == language)
             .Where(p => p.BookId == book.Id)
             .Where(p => configuration["Fennica3:WithDrafts"] != null || !p.Draft)
-            .Where(p => p.Order > post.Order || (p.Date == post.Date && p.Name.CompareTo(post.Name) > 0))
+            .Where(p => p.Order > post.Order || (p.Order == post.Order && p.Date.CompareTo(post.Date) > 0))
             .OrderBy(p => p.Order)
             .ThenBy(p => p.Date)
             .FirstOrDefaultAsync();

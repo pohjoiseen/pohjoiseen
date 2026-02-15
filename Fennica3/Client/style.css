@@ -198,15 +198,18 @@ figure > a {
     line-height: 0;
 }
 
-figure img, #primary img {
+figure img, #primary img, .multiple-images img {
     max-width: 100%;
-    max-height: 85vh;
     height: auto;
     margin: auto;
     object-fit: contain;
     display: inline-block;
     line-height: 0;
     box-sizing: border-box;
+}
+
+figure img, #primary img {
+    max-height: 85vh;
 }
 
 figcaption {
@@ -217,6 +220,8 @@ figcaption {
     max-width: 980px;
     margin: auto;
     line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 i, em {
@@ -251,12 +256,42 @@ img.twitter, img.telegram {
     margin-right: 5px;
 }
 
-/* Big Laptop */
-@media (min-width: 1440px) {
+aside {
+    background: rgba(150, 84, 66, 0.2);
+    padding: 20px;
+    line-height: 1.4;
 }
 
-/* Small laptop */
-@media (max-width: 1399px) {
+.multiple-images + aside {
+    margin-top: 15px;
+}
+
+.post-main aside h3 {
+    border: none;
+    margin: 0;
+    font-size: 18px;
+}
+
+aside :first-child {
+    margin-top: 0;
+}
+
+aside :last-child {
+    margin-bottom: 0;
+}
+
+/* Big enough screen */
+@media (min-width: 1660px) {
+    .aside-wrapper {
+        position: relative;
+    }
+    
+    .aside-wrapper > aside:not(.wide) {
+        position: absolute;
+        left: calc(100% + 60px);
+        width: calc((100vw - 100%) / 2 - 120px);
+        z-index: 1;
+    }
 }
 
 /* Just small enough to not break out images */
@@ -603,6 +638,96 @@ header.big img.twitter, header.big img.telegram {
     }
 }
 
+/* No-gallery multiple images */
+
+.multiple-images {
+    position: relative;
+    left: calc(-50vw + 50%);
+    width: 100vw;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.multiple-images a {
+    display: block;
+}
+
+.multiple-images img {
+    display: block;
+}
+
+/* Mobile: just a regular column of images */ 
+@media (max-width: 767px) {
+    .multiple-images a {
+        margin-bottom: 2px;
+    }
+    
+    .multiple-images a:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .multiple-images {
+        display: grid;
+        gap: 2px;
+        left: -20px;
+        width: calc(100% + 40px);
+    }
+
+    .multiple-images a {
+        display: block;
+    }
+
+    .multiple-images img {
+        display: block;
+    }
+
+    .multiple-images-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .multiple-images-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .multiple-images-3 :first-child {
+        grid-area: 1 / 1 / 2 / 3;
+    }
+    
+    .multiple-images-4 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .multiple-images-4 img {
+        max-height: 40vh;
+    }
+
+    .multiple-images-4 a:nth-child(2n) img {
+        object-position: left;
+    }
+
+    .multiple-images-4 a:nth-child(2n + 1) img {
+        object-position: right;
+    }
+}
+
+@media (min-width: 1280px) {
+    .multiple-images {
+        left: calc(-45vw + 50%);
+        width: 90vw;
+    }
+    
+    .multiple-images-3 {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .multiple-images-3 :first-child {
+        grid-area: 1 / 1 / 2 / 2;
+    }
+}
+
 /* Gallery stuff */
 
 /* On tablet and desktop make galleries appear same width as single images by default */
@@ -666,9 +791,25 @@ header.big img.twitter, header.big img.telegram {
     max-width: 80%;
 }
 
+.glider-image-wrap p a {
+    color: #fff;
+}
+
+.glider-image-wrap p a:hover {
+    color: #ddd;
+}
+
 .glider-image-wrap img {
     max-height: 80vh;
     object-fit: contain;
+}
+
+.glider-dot:hover, .glider-dot:focus, .glider-dot.active {
+    background: #64382C;
+}
+
+.glider-prev:hover, .glider-next:hover, .glider-prev:focus, .glider-next:focus {
+    color: #64382C;
 }
 
 /* Gallery - mobile */
@@ -839,7 +980,6 @@ h1.article-title {
     padding-top: 15px;
 }
 
-
 .time, .place, .prev, .next {
     position: relative;
     display: inline-block;
@@ -1006,6 +1146,12 @@ h4 .time::before, h4 .place::before, h4 .prev::before, h4 .next::before {
     left: calc(-50vw + 50%);
     width: 100vw;
     z-index: 1;
+}
+
+@media (max-width: 767px) {
+    .body-blog .blog-top-level-heading {
+        margin: 5px 10px;
+    }
 }
 
 .body-blog .post-heading-no-pic.blog-heading {

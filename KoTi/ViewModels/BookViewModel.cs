@@ -11,7 +11,7 @@ public class BookViewModel : AbstractContentViewModel
     
     public IList<PostChild> Posts { get; set; } = [];
     
-    public override string FennicaURL => $"/{Language}/book/{Name}/";
+    public override string FennicaURL => $"/{Language}/{Name}/";
     
     public record PostChild
     {

@@ -44,6 +44,12 @@
     </div>
     
     <div>
+        <label for="geo-anchor-@Model.Index">Anchor in post:</label>
+        <input id="geo-anchor-@Model.Index" class="input-block" placeholder="optional"
+               name="Geo[@Model.Index][Anchor]" value="@Model.Geo.Anchor"/>
+    </div>
+
+    <div>
         <label>Links:</label>
         <koti-geo-external-links>
             @if (Model.Geo.Links is not null)

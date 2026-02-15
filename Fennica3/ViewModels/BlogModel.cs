@@ -11,4 +11,5 @@ public class BlogModel
     public int TotalPages { get; set; }
     public required IList<int> Pagination { get; set; }
     public string? IntroText { get; set; }
+    public string? ExtraToCText { get; set; }
 }

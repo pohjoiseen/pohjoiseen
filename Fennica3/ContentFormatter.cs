@@ -58,6 +58,8 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
     /// <returns>HTML ready to display</returns>
     public async Task<string> FormatHTMLAsync(string html)
     {
+        html = FormatPreliminary(html);
+
         // use XML processing for various tasks
         // this of course means our HTML needs to be well-formed as XML.  Markdig generates correct XHTML,
         // but need to be careful with any handwritten markup in posts.
@@ -65,6 +67,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         await ConvertPostLinks(document);
         await ConvertPictureLinks(document);
         AddHeaderIds(document);
+        WrapAsides(document);
         
         // convert back to a string with HTML and do some more processing
         html = document.ToString(SaveOptions.DisableFormatting)
@@ -294,8 +297,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                 var alt = image.Attribute("alt");
                 if (alt != null && alt.Value.Length > 0)
                 {
-                    var figcaption = new XElement("figcaption");
-                    figcaption.SetValue(alt.Value);
+                    var figcaption = XElement.Parse($"<figcaption>{ExpandUrls(alt.Value)}</figcaption>");
                     figure.Add(figcaption);
                     // unset alt, since semantically it's likely not proper alt text anyway
                     // TODO: no, don't, breaks gallery captions, should fix galleries to look at figcaption instead
@@ -327,6 +329,26 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     heading.SetAttributeValue("id", Regex.Replace(value.ToLowerInvariant(), "\\W+", "-", RegexOptions.Singleline));
                 }
             }                
+        }
+    }
+
+    /// <summary>
+    /// Wrap asides into a wrapper div.
+    /// </summary>
+    /// <param name="document">HTML as XHTML document</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    private void WrapAsides(XElement document)
+    {
+        var asides = (from aside in document.Descendants("aside") select aside).ToList();
+        foreach (var aside in asides)
+        {
+            if (aside.Attribute("class")?.Value != "wide")
+            {
+                var wrapper = new XElement("div");
+                wrapper.SetAttributeValue("class", "aside-wrapper");
+                wrapper.Add(aside);
+                aside.ReplaceWith(wrapper);
+            }
         }
     }
 
@@ -364,34 +386,108 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             // parse block as XML
             string wrappedHtml = "<html>" + html[(openIndex + openTag.Length)..closeIndex] + "</html>";
             var subDocument = XElement.Parse(wrappedHtml, LoadOptions.PreserveWhitespace);
-                
-            // build output HTML as regular string
-            StringBuilder output =
-                new StringBuilder($"<div class=\"glider-contain\" data-id=\"{k}\"><div class=\"glider\">");
-            // look only for images, any other content in gallery block will be ignored
-            foreach (var image in from image in subDocument.Descendants("img") select image)
+
+            // 2-4 images might not actually need a gallery, can be arranged in a row/grid.
+            // But this requires some conditions, if any of them are not met, fall back to a gallery
+            var images = subDocument.Descendants("img").ToList();
+            bool needGallery = true;
+            double aspectRatio = 0;
+            if (images.Count <= 4)
             {
-                output.Append("<div class=\"glider-image\">");
-                if (image.Parent != null && image.Parent!.Name == "a")
+                needGallery = false;
+                foreach (var image in images)
                 {
-                    output.Append(
-                        $"<a class=\"glider-external-link\" href=\"{image.Parent!.Attribute("href")!.Value}\"><i class=\"fas fa-external-link-alt\"></i></a>");
+                    // none of the images may have a caption
+                    if (!String.IsNullOrEmpty(image.Attribute("alt")?.Value))
+                    {
+                        needGallery = true;
+                        break;
+                    }
+                    
+                    // width/height must be set (they normally would be)
+                    if (!Int32.TryParse(image.Attribute("width")?.Value, out var w))
+                    {
+                        needGallery = true;
+                        break;
+                    }
+                    
+                    if (!Int32.TryParse(image.Attribute("height")?.Value, out var h))
+                    {
+                        needGallery = true;
+                        break;
+                    }
+                    
+                    if (aspectRatio == 0)
+                    {
+                        // remember aspect ratio of first image
+                        // it must be >1.0, so the image must be horizontal
+                        aspectRatio = 1.0 * w / h;
+                        if (aspectRatio < 1.0)
+                        {
+                            needGallery = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // for the rest of the images, aspect ratio must be the same as the first one
+                        if (Math.Abs(1.0 * w / h - aspectRatio) > 0.01)
+                        {
+                            needGallery = true;
+                            break;
+                        }
+                    }
                 }
-                output.Append("<div class=\"glider-image-wrap\">");
-                // note: no width on purpose
-                output.Append($"<img loading=\"lazy\" src=\"{image.Attribute("src")!.Value}\" srcset=\"{(image.Attribute("srcset") != null ? image.Attribute("srcset")!.Value : "")}\" />");
-                if (image.Attribute("alt") != null && image.Attribute("alt")!.Value.Length > 0)
-                {
-                    output.Append("<p>" + new XText(image.Attribute("alt")!.Value) + "</p>");
-                }
-                output.Append("</div>");  // .glider-image-wrap
-                output.Append("</div>");  // .glider-image
             }
-            output.Append("</div>");  // .glider
-            output.Append($"<button id=\"glider-prev-{k}\" role=\"button\" aria-label=\"Previous\" class=\"glider-prev\"><i class=\"fa fa-chevron-left\"></i></button>");
-            output.Append($"<button id=\"glider-next-{k}\" role=\"button\" aria-label=\"Next\" class=\"glider-next\"><i class=\"fa fa-chevron-right\"></i></button>");
-            output.Append($"<div id=\"glider-dots-{k}\" class=\"glider-dots\"></div>");
-            output.Append("</div>");  // .glider-contain
+
+            // build output HTML as regular string
+            StringBuilder output = new StringBuilder();
+            if (!needGallery)
+            {
+                // gallery-less
+                output.Append($"<div class=\"multiple-images multiple-images-{images.Count}\">");
+                foreach (var image in images)
+                {
+                    output.Append(image.Parent?.ToString(SaveOptions.DisableFormatting));
+                }
+                output.Append("</div>");
+            }
+            else
+            {
+                // glider gallery markup
+                output.Append($"<div class=\"glider-contain\" data-id=\"{k}\"><div class=\"glider\">");
+                // look only for images, any other content in gallery block will be ignored
+                foreach (var image in from image in subDocument.Descendants("img") select image)
+                {
+                    output.Append("<div class=\"glider-image\">");
+                    if (image.Parent != null && image.Parent!.Name == "a")
+                    {
+                        output.Append(
+                            $"<a class=\"glider-external-link\" href=\"{image.Parent!.Attribute("href")!.Value}\"><i class=\"fas fa-external-link-alt\"></i></a>");
+                    }
+
+                    output.Append("<div class=\"glider-image-wrap\">");
+                    // note: no width on purpose
+                    output.Append(
+                        $"<img loading=\"lazy\" src=\"{image.Attribute("src")!.Value}\" srcset=\"{(image.Attribute("srcset") != null ? image.Attribute("srcset")!.Value : "")}\" />");
+                    if (image.Attribute("alt") != null && image.Attribute("alt")!.Value.Length > 0)
+                    {
+                        var p = XElement.Parse($"<p>{ExpandUrls(image.Attribute("alt")!.Value)}</p>");
+                        output.Append(p);
+                    }
+
+                    output.Append("</div>"); // .glider-image-wrap
+                    output.Append("</div>"); // .glider-image
+                }
+
+                output.Append("</div>"); // .glider
+                output.Append(
+                    $"<button id=\"glider-prev-{k}\" role=\"button\" aria-label=\"Previous\" class=\"glider-prev\"><i class=\"fa fa-chevron-left\"></i></button>");
+                output.Append(
+                    $"<button id=\"glider-next-{k}\" role=\"button\" aria-label=\"Next\" class=\"glider-next\"><i class=\"fa fa-chevron-right\"></i></button>");
+                output.Append($"<div id=\"glider-dots-{k}\" class=\"glider-dots\"></div>");
+                output.Append("</div>"); // .glider-contain
+            }
 
             // replace original markup with generated
             html = html[..openIndex] + output + html[(closeIndex + closeTag.Length)..];
@@ -400,6 +496,14 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             k++;
         } while (matched);
 
+        return html;
+    }
+
+    private string FormatPreliminary(string html)
+    {
+        html = html.Replace("<!--aside-->", "<aside>");
+        html = html.Replace("<!--aside wide-->", "<aside class=\"wide\">");
+        html = html.Replace("<!--/aside-->", "</aside>");
         return html;
     }
     
@@ -425,4 +529,48 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         
         return html;
     }
+    
+    /// <summary>
+    /// Expands links into HTML hyperlinks inside of text or HTML.
+    /// From: https://weblog.west-wind.com/posts/2006/Dec/21/Expanding-Urls-with-RegEx-in-NET
+    /// </summary>
+    /// <param name="input">The text to expand</param>
+    public string ExpandUrls(string input)
+    {
+        string pattern = @"[""'=]?(http://|ftp://|https://|www\.|ftp\.[\w]+)([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])";
+        
+        // *** Expand embedded hyperlinks
+        RegexOptions options =
+            RegexOptions.IgnorePatternWhitespace |
+            RegexOptions.Multiline |
+            RegexOptions.IgnoreCase;
+        
+        Regex reg = new Regex(pattern, options);
+
+        return reg.Replace(input, match =>
+        {
+            string href = match.Value; // M.Groups[0].Value;
+            
+            // *** if string starts within an HREF don't expand it
+            if (href.StartsWith("=") ||
+                href.StartsWith("'") ||
+                href.StartsWith("\""))
+                return href;
+            
+            string text = href;
+            if (href.IndexOf("://") < 0)
+            {
+                if (href.StartsWith("www."))
+                    href = "http://" + href;
+                else if (href.StartsWith("ftp"))
+                    href = "ftp://" + href;
+                else if (href.IndexOf("@") > -1)
+                    href = "mailto:" + href;
+            }
+            
+            return $"<a href=\"{href}\">{text}</a>";
+        });
+    }
+
+
 }
