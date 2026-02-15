@@ -29,7 +29,9 @@ public class RedirectMiddleware(RequestDelegate next)
                 {
                     var postId = Int32.Parse(match.Groups[1].Value);
                     var hash = match.Length > 1 ? match.Groups[2].Value : "";
-                    var post = await dbContext.Posts.FindAsync(postId);
+                    var post = await dbContext.Posts
+                        .Include(p => p.Book)
+                        .FirstOrDefaultAsync(p => p.Id == postId);
                     if (post is not null)
                     {
                         url = helpers.PostLink(post) + hash;
