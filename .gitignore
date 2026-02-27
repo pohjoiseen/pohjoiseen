@@ -3,7 +3,7 @@
 
 ClientApp/.env
 *appsettings.Development.json
-/pohjoiseen.db
+/pohjoiseen.db*
 KoTi/wwwroot/frontend/
 
 # User-specific files

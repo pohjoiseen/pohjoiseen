@@ -1,0 +1,42 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 0,
+  "workspaces": {
+    "": {
+      "name": "fennica3-js",
+      "dependencies": {
+        "glider-js": "^1.7.9",
+        "leaflet": "^1.9.4",
+        "proj4leaflet": "^1.0.2",
+      },
+      "devDependencies": {
+        "@types/glider-js": "^1.7.12",
+        "@types/proj4leaflet": "^1.0.12",
+        "typescript": "^5.9.3",
+      },
+    },
+  },
+  "packages": {
+    "@types/geojson": ["@types/geojson@7946.0.10", "", {}, "sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA=="],
+
+    "@types/glider-js": ["@types/glider-js@1.7.12", "", {}, "sha512-DJXE0DN/4664o6N1O0VKhe8IKaU8qf3VVJMFCo7jqZb0WbV8pLc8ChYw2uoiLKA7IM8Z0PP/GHbn40h0S0qd0g=="],
+
+    "@types/leaflet": ["@types/leaflet@1.9.0", "", { "dependencies": { "@types/geojson": "*" } }, "sha512-7LeOSj7EloC5UcyOMo+1kc3S1UT3MjJxwqsMT1d2PTyvQz53w0Y0oSSk9nwZnOZubCmBvpSNGceucxiq+ZPEUw=="],
+
+    "@types/proj4leaflet": ["@types/proj4leaflet@1.0.12", "", { "dependencies": { "@types/geojson": "*", "@types/leaflet": "^1.9", "proj4": "^2.19.0" } }, "sha512-SkWDAdQK3ddPSq995UGYe/WZODQR1bf3CDMjp+S7cq9+AnISSIhKr8vUQ7g/hMAWYNiNIFjH/atTcMAkNl3c9w=="],
+
+    "glider-js": ["glider-js@1.7.9", "", {}, "sha512-22r7EZ8cd4HWsM+pvNResu1h9tvJmAlrMBO2CbdJ9mhsYF/UllJEdvq8OuJDBgYcD0aja51vzRb/TbT7BCAaig=="],
+
+    "leaflet": ["leaflet@1.9.4", "", {}, "sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA=="],
+
+    "mgrs": ["mgrs@1.0.0", "", {}, "sha512-awNbTOqCxK1DBGjalK3xqWIstBZgN6fxsMSiXLs9/spqWkF2pAhb2rrYCFSsr1/tT7PhcDGjZndG8SWYn0byYA=="],
+
+    "proj4": ["proj4@2.20.2", "", { "dependencies": { "mgrs": "1.0.0", "wkt-parser": "^1.5.1" } }, "sha512-ipfBRfQly0HhHTO7hnC1GfaX8bvroO7VV4KH889ehmADSE8C/qzp2j+Jj6783S9Tj6c2qX/hhYm7oH0kgXzBAA=="],
+
+    "proj4leaflet": ["proj4leaflet@1.0.2", "", { "dependencies": { "proj4": "^2.3.14" } }, "sha512-6GdDeUlhX/tHUiMEj80xQhlPjwrXcdfD0D5OBymY8WvxfbmZcdhNqQk7n7nFf53ue6QdP9ls9ZPjsAxnbZDTsw=="],
+
+    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
+    "wkt-parser": ["wkt-parser@1.5.2", "", {}, "sha512-1ZUiV1FTwSiSrgWzV9KXJuOF2BVW91KY/mau04BhnmgOdroRQea7Q0s5TVqwGLm0D2tZwObd/tBYXW49sSxp3Q=="],
+  }
+}

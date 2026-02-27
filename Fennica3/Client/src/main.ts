@@ -2,11 +2,6 @@
  * Client-side code entry point.  We use client JS only for image galleries (via Glider.js) and maps (via Leaflet).
  */
 
-// Styles (Leaflet, Glider.js, own)
-import 'leaflet/dist/leaflet.css';
-import 'glider-js/glider.css';
-import './style.css';
-
 import Glider from 'glider-js';
 import {initMap} from './maps';
 

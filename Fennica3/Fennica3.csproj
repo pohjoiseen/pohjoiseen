@@ -19,4 +19,15 @@
       <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.2" />
     </ItemGroup>
     
+    <Target Name="PublishRunBun" AfterTargets="ComputeFilesToPublish">
+        <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+        <Exec WorkingDirectory="Client" Command="bun install" />
+        <Exec WorkingDirectory="Client" Command="bun run build" />
+
+        <!-- Include the newly-built files in the publish output -->
+        <ItemGroup>
+            <DistFiles Include="wwwroot\js\**" />
+            <DistFiles Include="wwwroot\css\**" />
+        </ItemGroup>
+    </Target>
 </Project>
