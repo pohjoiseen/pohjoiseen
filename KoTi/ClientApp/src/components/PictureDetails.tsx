@@ -5,7 +5,6 @@ import PictureOverlay from './PictureOverlay';
 import EditableInline from './EditableInline';
 import { useDeletePictureMutation, useUpdatePictureMutation } from '../data/mutations';
 import EditableTextarea from './EditableTextarea';
-import { EditableSearchingAutocomplete } from './SearchingAutocomplete';
 import { createContext, useCallback, useContext, useState } from 'react';
 import Rating from './Rating';
 import { Dropdown, DropdownMenu, DropdownToggle, FormGroup, Label } from 'reactstrap';
@@ -192,18 +191,6 @@ const PictureDetails = ({ picture, isSelected, onOpen, onRetryUpload, onEditPlac
                         onChange={(value) => updatePictureMutation.mutate({ ...picture, description: value })}
                         emptyValueString="No description yet."
                     />
-                    <div className="d-flex align-items-center mt-2 mb-2">
-                        <div className="me-1">Location:</div>
-                        <div className="flex-grow-1 fw-medium">
-                            <EditableSearchingAutocomplete
-                                id={picture.placeId}
-                                title={picture.placeName!}
-                                placeholder="Not set"
-                                table="Places"
-                                onSelect={(id, title) => updatePictureMutation.mutate({ ...picture, placeId: id, placeName: title })}
-                            />
-                        </div>
-                    </div>
                     {picture.placeId && onEditPlace && <a
                         href={'/place/' + picture.placeId}
                         className="btn btn-secondary btn-sm"

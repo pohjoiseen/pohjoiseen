@@ -18,8 +18,8 @@ namespace Fennica3.Controllers;
 public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFormatter contentFormatter,
                             IStringLocalizer<Fennica3> localizer, IConfiguration configuration) : Controller
 {
-    [HttpGet("/{language}/")]
-    [HttpGet("/{language}/{page:int}/")]
+    [HttpGet("/{language:length(2):alpha}/")]
+    [HttpGet("/{language:length(2):alpha}/{page:int}/")]
     public async Task<IActionResult> Blog(string language, int page = 1)
     {
         var posts = await GetPostsAsync(language,Fennica3.PostsPerPage, (page - 1) * Fennica3.PostsPerPage);
@@ -60,8 +60,8 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         return View("Blog", model);
     }
     
-    [HttpGet("/{language}/{bookName}/")]
-    [HttpGet("/{language}/{bookName}/{page:int}/")]
+    [HttpGet("/{language:length(2):alpha}/{bookName}/")]
+    [HttpGet("/{language:length(2):alpha}/{bookName}/{page:int}/")]
     public async Task<IActionResult> Book(string language, string bookName, int page = 1)
     {
         var book = await dbContext.Books
@@ -105,7 +105,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         return View("Blog", model);
     }
 
-    [HttpGet("/{language}/{year:int}/{month:int}/{day:int}/{name}/")]
+    [HttpGet("/{language:length(2):alpha}/{year:int}/{month:int}/{day:int}/{name}/")]
     public async Task<IActionResult> Post(string language, int year, int month, int day, string name)
     {
         var post = await GetPostAsync(language, year, month, day, name);
@@ -159,7 +159,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
     }
     
     
-    [HttpGet("/{language}/{bookName}/{name}/")]
+    [HttpGet("/{language:length(2):alpha}/{bookName}/{name}/")]
     public async Task<IActionResult> PostInBook(string language, string bookName, string name)
     {
         var book = await dbContext.Books
@@ -228,7 +228,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         return View("Post", model);
     }
 
-    [HttpGet("/{language}/{year:int}/{month:int}/{day:int}/{name}.json")]
+    [HttpGet("/{language:length(2):alpha}/{year:int}/{month:int}/{day:int}/{name}.json")]
     [Produces("application/json")]
     public async Task<ActionResult> PostJson(string language, int year, int month, int day, string name)
     {
@@ -266,7 +266,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         });
     }
 
-    [HttpGet("/{language}/rss.xml")]
+    [HttpGet("/{language:length(2):alpha}/rss.xml")]
     public async Task RSS(string language)
     {
         // take the first page of posts

@@ -5,12 +5,9 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './custom.css';
 import { ModalContainer } from './components/ModalContainer';
-import Home from './pages/Home';
 import PicturesUpload from './pages/PicturesUpload';
 import Pictures from './pages/Pictures';
-import Search from './pages/Search';
 import Redirects from './pages/Redirects';
-import Publish from './pages/Publish';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -24,17 +21,11 @@ const queryClient = new QueryClient({
 });
 
 const router = createBrowserRouter([
-    { index: true, element: <Home /> },
-
     { path: '/pictures/all', element: <Pictures sets={false} /> },
     { path: '/pictures/folders', element: <Pictures sets={true} /> },
     { path: '/pictures/upload', element: <PicturesUpload /> },
 
     { path: '/redirects', element: <Redirects /> },
-
-    { path: '/publish', element: <Publish /> },
-    
-    { path: '/search', element: <Search /> },
 ]);
 
 const App = () => {

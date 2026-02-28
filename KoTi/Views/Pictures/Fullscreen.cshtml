@@ -1,5 +1,5 @@
 @using KoTi.Controllers.App
-@model FullscreenViewModel
+@model KoTi.ViewModels.Pictures.FullscreenViewModel
 
 <img id="fullscreen-image" data-id="@Model.Picture.Id" src="@Model.Picture.Url" alt="" title="@($"{Model.Picture.PhotographedAt?.ToString("d.MM.yyyy")}\n{Model.Picture.Filename}")">
 

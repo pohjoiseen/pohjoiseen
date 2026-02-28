@@ -1,0 +1,58 @@
+@{
+    ViewBag.Title = "Publish";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Publish
+}
+
+<div>
+    <dialog style="top: 100px; max-width: 80%;" open>
+        <header>
+            <h2>Publish database</h2>
+        </header>
+        <form method="post" action="" class="p flex flex-col gap">
+            <h3>Last published at: <b>@ViewBag.DatabaseLastPublishedAt.ToString("yyyy-MM-dd HH:mm:ss")</b></h3>
+            <p>
+                Publishing copies the draft version of the content database, edited in this backoffice application,
+                for use by Fennica3 frontend, thus making all changes made since last publish publicly available.
+                (Content marked as draft is physically copied but Fennica3 doesn't display it in production
+                configuration.)
+            </p>
+            <div class="ma">
+                <button type="submit" class="koti-btn primary"><i class="bi bi-check"></i> Publish</button>
+            </div>
+            
+            @if (ViewBag.ExitCode == 0)
+            {
+                <div class="alert good mt">
+                    Published successfully!
+                </div>
+            }
+            
+            @if (ViewBag.ExitCode > 0)
+            {
+                <div class="alert mt">
+                    Publishing command failed with exit code @ViewBag.ExitCode
+                </div>
+            }
+            
+            @if (!String.IsNullOrWhiteSpace(ViewBag.Stdout))
+            {
+                <div class="mt">
+                    Publishing command stdout:
+                    <pre>@ViewBag.Stdout</pre>
+                </div>
+            }
+
+            @if (!String.IsNullOrWhiteSpace(ViewBag.Stderr))
+            {
+                <div class="mt">
+                    Publishing command stderr:
+                    <pre>@ViewBag.Stderr</pre>
+                </div>
+            }
+        </form>
+    </dialog>
+</div>

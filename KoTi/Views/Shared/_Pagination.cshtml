@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.WebUtilities
 @model PaginatorViewModel
 
 @{
@@ -39,33 +40,70 @@
 @if (pages.Count > 1)
 {
     <nav class="pagination">
-        @if (thisPage != 1)
+        @if (Model.HxTarget is not null)
         {
-            <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset - Model.Data.Limit)}'>
-                <i class="bi bi-caret-left"></i>
-            </button>                     
+            @if (thisPage != 1)
+            {
+                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset - Model.Data.Limit)}'>
+                    <i class="bi bi-caret-left"></i>
+                </button>
+            }
+
+            @foreach (int npage in pages)
+            {
+                if (npage == 0)
+                {
+                    <button class="koti-btn" disabled>…</button>
+                }
+                else if (npage == thisPage)
+                {
+                    <button class="koti-btn primary" onclick="return false;">@npage</button>
+                }
+                else
+                {
+                    <button class="koti-btn" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget"
+                            hx-vals='{"offset":@((npage - 1) * Model.Data.Limit)}'>@npage</button>
+                }
+            }
+
+            @if (thisPage != numPages)
+            {
+                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset + Model.Data.Limit)}'>
+                    <i class="bi bi-caret-right"></i>
+                </button>
+            }
         }
-        @foreach (int npage in pages)
+        else
         {
-            if (npage == 0)
+            @if (thisPage != 1)
             {
-                <button class="koti-btn" disabled>…</button>
+                <a class="koti-btn primary" href="@QueryHelpers.AddQueryString(Model.BaseUrl, "offset", (Model.Data.Offset - Model.Data.Limit).ToString())">
+                    <i class="bi bi-caret-left"></i>
+                </a>
             }
-            else if (npage == thisPage)
+
+            @foreach (int npage in pages)
             {
-                <button class="koti-btn primary" onclick="return false;">@npage</button>                        
+                if (npage == 0)
+                {
+                    <button class="koti-btn" disabled>…</button>
+                }
+                else if (npage == thisPage)
+                {
+                    <button class="koti-btn primary" onclick="return false;">@npage</button>
+                }
+                else
+                {
+                    <a class="koti-btn" href="@QueryHelpers.AddQueryString(Model.BaseUrl, "offset", ((npage - 1) * Model.Data.Limit).ToString())">@npage</a>
+                }
             }
-            else
+
+            @if (thisPage != numPages)
             {
-                <button class="koti-btn" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" 
-                        hx-vals='{"offset":@((npage - 1) * Model.Data.Limit)}'>@npage</button>                        
+                <a class="koti-btn primary" href="@QueryHelpers.AddQueryString(Model.BaseUrl, "offset", (Model.Data.Offset + Model.Data.Limit).ToString())">
+                    <i class="bi bi-caret-right"></i>
+                </a>
             }
         }
-        @if (thisPage != numPages)
-        {
-            <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset + Model.Data.Limit)}'>
-                <i class="bi bi-caret-right"></i>
-            </button>                     
-        }
-</nav>
+    </nav>
 }

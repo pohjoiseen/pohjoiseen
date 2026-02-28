@@ -8,7 +8,6 @@ import Tag from '../model/Tag';
 import { postTag } from '../api/tags';
 import Redirect from '../model/Redirect';
 import { deleteRedirect, postRedirect } from '../api/redirects';
-import { publish } from '../api/home';
 
 export const useCreatePictureMutation = () => {
     const queryClient = useQueryClient();
@@ -133,17 +132,6 @@ export const useDeleteRedirectMutation = () => {
         mutationFn: async (id: number) => {
             await deleteRedirect(id);
             await queryClient.invalidateQueries([QueryKeys.REDIRECTS]);
-        }
-    })
-};
-
-export const usePublishMutation = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async () => {
-            const result = await publish();
-            await queryClient.invalidateQueries([QueryKeys.STATS]);
-            return result;
         }
     })
 };

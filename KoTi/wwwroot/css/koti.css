@@ -51,6 +51,10 @@
     --color-bad-shade: #aa0000;
     --color-bad-highlight: #cc4040;
     --color-bad-bg: #ffc0c0;
+    --color-good: #198754;
+    --color-good-shade: #0c4028;
+    --color-good-highlight: #157347;
+    --color-good-bg: #8ae6bb;
     --border-radius: 3px;
   }
 }
@@ -193,6 +197,12 @@
     cursor: pointer;
     text-decoration: none;
     text-align: center;
+    
+    &.big {
+      font-size: 30px;
+      font-family: Rubik, sans-serif;
+      font-weight: 400;
+    }
     
     &:focus {
       outline: 2px solid var(--color-primary);
@@ -364,8 +374,9 @@
     column-gap: 0;
     flex-wrap: wrap;
     
-    & button {
-      padding: 0;
+    & button, & a {
+      padding-left: 0;
+      padding-right: 0;
       min-width: 32px;
     }
   }
@@ -408,6 +419,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 5px;
+    
+    &.good {
+      background-color: var(--color-good-bg);
+      border: 1px solid var(--color-good);
+    }
   }
   
   .muted {
@@ -476,7 +492,6 @@
   }
   
   koti-dropdown {
-
     koti-dropdown-option {
       display: none;
     }
@@ -536,6 +551,13 @@
         }
       }
     }
+  }
+  
+  pre {
+    padding: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-bg-shade);
+    border-radius: var(--border-radius);
   }
 }
 
@@ -923,4 +945,6 @@
   .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
   .formbox {  display: flex; flex-direction: column; gap: 20px; }
   .align-left { text-align: left; }
+  .align-center { text-align: center; }
+  .align-right { text-align: right; }
 }

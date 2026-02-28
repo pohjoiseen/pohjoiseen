@@ -1,0 +1,46 @@
+@model SearchResultsViewModel
+@{
+    ViewBag.Title = "Search";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Search
+}
+
+<div>
+<div style="width: 100%; max-width: 1024px; margin: 50px auto;" id="search">
+    <form method="get" asp-controller="Home" asp-action="Search" class="mt">
+        <div class="hbox mt">
+            <input type="text" class="input-block heading-font" style="font-size: 30px;" name="q" placeholder="Search..." value="@Model.Query" />
+            <button type="submit" class="koti-btn primary big">Go</button>
+        </div>
+    </form>
+    
+    @if (!String.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="error">@Model.Error</div>
+    }
+    
+    @if (Model.Results.Count > 0)
+    {
+        <ol start="@(Model.Offset + 1)">
+            @foreach (var result in Model.Results)
+            {
+                <li class="mt mb">
+                    <a href="/app/@result.TableName/@result.TableId/"><b>@result.Title</b></a>
+                    <i class="muted">(@result.TableName.ToLower()[..^1])</i>
+                    <br/>
+                    @Html.Raw(result.Text)
+                </li>
+            }
+        </ol>
+
+        <partial name="_Pagination" model="@(new PaginatorViewModel
+                                           {
+                                               Data = Model,
+                                               BaseUrl = Url.Action("Search", "Home", new { q = Model.Query })!
+                                           })"/>
+    }
+</div>
+</div>

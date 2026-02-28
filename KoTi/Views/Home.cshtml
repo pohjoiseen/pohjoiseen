@@ -1,0 +1,75 @@
+@model HomeViewModel
+@{
+    ViewBag.Title = "Home";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {}
+
+<div style="width: 100%; max-width: 1024px; margin: 50px auto;">
+    <h2 class="align-center">
+        Welcome to <b>Fennica</b> blog backoffice app.<br/>
+        Last published: <b>@Model.DatabaseLastPublishedAt.ToString("yyyy-MM-dd HH:mm:ss")</b>
+    </h2>
+    
+    <form method="get" asp-controller="Home" asp-action="Search" class="mt">
+        <div class="hbox mt">
+            <input type="text" class="input-block heading-font" style="font-size: 30px;" name="q" placeholder="Search..."/>
+            <button type="submit" class="koti-btn primary big">Go</button>
+        </div>
+    </form>
+    
+    <div style="display: grid; gap: 20px; grid-template-columns: 1fr 3fr 1fr 3fr; margin: 20px auto; width: fit-content;">
+        <h2 class="align-right">Pictures</h2>
+        <div class="flex flex-col gap">
+            <a class="koti-btn" href="/pictures/folders">Browse (<b>@Model.TotalPictures</b>)</a>
+            <a class="koti-btn" href="/pictures/upload">Upload</a>
+        </div>
+        
+        <h2 class="align-right">Posts</h2>
+        <div class="flex flex-col gap">
+            @foreach (var language in Fennica3.Fennica3.Languages)
+            {
+                <a class="koti-btn" asp-controller="Posts" asp-action="Index" asp-route-language="@language">@language
+                    (<b>@(Model.TotalPosts.ContainsKey(language) ? Model.TotalPosts[language] : 0)</b>)</a>
+            }
+        </div>
+
+        <h2 class="align-right">Articles</h2>
+        <div class="flex flex-col gap">
+            @foreach (var language in Fennica3.Fennica3.Languages)
+            {
+                <a class="koti-btn" asp-controller="Articles" asp-action="Index" asp-route-language="@language">@language
+                    (<b>@(Model.TotalArticles.ContainsKey(language) ? Model.TotalArticles[language] : 0)</b>)</a>
+            }
+        </div>
+        
+        <h2 class="align-right">Books</h2>
+        <div class="flex flex-col gap">
+            @foreach (var language in Fennica3.Fennica3.Languages)
+            {
+                <a class="koti-btn" asp-controller="Books" asp-action="Index" asp-route-language="@language">@language
+                    (<b>@(Model.TotalBooks.ContainsKey(language) ? Model.TotalBooks[language] : 0)</b>)</a>
+            }
+        </div>
+        
+        <h2 class="align-right">Redirects</h2>
+        <div class="flex flex-col gap">
+            <a class="koti-btn" href="/redirects">Edit</a>
+        </div>
+        
+        <h2 class="align-right">Publish</h2>
+        <div class="flex flex-col gap">
+            <a class="koti-btn primary" asp-controller="Home" asp-action="Publish"><b>Go!</b></a>
+        </div>
+    </div>
+    
+    <div class="muted ma align-center">
+        © 2023-2026 Alexander Ulyanov. Built on ASP.NET Core 10 + SQLite + vanilla JS with Htmx and Web Components<br/>
+        Version @Model.Version 
+        <i class="bi bi-dot"></i>
+        Database size: @((Model.DatabaseSize / (1024 * 1024 * 1.0)).ToString("F2")) MB
+        <i class="bi bi-dot"></i>
+        S3 bucket: @Model.S3Bucket
+    </div>
+</div>

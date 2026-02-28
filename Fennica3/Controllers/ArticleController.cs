@@ -7,7 +7,7 @@ namespace Fennica3.Controllers;
 
 public class ArticleController(HolviDbContext dbContext, IConfiguration configuration) : Controller
 {
-    [HttpGet("/{language}/article/{name}")]
+    [HttpGet("/{language:length(2):alpha}/article/{name}")]
     public async Task<IActionResult> View(string language, string name)
     {
         // articles starting with underscore are for internal use only

@@ -8,6 +8,16 @@
 }
 
 @section HeaderNav {
+    <koti-dropdown selected="@ViewData["Language"]">
+        @foreach (var language in Fennica3.Fennica3.Languages)
+        {
+            @if (language != ViewData["Language"]?.ToString())
+            {
+                <koti-dropdown-option href="@Url.Action("Index", new { language })">@language</koti-dropdown-option>
+            }
+        }
+    </koti-dropdown>
+    
     <button class="koti-btn primary with-indicator" id="create-button"
             hx-get hx-controller="Posts" hx-action="Create" hx-route-language="@ViewData["Language"]"
             hx-target="#create-post-dialog-container" hx-disabled-elt="this" hx-indicator="#create-button-indicator">

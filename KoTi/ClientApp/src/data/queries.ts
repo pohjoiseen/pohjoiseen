@@ -1,22 +1,18 @@
 ﻿import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPicture, getPictures, GetPicturesOptions } from '../api/pictures';
-import { search, SearchOptions } from '../api/search';
 import ListWithTotal from '../model/ListWithTotal';
 import Picture from '../model/Picture';
 import PictureSet from '../model/PictureSet';
 import { getPictureSet, getPictureSets } from '../api/pictureSets';
-import { getStats } from '../api/home';
 import { getTags } from '../api/tags';
 import { getPost, getPosts } from '../api/posts';
 import { getArticle, getArticles } from '../api/articles';
 import { getRedirects } from '../api/redirects';
 
 export enum QueryKeys {
-    STATS = 'stats',
     PICTURE = 'picture', // actual pictures by id
     PICTURES = 'pictures', // various lists of ids
     SETS = 'sets',
-    SEARCH = 'search',
     TAGS = 'tags',
     POST = 'post',
     POSTS = 'posts',
@@ -24,11 +20,6 @@ export enum QueryKeys {
     ARTICLE = 'article',
     REDIRECTS = 'redirects',
 }
-
-export const useStatsQuery = () => useQuery({
-    queryKey: [QueryKeys.STATS],
-    queryFn: getStats
-});
 
 export const usePictureQuery = (id: number | null | undefined, disabled?: boolean) => useQuery({
     queryKey: [QueryKeys.PICTURE, id],
@@ -84,16 +75,6 @@ export const usePictureSetQuery = (id: number | null) => useQuery({
             };
         }
         return await getPictureSet(id);
-    }
-});
-
-export const useSearchQuery = (options: SearchOptions) => useQuery({
-    queryKey: [QueryKeys.SEARCH, options],
-    queryFn: async () => {
-        if (!options.q) {
-            return { total: 0, data: [] };
-        }
-        return await search(options)
     }
 });
 

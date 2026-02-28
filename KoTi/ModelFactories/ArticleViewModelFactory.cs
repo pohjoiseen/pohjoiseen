@@ -1,6 +1,7 @@
 using Holvi;
 using Holvi.Models;
 using KoTi.ViewModels;
+using KoTi.ViewModels.Articles;
 using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.ModelFactories;

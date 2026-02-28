@@ -14,6 +14,8 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <UserSecretsId>b0a9d1e2-3a02-49e7-8b8f-157ca08fb5bf</UserSecretsId>
     <LangVersion>default</LangVersion>
+    <AssemblyVersion>3.3.99</AssemblyVersion>
+    <InformationalVersion>3.3.99</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,6 +49,16 @@
     <ProjectReference Include="..\Fennica3\Fennica3.csproj" />
     <ProjectReference Include="..\Holvi\Holvi.csproj" />
   </ItemGroup>
+
+  <Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation">
+    <Exec
+      Command="echo -n `date +%Y%m%d-` ; git describe --long --always --dirty --exclude=* --abbrev=8"
+      ConsoleToMSBuild="True"
+      IgnoreExitCode="False"
+    >
+      <Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput"/>
+    </Exec>
+  </Target>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
