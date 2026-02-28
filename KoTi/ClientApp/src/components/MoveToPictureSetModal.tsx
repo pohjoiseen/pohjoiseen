@@ -1,7 +1,6 @@
 ﻿import * as React from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { useEffect, useRef, useState } from 'react';
-import { SearchingAutocomplete } from './SearchingAutocomplete';
 
 interface MoveToPictureSetModalProps {
     onClose: () => void;
@@ -26,16 +25,7 @@ const MoveToPictureSetModal = ({ onClose, onSubmit }: MoveToPictureSetModalProps
             <ModalHeader toggle={onClose}>Move selected picture(s) into folder</ModalHeader>
             <ModalBody>
                 <form onSubmit={submit}>
-                    <SearchingAutocomplete
-                        id={folderId}
-                        title={folderName}
-                        placeholder="Not set"
-                        table="PictureSets"
-                        onSelect={(id, name) => {
-                            setFolderId(id);
-                            setFolderName(name);
-                        }}
-                    />
+                    Sorry you cannot do this anymore in old UI, do it in the new one!
                 </form>
             </ModalBody>
             <ModalFooter>

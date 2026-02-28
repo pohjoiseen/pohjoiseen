@@ -30,7 +30,6 @@ import CreateModal from '../components/CreateModal';
 import PictureSet from '../model/PictureSet';
 import PictureSetList from '../components/PictureSetList';
 import MoveToPictureSetModal from '../components/MoveToPictureSetModal';
-import { SEARCHABLE_TABLES } from '../api/search';
 import PictureFilters from '../components/PictureFilters';
 import ViewModeSwitcher from '../components/ViewModeSwitcher';
 import { getDefaultViewMode, setDefaultViewMode } from '../data/localStorage';
@@ -70,11 +69,6 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const preloadRef = useRef<HTMLImageElement[]>([]);
     const setIdString = searchParams.get(QUERY_PARAMS.SET_ID);
     const setId = sets ? (setIdString ? parseInt(setIdString) : 0) : null;
-    const objectTableString = searchParams.get(QUERY_PARAMS.OBJECT_TABLE) || '';
-    const objectTable: typeof SEARCHABLE_TABLES[number] = objectTableString ? objectTableString as typeof SEARCHABLE_TABLES[number] : 'Areas';
-    const objectIdString = searchParams.get(QUERY_PARAMS.OBJECT_ID);
-    const objectId = objectIdString ? parseInt(objectIdString) : null;
-    const objectName = searchParams.get(QUERY_PARAMS.OBJECT_NAME);
     const tagsStr = searchParams.get(QUERY_PARAMS.TAGS);
     let tags: Tag[] = [];
     if (tagsStr) {
@@ -129,10 +123,6 @@ const Pictures = ({ sets }: { sets: boolean }) => {
     const offset = page * pageSize;
     const pictureQueryOptions: GetPicturesOptions = {
         limit: pageSize,
-        placeId: objectTable === 'Places' && objectId ? objectId : undefined,
-        areaId: objectTable === 'Areas' && objectId ? objectId : undefined,
-        regionId: objectTable === 'Regions' && objectId ? objectId : undefined,
-        countryId: objectTable === 'Countries' && objectId ? objectId : undefined,
         tagIds: tags.length ? tags.map(t => t.id) : undefined,
         minRating: minRating || undefined,
         offset
@@ -369,9 +359,6 @@ const Pictures = ({ sets }: { sets: boolean }) => {
             {deletePicturesMutation.isError && <Alert color="danger" className="alert-fixed">Deleting pictures: {errorMessage(deletePicturesMutation.error)}</Alert>}
             {sets && pictureSetQuery.data && <PictureSetList pictureSet={pictureSetQuery.data} />}
             {!sets && <PictureFilters 
-                objectTable={objectTable}
-                objectId={objectId}
-                objectName={objectName} 
                 tags={tags}
                 minRating={minRating}
                 onSetObject={setObjectFilter}
