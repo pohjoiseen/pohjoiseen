@@ -1,29 +1,6 @@
-﻿Major stuff:
-
-* Add some kind of "book" content
-  - Not time-based as blog
-  - Should contain chapters
-  - Should contain notes (on various terms, people etc.) that could be expanded in place and linked
-    from more than one place.
-  - Should be able to link to PoI database (to particular regions/areas)
-  - Should be again properly multilingual
-* Make PoI database multilingual
-
-Remaining minor features and bugs from before Fennica3 migration (pictures, PoIs):
-
-* "Database is locked"
-* Rethink or remove folder thumbnails, very slow, also empty folders look bad
-* Tag list page
-* Add thumbnails to search results
-* Allow overriding override date for pictures
-* On upload make it possible to choose/create a folder right away
-* More information in fullscreen mode
-* Improve country and region page (at least link to pictures)
-* Coordinates for pictures
-* Add more picture search filters: private, date (from/to)
-* Make the global "updating" spinner flash on picture uploads
-* Check that it is possible to use "install an app" option in Edge
-* Fix various spinner sizes
-* Warn when leaving the upload page
-* Place autocomplete z-index issue in picture details when isPrivate=true
-* Fix all frontend build warnings
+* Finish removing old frontend (remaining: pictures and redirects)
+* Pictures UI can be added in a very minimal form at first, without details view, possibility to move pictures around
+  picture sets (folders), etc.  But those should still be re-added later
+* Refactor backend, move code out of controllers
+* Think about how to structure the frontend, perhaps readd a framework after all?  (not React)
+ 
