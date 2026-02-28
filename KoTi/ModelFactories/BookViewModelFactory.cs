@@ -72,6 +72,7 @@ public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory
         entity.ContentMD = model.ContentMD ?? "";
         entity.Draft = model.Draft;
         entity.TitlePictureId = model.TitlePictureId;
+        entity.UpdatedAt = DateTime.Now;
         
         // reorder posts, do not do anything else with them
         var postsById = await dbContext.Posts
@@ -111,6 +112,7 @@ public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory
             Name = entity.Name,
             Title = entity.Title,
             TitlePictureId = entity.TitlePictureId,
+            UpdatedAt = DateTime.Now
         };
         dbContext.Books.Add(newEntity);
         await dbContext.SaveChangesAsync();

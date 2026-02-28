@@ -57,6 +57,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
         entity.Language = model.Language;
         entity.ContentMD = model.ContentMD ?? "";
         entity.Draft = model.Draft;
+        entity.UpdatedAt = DateTime.Now;
         await dbContext.SaveChangesAsync();
         return entity;
     }
@@ -76,6 +77,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
             Language = targetLanguage,
             Name = entity.Name,
             Title = entity.Title,
+            UpdatedAt = DateTime.Now
         };
         dbContext.Articles.Add(newEntity);
         await dbContext.SaveChangesAsync();

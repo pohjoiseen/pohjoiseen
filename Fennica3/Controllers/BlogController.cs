@@ -244,14 +244,14 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             Mini = post.Mini,
             Title = post.Title,
             TitleImage = post.TitlePicture?.DetailsUrl ?? "",
-            Description = await contentFormatter.FormatMarkdownAsync(post.Description, true),
+            Description = await contentFormatter.FormatMarkdownAsync(post.Description, post.Language, true),
             Geo = await Task.WhenAll(helpers.ResolveGeos(post).Select(async geo =>
             {
                 if (geo.Description == null)
                 {
                     return geo;
                 }
-                var description = await contentFormatter.FormatMarkdownAsync(geo.Description, true);
+                var description = await contentFormatter.FormatMarkdownAsync(geo.Description, post.Language, true);
                 return geo with { Description = description };
             }))
         };
@@ -284,7 +284,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         var items = new List<SyndicationItem>();
         foreach (var post in posts)
         {
-            var item = new SyndicationItem(post.Title, await contentFormatter.FormatMarkdownAsync(post.Description, true),
+            var item = new SyndicationItem(post.Title, await contentFormatter.FormatMarkdownAsync(post.Description, post.Language, true),
                 new Uri(Fennica3.PublicBase + helpers.PostLink(post)),
                 Fennica3.PublicBase + helpers.PostLink(post),
                 new DateTimeOffset(post.Date.ToDateTime(TimeOnly.MinValue)));

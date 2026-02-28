@@ -85,6 +85,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.BookId = model.BookId;
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;
+        entity.UpdatedAt = DateTime.Now;
         await dbContext.SaveChangesAsync();
         return entity;
     }
@@ -133,7 +134,8 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
                 Maps = g.Maps,
                 TitleImage = g.TitleImage,
                 Links = g.Links,
-            }).ToList()
+            }).ToList(),
+            UpdatedAt = DateTime.Now,
         };
         
         dbContext.Posts.Add(newEntity);

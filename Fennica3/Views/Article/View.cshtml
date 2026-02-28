@@ -5,6 +5,6 @@
     <h1 class="article-title">@Model.Article.Title</h1>
     <hr />
     <article class="article-main">
-        @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.Article.ContentMD))
+        @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.Article.ContentMD, Model.Article.Language))
     </article>
 </main>

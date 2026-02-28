@@ -26,12 +26,13 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
     /// Format and postprocess Markdown content.
     /// </summary>
     /// <param name="markdown">Markdown to render</param>
+    /// <param name="language">Language of the content</param>   
     /// <param name="singlePara">if true, won't wrap result in any block tags</param>
     /// <returns>HTML ready to display</returns>
-    public async Task<string> FormatMarkdownAsync(string markdown, bool singlePara = false)
+    public async Task<string> FormatMarkdownAsync(string markdown, string language, bool singlePara = false)
     {
         // we just go ahead with Markdig defaults
-        var html = await FormatHTMLAsync(Markdown.ToHtml(markdown));
+        var html = await FormatHTMLAsync(Markdown.ToHtml(markdown), language);
         
         // unwrap from "<p>...</p>" if that was supposed to be only one paragraph
         if (singlePara)
@@ -55,8 +56,9 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
     /// Format and postprocess HTML content.
     /// </summary>
     /// <param name="html">Intermediate HTML</param>
+    /// <param name="language">Language of the content</param>   
     /// <returns>HTML ready to display</returns>
-    public async Task<string> FormatHTMLAsync(string html)
+    public async Task<string> FormatHTMLAsync(string html, string language)
     {
         html = FormatPreliminary(html);
 
@@ -64,7 +66,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         // this of course means our HTML needs to be well-formed as XML.  Markdig generates correct XHTML,
         // but need to be careful with any handwritten markup in posts.
         var document = XElement.Parse("<html>" + html + "</html>", LoadOptions.PreserveWhitespace);
-        await ConvertPostLinks(document);
+        await ConvertPostLinks(document, language);
         await ConvertPictureLinks(document);
         AddHeaderIds(document);
         WrapAsides(document);
@@ -79,11 +81,12 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
     }
 
     /// <summary>
-    /// Resolve "post:XXX" and "article:XXX" links in HTML to actual post and article URLs.
+    /// Resolve "post:XXX", "article:XXX" etc. links in HTML to actual post and article URLs.
     /// Only handles &lt;a href="..."&gt; attributes.
     /// </summary>
     /// <param name="document">HTML as XHTML document</param>
-    private async Task ConvertPostLinks(XElement document)
+    /// <param name="language">Language of the content</param>   
+    private async Task ConvertPostLinks(XElement document, string language)
     {
         // do it in two steps, first collect all links to be resolved
         IList<(XElement, int, string)> links = new List<(XElement, int, string)>();
@@ -161,17 +164,36 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         }
 
         // second step, resolve all posts at once
+        // do a little magic here with a join: allow linking to a post in a different language, but resolve
+        // the same post (by date and name) always in the same language.  This means contents of several posts could be
+        // just copied as is to another language, and the links between them would continue working still.
+        // TODO: really need to put this to Holvi, this is relatively heavy EF Core stuff...
         var posts = await dbContext.Posts
             .Where(p => links.Select(l => l.Item2).Contains(p.Id))
-            .Include(p => p.Book)
-            .ToDictionaryAsync(p => p.Id);
+            .Join(dbContext.Posts,
+                p => new { p.Date, p.Name },
+                pp => new { pp.Date, pp.Name },
+                (p, pp) => new { Original = p, TargetLanguage = pp, Book = pp.Book })
+            .Where(p => p.TargetLanguage.Language == language)
+            .ToDictionaryAsync(p => p.Original.Id, p => p.TargetLanguage);
         foreach (var (link, postId, hash) in links)
         {
             if (!posts.TryGetValue(postId, out var post))
             {
                 logger.LogWarning("Post ID not found: {id}", postId);
+                // if not found, just unwrap link
+                link.ReplaceWith(link.Nodes());
                 continue;
             }
+
+            // remove links to draft posts as well
+            if (post.Draft && configuration["Fennica3:WithDrafts"] == null)
+            {
+                logger.LogWarning("Linked to draft Post ID: {id}", postId);
+                link.ReplaceWith(link.Nodes());
+                continue;
+            }
+            
             link.SetAttributeValue("href", helpers.PostLink(post) + hash);
         }
     }

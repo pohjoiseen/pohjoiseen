@@ -25,12 +25,12 @@
             @Html.Raw(Helpers.OutputPostMaps(Model.LayoutParams.Language, Model.Book?.Id))
             @if (Model.IntroText != null)
             {
-                @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.IntroText))
+                @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.IntroText, Model.LayoutParams.Language))
             }
         </article>
         @if (Model.ExtraToCText != null)
         {
-            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.ExtraToCText))
+            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(Model.ExtraToCText, Model.LayoutParams.Language))
         }
     }
     
@@ -105,7 +105,7 @@
                     @if (post.Description.Length > 0)
                     {
                         <p class="post-list-entry-description">
-                            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(post.Description, true))
+                            @Html.Raw(await ContentFormatter.FormatMarkdownAsync(post.Description, post.Language, true))
                         </p>
                     }
                 @Html.Raw("</div>")
