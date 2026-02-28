@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.ModelFactories;
 
-public class BookViewModelFactory(HolviDbContext dbContext) : IContentViewModelFactory<BookViewModel, Book>
+public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory postViewModelFactory) : IContentViewModelFactory<BookViewModel, Book>
 {
-    public async Task<IList<string>> GetAllLanguagesAsync(int id)
+    public async Task<IDictionary<string, int>> GetAllLanguagesAsync(int id)
     {
         var entity = await dbContext.Books.FindAsync(id);
         if (entity is null)
         {
-            return [];
+            return new Dictionary<string, int>();
         }
 
         return await dbContext.Books
             .Where(a => a.Name == entity.Name)
-            .Select(a => a.Language).Distinct().ToListAsync();
+            .ToDictionaryAsync(a => a.Language, a => a.Id);
     }
 
     public async Task<BookViewModel?> LoadAsync(int id, string language)
@@ -37,9 +37,9 @@ public class BookViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
             TitlePictureId = entity.TitlePictureId,
-            AllLanguages = await dbContext.Articles
+            AllLanguages = await dbContext.Books
                 .Where(a => a.Name == entity.Name)
-                .Select(a => a.Language).Distinct().ToListAsync(),
+                .ToDictionaryAsync(a => a.Language, a => a.Id)
         };
         
         // load posts
@@ -91,4 +91,41 @@ public class BookViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         await dbContext.SaveChangesAsync();
         return entity;
     }
+    
+    
+    public async Task<int> CopyToLanguageAsync(int id, string language, string targetLanguage)
+    {
+        var entity = await dbContext.Books.FindAsync(id);
+        if (entity is null || entity.Language != language)
+        {
+            throw new Exception("Original entity not found");
+            
+        }
+
+        var newEntity = new Book
+        {
+            ContentMD = entity.ContentMD,
+            Draft = true,
+            Language = targetLanguage,
+            Name = entity.Name,
+            Title = entity.Title,
+            TitlePictureId = entity.TitlePictureId,
+        };
+        dbContext.Books.Add(newEntity);
+        await dbContext.SaveChangesAsync();
+        
+        // copy posts too
+        var posts = await dbContext.Posts.Where(p => p.BookId == id).ToListAsync();
+        foreach (var post in posts)
+        {
+            var newPostId = await postViewModelFactory.CopyToLanguageAsync(post.Id, post.Language, targetLanguage);
+            var newPost = (await dbContext.Posts.FindAsync(newPostId))!;
+            newPost.BookId = newEntity.Id;
+            newPost.Order = post.Order;
+            await dbContext.SaveChangesAsync();
+        }
+        
+        return newEntity.Id;
+    }
+
 }

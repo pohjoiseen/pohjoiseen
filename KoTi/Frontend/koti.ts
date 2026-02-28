@@ -1,6 +1,7 @@
 import './Common/common.ts';
 import BookPickerElement from './WebComponents/Books/koti-book-picker.ts';
 import DndOrderElement from './WebComponents/Common/koti-dnd-order.ts';
+import DropdownElement from './WebComponents/Common/koti-dropdown.ts';
 import ExploreStatusPickerElement from './WebComponents/Common/koti-explore-status-picker.ts';
 import GeoIconPickerElement from './WebComponents/Common/koti-geo-icon-picker.ts';
 import LocationPickerElement from './WebComponents/Common/koti-location-picker.ts';
@@ -23,6 +24,7 @@ import PostTitlePictureElement from './WebComponents/Posts/koti-post-title-pictu
 
 // common
 customElements.define('koti-dnd-order', DndOrderElement);
+customElements.define('koti-dropdown', DropdownElement);
 customElements.define('koti-explore-status-picker', ExploreStatusPickerElement);
 customElements.define('koti-geo-icon-picker', GeoIconPickerElement);
 customElements.define('koti-location-picker', LocationPickerElement);

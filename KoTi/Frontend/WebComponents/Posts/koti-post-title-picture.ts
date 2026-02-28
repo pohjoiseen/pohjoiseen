@@ -29,13 +29,15 @@ export default class PostTitlePictureElement extends HTMLElement {
         });
         
         // show either offset Y or caption field depending on image in text switch
-        this.#titleImageInTextInput.addEventListener('change', () => this.onTitleImageInTextChange(this.#titleImageInTextInput.checked));
+        this.#titleImageInTextInput?.addEventListener('change', () => this.onTitleImageInTextChange(this.#titleImageInTextInput.checked));
     }
     
     onPictureIdChange(pictureId: number | null) {
         if (pictureId) {
             this.#titleImageInTextContainer.removeAttribute('hidden');
-            this.onTitleImageInTextChange(this.#titleImageInTextInput.checked);
+            if (this.#titleImageInTextInput) {
+                this.onTitleImageInTextChange(this.#titleImageInTextInput.checked);
+            }
         } else {
             this.#titleImageInTextContainer.setAttribute('hidden', 'hidden');
             this.#titleImageOffsetYContainer.setAttribute('hidden', 'hidden');

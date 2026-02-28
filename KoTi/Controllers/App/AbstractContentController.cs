@@ -16,7 +16,7 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         {
             return NotFound();
         }
-        if (languages.Contains("ru"))
+        if (languages.ContainsKey("ru"))
         {
             return RedirectToAction("Edit", new {id, language = "ru"});
         }
@@ -46,5 +46,27 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         
         ViewData["FormViewComponentType"] = typeof(TFormViewComponent);
         return View("~/Views/AbstractContent/_Save.cshtml", model);
+    }
+
+    [HttpGet("{id:int}/{language}/copyTo/{targetLanguage}")]
+    [HttpPost("{id:int}/{language}/copyTo/{targetLanguage}")]
+    public async Task<IActionResult> CopyToLanguage(int id, string language, string targetLanguage)
+    {
+        ViewData["TargetLanguage"] = targetLanguage;
+        var model = await modelFactory.LoadAsync(id, language);
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        if (Request.Method == "POST")
+        {
+            var newEntityId = await modelFactory.CopyToLanguageAsync(id, language, targetLanguage);
+            return RedirectToAction("Edit", new { id = newEntityId, language = targetLanguage });
+        }
+
+        //await modelFactory.SaveAsync(id, targetLanguage, model);
+        //return RedirectToAction("Edit", new {id, language = targetLanguage});
+        return View("~/Views/AbstractContent/CopyToLanguage.cshtml", model);
     }
 }

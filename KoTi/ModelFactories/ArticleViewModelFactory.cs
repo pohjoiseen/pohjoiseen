@@ -7,17 +7,17 @@ namespace KoTi.ModelFactories;
 
 public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewModelFactory<ArticleViewModel, Article>
 {
-    public async Task<IList<string>> GetAllLanguagesAsync(int id)
+    public async Task<IDictionary<string, int>> GetAllLanguagesAsync(int id)
     {
         var entity = await dbContext.Articles.FindAsync(id);
         if (entity is null)
         {
-            return [];
+            return new Dictionary<string, int>();
         }
 
         return await dbContext.Articles
             .Where(a => a.Name == entity.Name)
-            .Select(a => a.Language).Distinct().ToListAsync();
+            .ToDictionaryAsync(a => a.Language, a => a.Id);
     }
 
     public async Task<ArticleViewModel?> LoadAsync(int id, string language)
@@ -38,7 +38,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
             Draft = entity.Draft,
             AllLanguages = await dbContext.Articles
                 .Where(a => a.Name == entity.Name)
-                .Select(a => a.Language).Distinct().ToListAsync()
+                .ToDictionaryAsync(a => a.Language, a => a.Id)
         };
         return model;
     }
@@ -58,5 +58,26 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
         entity.Draft = model.Draft;
         await dbContext.SaveChangesAsync();
         return entity;
+    }
+
+    public async Task<int> CopyToLanguageAsync(int id, string language, string targetLanguage)
+    {
+        var entity = await dbContext.Articles.FindAsync(id);
+        if (entity is null || entity.Language != language)
+        {
+            throw new Exception("Original entity not found");
+        }
+
+        var newEntity = new Article
+        {
+            ContentMD = entity.ContentMD,
+            Draft = true,
+            Language = targetLanguage,
+            Name = entity.Name,
+            Title = entity.Title,
+        };
+        dbContext.Articles.Add(newEntity);
+        await dbContext.SaveChangesAsync();
+        return newEntity.Id;
     }
 }

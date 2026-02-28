@@ -18,7 +18,7 @@ public class Fennica3
 
     public static readonly string FooterLink = "https://www.pohjoiseen.fi/";
 
-    public static readonly IList<string> Languages = new List<string> { "ru", "en" };
+    public static readonly IList<string> Languages = new List<string> { "ru", "en", "fi" };
     
     public static readonly IList<string> Maps = new List<string> { "index", "osm" };
 

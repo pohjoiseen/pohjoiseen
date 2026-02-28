@@ -1,0 +1,29 @@
+@model AbstractContentViewModel
+@{
+    ViewBag.Title = "Create in another language";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <partial name="~/Views/AbstractContent/_Title.cshtml" model="Model" />
+}
+
+<div>
+    <dialog style="top: 100px; max-width: 80%;" open>
+        <header>
+            <h2>Create in another language</h2>
+        </header>
+        <form method="post" action="" class="p flex flex-col gap">
+            <p>
+                Do you want to create a version of <b>@Model.KindLink:@Model.Id</b>
+                <i>(@Model.Title)</i> in language <b>@ViewBag.TargetLanguage</b>?
+                The new version will be created as a draft and will have all content
+                copied from <b>@Model.Language</b>.
+            </p>
+            <div class="ma">
+                <button type="submit" class="koti-btn primary">Yes</button>
+                <button type="button" class="koti-btn" onclick="window.history.back()">No</button>
+            </div>
+        </form>
+    </dialog>
+</div>

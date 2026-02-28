@@ -1,9 +1,7 @@
 // This is a small subset of KoTi 3.0 API calls that is still used in htmx frontend.
 // If I ever migrate completely to htmx, these should go to the same controller on the backend.
 
-import type Picture from '../model/Picture.ts';
-import type Post from '../model/Post.ts';
-import type Article from '../model/Article.ts';
+import type { Picture, Post, Article } from './model.ts';
 
 const handleError = async (response: Response) => {
     const body = await response.text();

@@ -63,7 +63,7 @@
                     <input type="hidden" name="Posts[@item.i][Id]" value="@item.value.Id"/>
                     <input type="hidden" name="Posts[@item.i][Title]" value="@item.value.Title"/>
                     <input type="hidden" name="Posts[@item.i][Draft]" value="@(item.value.Draft ? "true" : "false")"/>
-                    <a class="koti-btn w100 align-left @(item.value.Draft ? "draft" : "")" href="/app/Posts/@item.value.Id/"
+                    <a class="koti-btn w100 align-left @(item.value.Draft ? "draft" : "")" href="/app/Posts/@item.value.Id/@Model.Language/"
                        title="@item.value.Title">
                         <span>@item.value.Title</span>
                     </a>

@@ -7,17 +7,17 @@ namespace KoTi.ModelFactories;
 
 public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelFactory<PostViewModel, Post>
 {
-    public async Task<IList<string>> GetAllLanguagesAsync(int id)
+    public async Task<IDictionary<string, int>> GetAllLanguagesAsync(int id)
     {
         var entity = await dbContext.Posts.FindAsync(id);
         if (entity is null)
         {
-            return [];
+            return new Dictionary<string, int>();
         }
 
         return await dbContext.Posts
             .Where(p => p.Name == entity.Name && p.Date == entity.Date)
-            .Select(p => p.Language).Distinct().ToListAsync();
+            .ToDictionaryAsync(p => p.Language, p => p.Id);
     }
 
     public async Task<PostViewModel?> LoadAsync(int id, string language)
@@ -52,7 +52,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             BookId = entity.BookId,
             AllLanguages = await dbContext.Posts
                 .Where(p => p.Name == entity.Name && p.Date == entity.Date)
-                .Select(p => p.Language).Distinct().ToListAsync()
+                .ToDictionaryAsync(p => p.Language, p => p.Id)
         };
         return model;
     }
@@ -86,5 +86,57 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.Mini = model.Mini;
         await dbContext.SaveChangesAsync();
         return entity;
+    }
+    
+    public async Task<int> CopyToLanguageAsync(int id, string language, string targetLanguage)
+    {
+        var entity = await dbContext.Posts.FindAsync(id);
+        if (entity is null || entity.Language != language)
+        {
+            throw new Exception("Original entity not found");
+        }
+
+        var newEntity = new Post
+        {
+            ContentMD = entity.ContentMD,
+            Draft = true,
+            Language = targetLanguage,
+            Name = entity.Name,
+            Date = entity.Date,
+            Title = entity.Title,
+            Mini = entity.Mini,
+            Description = entity.Description,
+            Address = entity.Address,
+            PublicTransport = entity.PublicTransport,
+            DateDescription = entity.DateDescription,
+            LocationDescription = entity.LocationDescription,
+            TitlePictureId = entity.TitlePictureId,
+            TitleImageCaption = entity.TitleImageCaption,
+            TitleImageInText = entity.TitleImageInText,
+            TitleImageOffsetY = entity.TitleImageOffsetY,
+            CoatsOfArms = entity.CoatsOfArms?.Select(coa => new Post.CoatOfArms
+            {
+                Size = coa.Size,
+                Url = coa.Url,
+            }).ToList(),
+            Geo = entity.Geo?.Select(g => new Post.GeoPoint
+            {
+                Title = g.Title,
+                Subtitle = g.Subtitle,
+                Lat = g.Lat,
+                Lng = g.Lng,
+                Zoom = g.Zoom,
+                Icon = g.Icon,
+                Description = g.Description,
+                Anchor = g.Anchor,
+                Maps = g.Maps,
+                TitleImage = g.TitleImage,
+                Links = g.Links,
+            }).ToList()
+        };
+        
+        dbContext.Posts.Add(newEntity);
+        await dbContext.SaveChangesAsync();
+        return newEntity.Id;
     }
 }

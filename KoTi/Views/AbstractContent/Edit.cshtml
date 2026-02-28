@@ -11,6 +11,27 @@
 }
 
 @section HeaderNav {
+    <koti-dropdown selected="@Model.Language">
+        @foreach (var language in Fennica3.Fennica3.Languages)
+        {
+            @if (language != Model.Language)
+            {
+                @if (Model.AllLanguages.ContainsKey(language))
+                {
+                    <koti-dropdown-option
+                        href="@Url.Action("Edit", new { id = Model.AllLanguages[language], language })">@language</koti-dropdown-option>
+                }
+                else
+                {
+                    <koti-dropdown-option
+                        href="@Url.Action("CopyToLanguage", new { id = Model.Id, language = Model.Language, targetLanguage = language })"
+                        muted>@language (create)
+                    </koti-dropdown-option>
+                }
+            }
+        }
+    </koti-dropdown>
+    
     <button class="koti-btn primary with-indicator" onclick="document.dispatchEvent(new CustomEvent('koti-content-editor:save'))" id="save-button">
         <span id="save-button-indicator" class="spinner htmx-indicator"></span>
         <i class="bi bi-save"></i> Save

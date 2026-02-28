@@ -92,11 +92,11 @@
     grid-template-rows: 50px 1fr;
     grid-template-columns: 1fr;
 
-    & header {
+    & > header {
       grid-area: 1 / 1 / 2 / 2;
       overflow: hidden;
     }
-    & header + * {
+    & > header + * {
       grid-area: 2 / 1 / 3 / 2;
       overflow: auto;
       padding: 5px;
@@ -107,16 +107,16 @@
     grid-template-rows: 50px 1fr;
     grid-template-columns: 1fr 1fr;
     
-    & header {
+    & > header {
       grid-area: 1 / 1 / 1 / 3;
       overflow: hidden;
     }
-    & header + * {
+    & > header + * {
       grid-area: 2 / 1 / 3 / 2;
       overflow: hidden;
       padding: 5px;
     }
-    & header + * + * {
+    & > header + * + * {
       grid-area: 2 / 2 / 3 / 3;
       overflow: auto;
       padding: 5px;
@@ -143,6 +143,7 @@
       flex-grow: 1;
       text-align: right;
       margin-left: auto;
+      justify-content: end;
     }
   }
 
@@ -473,6 +474,69 @@
       display: block;
     }
   }
+  
+  koti-dropdown {
+
+    koti-dropdown-option {
+      display: none;
+    }
+    
+    & .dropdown-toggle {
+      padding: 3px 5px 3px 10px;
+      
+      & i {
+        margin-left: 10px;
+        border-left: 1px solid var(--color-bg-shade);
+        padding-left: 5px;
+      }
+    }
+    
+    & ul {
+      list-style: none;
+      margin: 0;
+      inset: 0;
+      width: max-content;
+      position-area: bottom;
+      position-try: flip-block;
+      inset-inline-start: anchor(left);
+      background-color: var(--color-bg);
+      border-top: 1px solid var(--color-bg-shade);
+      border-left: 1px solid var(--color-bg-shade);
+      border-right: 1px solid var(--color-bg-shade);
+      border-bottom: 2px solid var(--color-bg-shade);
+      border-radius: var(--border-radius);
+      
+      & li {
+        margin: 0;
+        text-align: left;
+        
+        & button, & a {
+          display: block;
+          margin: 0;
+          padding: 3px 15px;
+          width: 100%;
+          background: none;
+          outline: none;
+          border: none;
+          color: var(--color-text);
+          cursor: pointer;
+          text-decoration: none;
+          
+          &:hover {
+            background: var(--color-primary);
+            color: var(--color-primary-invert);
+          }
+        }
+        
+        &.muted {
+          & button, & a {
+            color: var(--color-muted);
+            font-style: italic;
+          }
+        }
+      }
+    }
+  }
 }
 
 @layer components-page-specific {
@@ -535,6 +599,7 @@
     padding: 5px;
     border: 1px solid var(--color-bg-shade);
     background: var(--color-text-bg);
+    text-wrap: pretty;
 
     & .folder {
       width: 210px;
@@ -829,48 +894,8 @@
     }
   }
   
-  .place-children-list {
-    & a {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      
-      & span {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-      }
-      
-      & img {
-        width: 20px;
-        height: 23px;
-      }
-    }
-  }
-  
   koti-rating {
     cursor: pointer;
-  }
-  
-  koti-place-metadata {
-    & > fieldset > fieldset {
-      padding-left: 5px;
-      margin-left: 21px;
-      border-left: 1px solid var(--color-bg-shade);
-      position: relative;
-    }
-    
-    & .remove-btn {
-      position: absolute;
-      padding: 0;
-      top: 0;
-      left: -21px;
-      font-size: 8px;
-      height: 18px;
-      width: 16px;
-      min-height: 0;
-    }
   }
 }
 
@@ -882,6 +907,7 @@
   .mr { margin-right: 5px; }
   .mt { margin-top: 5px; }
   .mb { margin-bottom: 5px; }
+  .ma { margin: auto; }
   .p { padding: 5px; }
   .pl { padding-left: 5px; }
   .pr { padding-right: 5px; }
@@ -892,6 +918,7 @@
   .flex-grow { flex-grow: 1; }
   .flex-shrink { flex-shrink: 1; }
   .flex-wrap { flex-wrap: wrap; }
+  .gap { gap: 5px; }
   .nowrap { white-space: nowrap; }
   .hbox { display: flex; align-items: center; justify-content: flex-start; gap: 5px; }
   .formbox {  display: flex; flex-direction: column; gap: 20px; }

@@ -50,7 +50,7 @@
         </a>
     </h1>
     <h2 id="header-title">@await RenderSectionAsync("HeaderTitle")</h2>
-    <nav id="header-nav">@await RenderSectionAsync("HeaderNav", false)</nav>
+    <nav id="header-nav" class="flex gap">@await RenderSectionAsync("HeaderNav", false)</nav>
 </header>
 @RenderBody()
 <koti-fullscreen-picture></koti-fullscreen-picture>

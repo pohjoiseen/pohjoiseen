@@ -557,6 +557,8 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                 href.StartsWith("\""))
                 return href;
             
+            href = href.Replace("&", "&amp;");
+
             string text = href;
             if (href.IndexOf("://") < 0)
             {
