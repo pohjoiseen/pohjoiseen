@@ -123,6 +123,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             .Where(p => p.Language == language)
             .Where(p => configuration["Fennica3:WithDrafts"] != null || !p.Draft)
             .Where(p => p.Date < post.Date || (p.Date == post.Date && p.Name.CompareTo(post.Name) < 0))
+            .Where(p => p.BookId == null)
             .OrderByDescending(p => p.Date)
             .ThenByDescending(p => p.Name)
             .FirstOrDefaultAsync();
@@ -130,6 +131,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             .Where(p => p.Language == language)
             .Where(p => configuration["Fennica3:WithDrafts"] != null || !p.Draft)
             .Where(p => p.Date > post.Date || (p.Date == post.Date && p.Name.CompareTo(post.Name) > 0))
+            .Where(p => p.BookId == null)
             .OrderBy(p => p.Date)
             .ThenBy(p => p.Name)
             .FirstOrDefaultAsync();
