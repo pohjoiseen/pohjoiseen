@@ -256,44 +256,6 @@ img.twitter, img.telegram {
     margin-right: 5px;
 }
 
-aside {
-    background: rgba(150, 84, 66, 0.2);
-    padding: 20px;
-    line-height: 1.4;
-}
-
-.multiple-images + aside {
-    margin-top: 15px;
-}
-
-.post-main aside h3 {
-    border: none;
-    margin: 0;
-    font-size: 18px;
-}
-
-aside :first-child {
-    margin-top: 0;
-}
-
-aside :last-child {
-    margin-bottom: 0;
-}
-
-/* Big enough screen */
-@media (min-width: 1660px) {
-    .aside-wrapper {
-        position: relative;
-    }
-    
-    .aside-wrapper > aside:not(.wide) {
-        position: absolute;
-        left: calc(100% + 60px);
-        width: calc((100vw - 100%) / 2 - 120px);
-        z-index: 1;
-    }
-}
-
 /* Just small enough to not break out images */
 @media (max-width: 1280px) {
     figure {
@@ -1353,37 +1315,42 @@ nav.navigation {
     }
 }
 
-/* Ukraine */
-
-.ukraine-banner {
-    display: flex;
-    flex-direction: row;
-    padding-top: 10px;
-    align-items: center;
-    width: fit-content;
-    margin: auto;
+/* Aside blocks */
+aside {
+    background: rgba(150, 84, 66, 0.2);
+    padding: 20px;
+    line-height: 1.4;
 }
 
-.ukraine-banner > img {
-    width: 100px;
-    height: 67px;
-    margin-right: 10px;
+.multiple-images + aside {
+    margin-top: 15px;
+}
+
+.post-main aside h3 {
+    border: none;
+    margin: 0;
+    font-size: 18px;
+}
+
+aside :first-child {
+    margin-top: 0;
+}
+
+aside :last-child {
     margin-bottom: 0;
-    flex-grow: 0;
 }
 
-.ukraine-banner > div {
-    flex-grow: 0;
-}
-
-@media (max-width: 767px) {
-    .ukraine-banner > div {
-        font-size: smaller;
+/* Big enough screen */
+@media (min-width: 1660px) {
+    .aside-wrapper {
+        position: relative;
     }
 
-    .ukraine-banner > img {
-        width: 39px;
-        height: 26px;
+    .aside-wrapper > aside:not(.wide) {
+        position: absolute;
+        left: calc(100% + 60px);
+        width: calc((100vw - 100%) / 2 - 120px);
+        z-index: 1;
     }
 }
 
@@ -1396,3 +1363,4 @@ iframe {
     aspect-ratio: 16 / 9;
 }
 
+/* test 3 */

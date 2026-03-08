@@ -19,7 +19,7 @@
       <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.2" />
     </ItemGroup>
     
-    <Target Name="PublishRunBun" AfterTargets="ComputeFilesToPublish">
+    <Target Name="PublishRunBun" BeforeTargets="GenerateBuildCompressedStaticWebAssets">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="Client" Command="bun install" />
         <Exec WorkingDirectory="Client" Command="bun run build" />
