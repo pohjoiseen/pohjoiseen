@@ -12,4 +12,5 @@ public class FullscreenViewModel : PaginatedViewModel
     public string? SetSearch { get; set; }
     public string? ChangePage { get; set; }
     public string? OverrideIds { get; set; }
+    public bool UseLinks { get; set; }
 }

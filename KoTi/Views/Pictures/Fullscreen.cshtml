@@ -8,14 +8,16 @@
     <button style="visibility: hidden; pointer-events: none; position: fixed;"
             hx-target="#fullscreen-container" hx-trigger="keydown[key==='ArrowLeft'] from:document consume" hx-get hx-controller="Pictures" hx-action="Fullscreen"
             hx-route-pictureId="@Model.PreviousId" hx-route-setId="@Model.SetId" hx-route-setSearch="@Model.SetSearch"
-            hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds" hx-swap="innerHTML">Previous</button>
+            hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds"
+            hx-route-useLinks="@(Model.UseLinks ? "true" : null)" hx-swap="innerHTML">Previous</button>
 }
 @if (Model.NextId != -1)
 {
     <button style="visibility: hidden; pointer-events: none; position: fixed;"
             hx-target="#fullscreen-container" hx-trigger="keydown[key==='ArrowRight'] from:document consume" hx-get hx-controller="Pictures" hx-action="Fullscreen"
             hx-route-pictureId="@Model.NextId" hx-route-setId="@Model.SetId" hx-route-setSearch="@Model.SetSearch"
-            hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds" hx-swap="innerHTML">Next</button>
+            hx-route-limit="@Model.Limit" hx-route-offset="@Model.Offset" hx-route-overrideIds="@Model.OverrideIds"
+            hx-route-useLinks="@(Model.UseLinks ? "true" : null)" hx-swap="innerHTML">Next</button>
 }
 
 @foreach (var preloadPictureUrl in Model.PreloadPictureUrls)
@@ -26,7 +28,7 @@
 @if (Model.ChangePage != null)
 {
     <form id="@Model.ChangePage" hx-swap-oob="innerHTML">
-        <vc:picture-list component-id="@Model.ChangePage" set-id="@Model.SetId" set-search="@Model.SetSearch" limit="@Model.Limit" offset="@Model.Offset" />
+        <vc:picture-list component-id="@Model.ChangePage" set-id="@Model.SetId" set-search="@Model.SetSearch" limit="@Model.Limit" offset="@Model.Offset" use-links="@Model.UseLinks" />
     </form>
 }
 

@@ -1,6 +1,6 @@
 //
 // <koti-content-editor>: content edit page, main page of the app.  This hooks up the Monaco editor, the properties form
-// and various other things together.  The element <koti-content-editor> 
+// and various other things together.  The element <koti-content-editor>
 //
 import * as monaco from 'monaco-editor';
 import { $id } from '../../Common/common.ts';
@@ -10,17 +10,17 @@ export default class ContentEditorElement extends HTMLElement {
     #editor: monaco.editor.IStandaloneCodeEditor = null!;
     #formEl: HTMLFormElement = null!;
     #insertButtonEl: HTMLButtonElement = null!;
-    
+
     #savingFormData: string | null = null;
     #lastSavedFormData: string | null = null;
-    
+
     connectedCallback() {
         const initialContentMdEl = $id(this.getAttribute('initial-content-md-id')!) as HTMLTextAreaElement;
         this.#formEl = $id(this.getAttribute('content-form-id')!) as HTMLFormElement;
         this.#insertButtonEl = $id(this.getAttribute('insert-button-id')!) as HTMLButtonElement;
-        
+
         this.#editor = this.setupMonacoEditor(initialContentMdEl.value);
-        
+
         //// Custom event listeners
 
         // just save everything
@@ -50,7 +50,7 @@ export default class ContentEditorElement extends HTMLElement {
             }
         };
         document.addEventListener('content:select-insertable', onSelectInsertable as EventListener);
-        
+
         // click on insert button inserts selected item
         this.#insertButtonEl.addEventListener('click', () => {
             if (selectedItem) {
@@ -73,8 +73,7 @@ export default class ContentEditorElement extends HTMLElement {
 
             // prevent accidental Ctrl-Left/Right navigation (unless an input or textarea is focused)
             if (e.ctrlKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-                /** @type {HTMLElement} */
-                const el = e.target as HTMLElement;
+                const el: HTMLElement = e.target as HTMLElement;
                 if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') {
                     e.preventDefault();
                 }
@@ -171,7 +170,7 @@ export default class ContentEditorElement extends HTMLElement {
         });
 
         //// preview popups, those call JSON API methods, it's okay if those fail
-        
+
         // picture preview popups
         monaco.languages.registerHoverProvider('markdown', {
             provideHover: async (model, position) => {
@@ -260,10 +259,10 @@ export default class ContentEditorElement extends HTMLElement {
                 }
             }
         });
-        
+
         return editor;
     }
-    
+
     // wraps or unwraps text in the editor with specified strings
     wrapText(editor: monaco.editor.IStandaloneCodeEditor, before: string, after: string){
         const range = editor.getSelection(), model = editor.getModel()!;
@@ -349,7 +348,7 @@ export default class ContentEditorElement extends HTMLElement {
 
         return 0;
     }
-    
+
     // performs all possible postprocessing on text that is programmatically inserted (normally internal links to some content)
     handleTextInsertion(text: string, model: monaco.editor.ITextModel, range: monaco.Range) {
         if (text.startsWith('picture:')) {
@@ -416,7 +415,7 @@ export default class ContentEditorElement extends HTMLElement {
             }
         });
 
-        // on successful save, store what was being saved in lastSavedFormData 
+        // on successful save, store what was being saved in lastSavedFormData
         this.#formEl.addEventListener('htmx:afterRequest', e => {
             const htmxEvent = e as CustomEvent<{successful: boolean}>;
             if (htmxEvent.detail.successful) {

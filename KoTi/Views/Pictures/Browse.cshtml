@@ -1,0 +1,30 @@
+@{
+    ViewBag.Title = "Pictures";
+    Layout = "_Layout";
+    var mode = (string)ViewData["Mode"]!;
+    var folderId = (int)(ViewData["FolderId"] ?? 0);
+    var offset = (int)(ViewData["Offset"] ?? 0);
+    var setSearch = ViewData["SetSearch"] as string;
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Pictures
+}
+
+@section HeaderNav {
+    <a class="koti-btn @(mode == "folders" ? "primary" : "")" asp-controller="Pictures" asp-action="BrowseFolders">By folder</a>
+    <a class="koti-btn @(mode == "all" ? "primary" : "")" asp-controller="Pictures" asp-action="BrowseAll">All</a>
+    <a class="koti-btn" href="/pictures/upload">Upload</a>
+}
+
+<div id="browse-pictures">
+    @if (mode == "folders")
+    {
+        <vc:picture-list component-id="browse-pictures" set-id="@folderId" set-search="@setSearch"
+                         limit="0" offset="@offset" use-links="true" />
+    }
+    else
+    {
+        <vc:picture-list component-id="browse-pictures" limit="0" offset="@offset" use-links="true" />
+    }
+</div>

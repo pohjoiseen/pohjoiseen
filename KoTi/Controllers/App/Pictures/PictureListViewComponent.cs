@@ -15,8 +15,9 @@ public class PictureListViewComponent(HolviDbContext dbContext, IMemoryCache mem
         string componentId,
         int limit,
         int offset,
-        int? setId,
-        string? setSearch)
+        int? setId = null,
+        string? setSearch = null,
+        bool useLinks = false)
     {
         // cache last setId per component, and setSearch and offset per setId;
         // allow using cached values if special parameters are passed
@@ -121,6 +122,7 @@ public class PictureListViewComponent(HolviDbContext dbContext, IMemoryCache mem
             ChildrenPictureSetThumbnails = pictureSet != null
                 ? await GetPictureSetsThumbnails(pictureSet.Children)
                 : new Dictionary<int, IEnumerable<string>>(),
+            UseLinks = useLinks,
         });
     }
 

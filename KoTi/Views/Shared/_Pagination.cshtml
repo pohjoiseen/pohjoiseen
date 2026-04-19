@@ -44,7 +44,7 @@
         {
             @if (thisPage != 1)
             {
-                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset - Model.Data.Limit)}'>
+                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset - Model.Data.Limit)}' hx-push-url="@(Model.PushUrl ? "true" : null)">
                     <i class="bi bi-caret-left"></i>
                 </button>
             }
@@ -62,13 +62,13 @@
                 else
                 {
                     <button class="koti-btn" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget"
-                            hx-vals='{"offset":@((npage - 1) * Model.Data.Limit)}'>@npage</button>
+                            hx-vals='{"offset":@((npage - 1) * Model.Data.Limit)}' hx-push-url="@(Model.PushUrl ? "true" : null)">@npage</button>
                 }
             }
 
             @if (thisPage != numPages)
             {
-                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset + Model.Data.Limit)}'>
+                <button class="koti-btn primary" hx-get="@Model.BaseUrl" hx-target="@Model.HxTarget" hx-vals='{"offset":@(Model.Data.Offset + Model.Data.Limit)}' hx-push-url="@(Model.PushUrl ? "true" : null)">
                     <i class="bi bi-caret-right"></i>
                 </button>
             }

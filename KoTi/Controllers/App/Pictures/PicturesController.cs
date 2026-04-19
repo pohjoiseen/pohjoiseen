@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Holvi;
 using Holvi.Models;
+using Htmx;
 using KoTi.ViewModels.Pictures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,54 @@ namespace KoTi.Controllers.App.Pictures;
 [Route("app/[controller]")]
 public class PicturesController(HolviDbContext dbContext, PictureUpload pictureUpload) : Controller
 {
+    private const string BrowseComponentId = "browse-pictures";
+
+    [HttpGet("/pictures/folders")]
+    public IActionResult BrowseFolders(
+        [FromQuery] int? folderId,
+        [FromQuery] int offset,
+        [FromQuery] string? setSearch)
+    {
+        var actualFolderId = folderId ?? 0;
+        if (Request.IsHtmx())
+        {
+            return ViewComponent("PictureList", new
+            {
+                componentId = BrowseComponentId,
+                limit = 0,
+                offset,
+                setId = (int?)actualFolderId,
+                setSearch,
+                useLinks = true
+            });
+        }
+        ViewData["Mode"] = "folders";
+        ViewData["FolderId"] = actualFolderId;
+        ViewData["Offset"] = offset;
+        ViewData["SetSearch"] = setSearch;
+        return View("~/Views/Pictures/Browse.cshtml");
+    }
+
+    [HttpGet("/pictures/all")]
+    public IActionResult BrowseAll([FromQuery] int offset)
+    {
+        if (Request.IsHtmx())
+        {
+            return ViewComponent("PictureList", new
+            {
+                componentId = BrowseComponentId,
+                limit = 0,
+                offset,
+                setId = (int?)null,
+                setSearch = (string?)null,
+                useLinks = true
+            });
+        }
+        ViewData["Mode"] = "all";
+        ViewData["Offset"] = offset;
+        return View("~/Views/Pictures/Browse.cshtml");
+    }
+
     [HttpGet("List/{componentId}")]
     public async Task<IActionResult> List(
         string componentId,
@@ -40,7 +89,8 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
             [FromQuery] int offset,
             [FromQuery] int? setId,
             [FromQuery] string? setSearch,
-            [FromQuery] string? overrideIds)
+            [FromQuery] string? overrideIds,
+            [FromQuery] bool useLinks = false)
     {
         IList<int> pictureIds;
      
@@ -120,7 +170,8 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
             Offset = offset,
             Total = pictureIds.Count,
             ChangePage = changePage,
-            OverrideIds = overrideIds
+            OverrideIds = overrideIds,
+            UseLinks = useLinks
         });
     }
     
