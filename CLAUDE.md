@@ -9,8 +9,8 @@ Three .NET 10 projects in a single solution (`Pohjoiseen.sln`), plus their TypeS
 - **Holvi/** — shared library: EF Core SQLite `HolviDbContext`, EF migrations, `PictureStorage` (S3/DigitalOcean Spaces), `PictureUpload`, and the domain models (`Article`, `Book`, `Post`, `Picture`, `PictureSet`, `Tag`, `Redirect`). All DB migrations live here; both apps consume its `AddHolviServices`.
 - **Fennica3/** — public blog at fennica.pohjoiseen.fi. ASP.NET MVC + Razor. The `ContentFormatter` class is the critical piece: it renders Markdown/HTML and resolves internal `post:XXX` / `picture:XXX` links and picture markup (figure/figcaption, srcset). Client assets under `Fennica3/Client/` (TypeScript, Bun, Leaflet + Glider for the map and galleries — no JS framework).
 - **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Has **two concurrent frontends**:
-  - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the new server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
-  - `KoTi/ClientApp/` — legacy React/CRA app, being removed; picture browsing (`/pictures/folders`, `/pictures/all`) and upload (`/pictures/upload`: folder picker, then upload queue) are already served by the new UI, redirects are not yet. See `KoTi/TODO.txt`.
+  - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
+  - `KoTi/ClientApp/` — legacy React/CRA app, no longer reachable: all its routes (`/pictures/folders`, `/pictures/all`, `/pictures/upload`, `/redirects`) are now served by MVC controllers in the new UI. Still in the tree (along with SpaProxy setup and the JSON `Controllers/API/` it used) pending removal. See `KoTi/TODO.txt`.
 
 ## Fennica3 ↔ KoTi relationship
 

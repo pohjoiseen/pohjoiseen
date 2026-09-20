@@ -1,0 +1,67 @@
+@model KoTi.ViewModels.Redirects.RedirectAddViewModel
+@{
+    ViewBag.Title = "Add HTTP Redirect";
+    Layout = "_Layout";
+    var kindName = Model.Kind == "post" ? "Post" : "Article";
+    var listComponentId = "redirect-target-list";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> HTTP Redirects
+    <i class="bi bi-caret-right"></i> Add redirect to @(Model.Kind == "url" ? "plain URL" : Model.Kind)
+}
+
+@section HeaderNav {
+    <button type="submit" form="redirect-form" class="koti-btn primary with-indicator" id="redirect-save-button" disabled="@(Model.Kind != "url")">
+        <span id="redirect-save-indicator" class="spinner htmx-indicator"></span>
+        <i class="bi bi-floppy"></i> Save
+    </button>
+    <a class="koti-btn" asp-action="Index">Cancel</a>
+}
+
+@* Inputs refer to the form via form attribute rather than being inside it, so that post/article list search input can coexist *@
+<koti-redirect-form class="redirect-form">
+    <form id="redirect-form" hx-post="@Url.Action("Add", new { kind = Model.Kind })" hx-target="#redirect-error"
+          hx-disabled-elt="#redirect-save-button" hx-indicator="#redirect-save-indicator">
+        <div id="redirect-error"></div>
+    </form>
+    
+    <div>
+        <label for="redirect-url-from">From:</label>
+        <input id="redirect-url-from" form="redirect-form" name="urlFrom" class="input-block" required autocomplete="off"
+               autofocus placeholder="/ru/2024/01/01/old-post-name/" />
+    </div>
+
+    @if (Model.Kind == "url")
+    {
+        <div>
+            <label for="redirect-url-to">To:</label>
+            <input id="redirect-url-to" form="redirect-form" name="urlTo" class="input-block" required autocomplete="off" />
+        </div>
+    }
+    else
+    {
+        <input type="hidden" form="redirect-form" name="urlTo" />
+
+        <div class="hbox">
+            <span>Select @Model.Kind:</span>
+            @foreach (var language in Fennica3.Fennica3.Languages)
+            {
+                <button type="button" class="koti-btn @(language == Model.Language ? "primary" : "")"
+                        hx-get="@Url.Action("List", kindName + "s", new { componentId = listComponentId, language, limit = 0, offset = 0 })"
+                        hx-target="#@listComponentId"
+                        onclick="this.parentElement.querySelectorAll('.koti-btn').forEach(b => b.classList.toggle('primary', b === this))">@language</button>
+            }
+            <b class="selected-target ml"></b>
+        </div>
+
+        <div id="@listComponentId" class="content-list">
+            @await Component.InvokeAsync(kindName + "List", new { componentId = listComponentId, language = Model.Language, limit = 0, offset = 0 })
+        </div>
+
+        <div>
+            <label for="redirect-anchor">Anchor on @Model.Kind page:</label>
+            <input id="redirect-anchor" form="redirect-form" name="anchor" class="input-block" autocomplete="off" placeholder="(optional)" />
+        </div>
+    }
+</koti-redirect-form>

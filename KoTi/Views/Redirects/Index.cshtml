@@ -1,0 +1,20 @@
+@model KoTi.ViewModels.Redirects.RedirectListViewModel
+@{
+    ViewBag.Title = "HTTP Redirects";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> HTTP Redirects
+}
+
+@section HeaderNav {
+    <span style="align-self: center;">Add redirect to:</span>
+    <a class="koti-btn" asp-action="Add" asp-route-kind="url">Plain URL</a>
+    <a class="koti-btn" asp-action="Add" asp-route-kind="post">Post</a>
+    <a class="koti-btn" asp-action="Add" asp-route-kind="article">Article</a>
+}
+
+<div id="redirects-list">
+    <partial name="_List" model="Model" />
+</div>

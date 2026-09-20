@@ -1,0 +1,42 @@
+@model KoTi.ViewModels.Redirects.RedirectListViewModel
+
+@if (Model.Total == 0)
+{
+    <p class="muted">No redirects yet!</p>
+}
+else
+{
+    <table class="redirects-table">
+        <tbody>
+        @foreach (var item in Model.Redirects)
+        {
+            <tr>
+                <td>@item.Redirect.UrlFrom</td>
+                <td><i class="bi bi-arrow-right"></i></td>
+                <td>
+                    @if (item.TargetKind is null)
+                    {
+                        @item.Redirect.UrlTo
+                    }
+                    else if (item.TargetTitle is null)
+                    {
+                        <span class="field-validation-error">@item.TargetKind not found (@item.Redirect.UrlTo)</span>
+                    }
+                    else
+                    {
+                        @:@item.TargetKind: <a href="@item.TargetEditUrl">@item.TargetTitle</a> <i>@item.TargetHash</i>
+                    }
+                </td>
+                <td>
+                    <button class="koti-btn" hx-delete="@Url.Action("Delete", new { id = item.Redirect.Id, offset = Model.Offset })"
+                            hx-target="#redirects-list" hx-confirm="Delete this redirect?" hx-disabled-elt="this">
+                        <i class="bi bi-x-lg"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, BaseUrl = Url.Action("Index")! })" />
