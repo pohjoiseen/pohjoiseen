@@ -14,7 +14,7 @@
 @section HeaderNav {
     <a class="koti-btn @(mode == "folders" ? "primary" : "")" asp-controller="Pictures" asp-action="BrowseFolders">By folder</a>
     <a class="koti-btn @(mode == "all" ? "primary" : "")" asp-controller="Pictures" asp-action="BrowseAll">All</a>
-    <a class="koti-btn" href="/pictures/upload">Upload</a>
+    <a class="koti-btn" asp-controller="Pictures" asp-action="UploadPickFolder">Upload</a>
 }
 
 <div id="browse-pictures">

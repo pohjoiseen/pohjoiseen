@@ -12,6 +12,11 @@ namespace KoTi.Controllers.App.Pictures;
 public class PicturesController(HolviDbContext dbContext, PictureUpload pictureUpload) : Controller
 {
     private const string BrowseComponentId = "browse-pictures";
+    private const string UploadPickFolderComponentId = "upload-pick-folder";
+
+    // htmx history restore requests (Back/Forward with no cached snapshot) need the full page, not just the list
+    private bool IsHtmxPartialRequest() =>
+        Request.IsHtmx() && !Request.Headers.ContainsKey("HX-History-Restore-Request");
 
     [HttpGet("/pictures/folders")]
     public IActionResult BrowseFolders(
@@ -20,7 +25,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         [FromQuery] string? setSearch)
     {
         var actualFolderId = folderId ?? 0;
-        if (Request.IsHtmx())
+        if (IsHtmxPartialRequest())
         {
             return ViewComponent("PictureList", new
             {
@@ -42,7 +47,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
     [HttpGet("/pictures/all")]
     public IActionResult BrowseAll([FromQuery] int offset)
     {
-        if (Request.IsHtmx())
+        if (IsHtmxPartialRequest())
         {
             return ViewComponent("PictureList", new
             {
@@ -57,6 +62,86 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         ViewData["Mode"] = "all";
         ViewData["Offset"] = offset;
         return View("~/Views/Pictures/Browse.cshtml");
+    }
+
+    // Standalone upload, step 1: pick a folder to upload to (or create a new one)
+    [HttpGet("/pictures/upload")]
+    public IActionResult UploadPickFolder([FromQuery] int? folderId, [FromQuery] string? setSearch)
+    {
+        var actualFolderId = folderId ?? 0;
+        if (IsHtmxPartialRequest())
+        {
+            return UploadPickFolderList(actualFolderId, setSearch);
+        }
+        ViewData["FolderId"] = actualFolderId;
+        ViewData["SetSearch"] = setSearch;
+        return View("~/Views/Pictures/UploadPickFolder.cshtml");
+    }
+
+    [HttpPost("/pictures/upload/create-folder")]
+    public async Task<IActionResult> UploadCreateFolder([FromQuery] int? parentId, [FromForm] string? name)
+    {
+        int? actualParentId = parentId > 0 ? parentId : null;
+        if (actualParentId is not null && !await dbContext.PictureSets.AnyAsync(ps => ps.Id == actualParentId))
+        {
+            return Problem(title: "Parent folder not found", statusCode: StatusCodes.Status404NotFound);
+        }
+
+        name = name?.Trim();
+        if (String.IsNullOrEmpty(name))
+        {
+            return UploadPickFolderList(actualParentId ?? 0, null);
+        }
+
+        // if a folder with this name already exists here, just go into it instead of creating a duplicate
+        var set = await dbContext.PictureSets.FirstOrDefaultAsync(ps => ps.ParentId == actualParentId && ps.Name == name);
+        if (set is null)
+        {
+            set = new PictureSet { Name = name, ParentId = actualParentId };
+            dbContext.PictureSets.Add(set);
+            await dbContext.SaveChangesAsync();
+        }
+
+        // navigate straight into the new folder
+        Response.Headers["HX-Push-Url"] = Url.Action("UploadPickFolder", new { folderId = set.Id });
+        return UploadPickFolderList(set.Id, null);
+    }
+
+    private IActionResult UploadPickFolderList(int folderId, string? setSearch)
+    {
+        return ViewComponent("PictureList", new
+        {
+            componentId = UploadPickFolderComponentId,
+            limit = 0,
+            offset = 0,
+            setId = (int?)folderId,
+            setSearch,
+            useLinks = true,
+            uploadFolderPicker = true
+        });
+    }
+
+    // Standalone upload, step 2: upload queue for the picked folder (0 = no folder)
+    [HttpGet("/pictures/upload/{folderId:int}")]
+    public async Task<IActionResult> UploadQueue(int folderId)
+    {
+        // build full path of the folder for display
+        var path = new List<string>();
+        int? currentId = folderId > 0 ? folderId : null;
+        while (currentId is not null)
+        {
+            var set = await dbContext.PictureSets.FindAsync(currentId);
+            if (set is null)
+            {
+                return NotFound();
+            }
+            path.Insert(0, set.Name);
+            currentId = set.ParentId;
+        }
+
+        ViewData["FolderId"] = folderId;
+        ViewData["FolderPath"] = String.Join(" / ", path);
+        return View("~/Views/Pictures/UploadQueue.cshtml");
     }
 
     [HttpGet("List/{componentId}")]
@@ -176,11 +261,16 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
     }
     
     [HttpPost("Upload/{hash}/{filename}")]
-    public async Task<IActionResult> Upload(string hash, string filename, [FromQuery] string? setName)
+    public async Task<IActionResult> Upload(string hash, string filename, [FromQuery] string? setName, [FromQuery] int? setId)
     {
+        // target set can be specified by id (must exist), or by name, see below; or not at all
+        if (setId is not null && !await dbContext.PictureSets.AnyAsync(ps => ps.Id == setId))
+        {
+            return Problem(title: "Target folder not found", statusCode: StatusCodes.Status400BadRequest);
+        }
+
         // find or create top-level set by name if necessary
-        int? setId = null;
-        if (setName is not null)
+        if (setId is null && setName is not null)
         {
             var set = dbContext.PictureSets.FirstOrDefault(s => s.Name == setName);
             if (set is null)

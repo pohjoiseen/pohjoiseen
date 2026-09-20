@@ -1,0 +1,22 @@
+@{
+    ViewBag.Title = "Upload Pictures";
+    Layout = "_Layout";
+    var folderId = (int)(ViewData["FolderId"] ?? 0);
+    var setSearch = ViewData["SetSearch"] as string;
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Pictures <i class="bi bi-caret-right"></i> Upload: pick folder
+}
+
+@section HeaderNav {
+    <a class="koti-btn" asp-controller="Pictures" asp-action="BrowseFolders">By folder</a>
+    <a class="koti-btn" asp-controller="Pictures" asp-action="BrowseAll">All</a>
+    <a class="koti-btn primary" asp-controller="Pictures" asp-action="UploadPickFolder">Upload</a>
+}
+
+@* hx-history="false": always refetch on Back/Forward instead of restoring htmx snapshot, as folders could have been created since *@
+<div id="upload-pick-folder" class="picture-list" hx-history="false">
+    <vc:picture-list component-id="upload-pick-folder" set-id="@folderId" set-search="@setSearch"
+                     limit="0" offset="0" use-links="true" upload-folder-picker="true" />
+</div>

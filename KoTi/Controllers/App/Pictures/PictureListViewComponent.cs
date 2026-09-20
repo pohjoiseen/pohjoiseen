@@ -17,7 +17,8 @@ public class PictureListViewComponent(HolviDbContext dbContext, IMemoryCache mem
         int offset,
         int? setId = null,
         string? setSearch = null,
-        bool useLinks = false)
+        bool useLinks = false,
+        bool uploadFolderPicker = false)
     {
         // cache last setId per component, and setSearch and offset per setId;
         // allow using cached values if special parameters are passed
@@ -113,16 +114,18 @@ public class PictureListViewComponent(HolviDbContext dbContext, IMemoryCache mem
         return View("~/Views/Pictures/_List.cshtml", new PictureListViewModel
         {
             ComponentId = componentId,
-            Total = await query.CountAsync(),
+            // upload folder picker shows only folders, no pictures at all
+            Total = uploadFolderPicker ? 0 : await query.CountAsync(),
             Limit = limit > 0 ? limit : DefaultLimit,
             Offset = offset,
-            Pictures = await queryPaginated.ToListAsync(),
+            Pictures = uploadFolderPicker ? [] : await queryPaginated.ToListAsync(),
             PictureSet = pictureSet,
             PictureSetSearchQuery = setSearch,
             ChildrenPictureSetThumbnails = pictureSet != null
                 ? await GetPictureSetsThumbnails(pictureSet.Children)
                 : new Dictionary<int, IEnumerable<string>>(),
             UseLinks = useLinks,
+            UploadFolderPicker = uploadFolderPicker,
         });
     }
 

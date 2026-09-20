@@ -1,0 +1,20 @@
+@{
+    ViewBag.Title = "Upload Pictures";
+    Layout = "_Layout";
+    var folderId = (int)ViewData["FolderId"]!;
+    var folderPath = (string)ViewData["FolderPath"]!;
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Pictures <i class="bi bi-caret-right"></i> Upload
+}
+
+@section HeaderNav {
+    <a class="koti-btn" asp-controller="Pictures" asp-action="BrowseFolders">By folder</a>
+    <a class="koti-btn" asp-controller="Pictures" asp-action="BrowseAll">All</a>
+    <a class="koti-btn primary" asp-controller="Pictures" asp-action="UploadPickFolder">Upload</a>
+}
+
+<div>
+    <koti-picture-uploader target-set-id="@folderId" target-set="@folderPath" global-paste="true"></koti-picture-uploader>
+</div>

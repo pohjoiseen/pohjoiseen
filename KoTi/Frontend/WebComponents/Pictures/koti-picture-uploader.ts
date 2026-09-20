@@ -4,10 +4,18 @@
 // one by one, from file input, drag and drop, or pasting, shows progress and handles errors, allows retry in case
 // of errors, allows to view uploaded pictures in fullscreen.
 //
+// Attributes:
+// - target-set-id: id of the folder to upload to (0 for no folder); if not set, target-set is used instead
+// - target-set: name of the folder to upload to; without target-set-id, it is a top-level folder which gets created
+//   if necessary; with target-set-id this is for display only
+// - global-paste: accept pictures pasted anywhere in the document, not just into the component itself
+//
 export default class PictureUploaderElement extends HTMLElement {
     // list of blobs to be uploaded or picture ids already uploaded
     #pictures: (File | number)[] = [];
     #isUploading = false;
+    // after an error, uploading stops until explicitly resumed
+    #hasError = false;
     
     // DOM elements
     #pictureList: HTMLElement = null!;
@@ -21,6 +29,11 @@ export default class PictureUploaderElement extends HTMLElement {
     }
     
     connectedCallback() {
+        if (this.hasAttribute('global-paste')) {
+            document.addEventListener('paste', this.#onPaste);
+        }
+        window.addEventListener('beforeunload', this.#onBeforeUnload);
+        
         // do not re-initialize if already initialized
         if (this.#pictureList) return;
         
@@ -32,7 +45,7 @@ export default class PictureUploaderElement extends HTMLElement {
                 </div>
                 <div class="footer">
                     <div class="alert mb" style="display: none;">
-                        <span>Error uploading picture: <span class="error-message"></span></span>
+                        <span>Error uploading picture: <span class="error-message"></span>.  Click any not yet uploaded picture or Retry to resume.</span>
                         <button type="button" class="koti-btn primary retry-button">Retry</button>
                     </div>
                     <button type="button" class="koti-btn primary upload-button with-indicator">
@@ -40,9 +53,7 @@ export default class PictureUploaderElement extends HTMLElement {
                         <i class="bi bi-upload"></i> Choose picture(s) to upload...
                     </button>
                     <input type="file" name="files" accept="image/jpeg, image/png" multiple="multiple" hidden="hidden" class="upload-hidden-button">
-                    <div class="mt">
-                        Uploaded pictures will go to <b>${this.getAttribute('target-set')}</b> folder.
-                    </div>
+                    <div class="mt target-set-message"></div>
                 </div>
             </div>
         `;
@@ -52,6 +63,15 @@ export default class PictureUploaderElement extends HTMLElement {
         this.#errorAlert = this.querySelector('.alert')!;
         this.#errorMessage = this.querySelector('.error-message')!;
         this.querySelector('.retry-button')!.addEventListener('click', () => this.uploadNextPicture());
+        
+        const targetSetMessage = this.querySelector('.target-set-message')!;
+        if (this.getAttribute('target-set')) {
+            const targetSetName = document.createElement('b');
+            targetSetName.textContent = this.getAttribute('target-set');
+            targetSetMessage.append('Uploaded pictures will go to ', targetSetName, ' folder.');
+        } else {
+            targetSetMessage.textContent = 'Uploaded pictures will not go to any folder.';
+        }
         
         // upload through file input
         this.querySelector('.upload-button')!.addEventListener('click', () => this.#uploadInput.click());
@@ -64,14 +84,15 @@ export default class PictureUploaderElement extends HTMLElement {
         });
         
         // upload through paste
-        this.#pictureList.addEventListener('paste', (e) => {
-            if (e.clipboardData) {
-                const files = [...e.clipboardData.items].map(i => i.getAsFile());
-                for (const file of files) {
-                    if (file) {
-                        this.addPicture(file);
-                    }
-                }
+        if (!this.hasAttribute('global-paste')) {
+            this.#pictureList.addEventListener('paste', this.#onPaste);
+        }
+        
+        // click on a not yet uploaded picture resumes upload after an error, starting with that picture 
+        this.#pictureList.addEventListener('click', (e) => {
+            const pictureEl = (e.target as Element).closest('koti-picture');
+            if (pictureEl && !pictureEl.getAttribute('picture-id') && !this.#isUploading) {
+                this.uploadNextPicture([...this.#pictureList.children].indexOf(pictureEl));
             }
         });
         
@@ -82,6 +103,8 @@ export default class PictureUploaderElement extends HTMLElement {
         });
         this.#pictureList.addEventListener('dragover', (e) => {
             e.preventDefault();
+            // dragleave fires also when moving over child elements, keep highlight on
+            this.#pictureList.classList.add('drop-hover');
         });
         this.#pictureList.addEventListener('dragleave', (e) => {
             e.preventDefault();
@@ -100,6 +123,30 @@ export default class PictureUploaderElement extends HTMLElement {
             }
         });
     }
+
+    disconnectedCallback() {
+        document.removeEventListener('paste', this.#onPaste);
+        window.removeEventListener('beforeunload', this.#onBeforeUnload);
+    }
+    
+    #onPaste = (e: ClipboardEvent) => {
+        if (e.clipboardData) {
+            // need to convert all items to files first, otherwise items after first one seem to get lost
+            const files = [...e.clipboardData.items].map(i => i.getAsFile());
+            for (const file of files) {
+                if (file) {
+                    this.addPicture(file);
+                }
+            }
+        }
+    };
+    
+    // warn when leaving the page with pictures still not uploaded
+    #onBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (this.#pictures.some(p => typeof p !== 'number')) {
+            e.preventDefault();
+        }
+    };
 
     /**
      * Enqueues a picture for upload.
@@ -122,16 +169,20 @@ export default class PictureUploaderElement extends HTMLElement {
         
         this.#pictureList.querySelector('.placeholder-heading')?.remove();
         
-        if (!this.#isUploading) {
+        if (!this.#isUploading && !this.#hasError) {
             this.uploadNextPicture();
         }
     }
 
     /**
      * Picks next not yet uploaded picture, if any, and tries to upload it.
+     * @param {number} [preferredIndex] picture to start with, if it is not uploaded yet
      */
-    uploadNextPicture() {
-        const index = this.#pictures.findIndex(blob => typeof blob !== 'number');
+    uploadNextPicture(preferredIndex?: number) {
+        const index = preferredIndex !== undefined && typeof this.#pictures[preferredIndex] === 'object'
+            ? preferredIndex
+            : this.#pictures.findIndex(blob => typeof blob !== 'number');
+        this.#hasError = false;
         if (index !== -1) {
             this.#isUploading = true;
             this.#uploadButton.classList.add('loading');
@@ -180,7 +231,14 @@ export default class PictureUploaderElement extends HTMLElement {
                 const percent = e.loaded / e.total * 100;
                 pictureEl.setAttribute('state', `uploading ${percent.toFixed(0)}`);
             });
-            request.open('POST', `/app/Pictures/Upload/${hash}/${blob.name}?setName=${encodeURIComponent(this.getAttribute('target-set')!)}`);
+            const targetSetId = parseInt(this.getAttribute('target-set-id') || '');
+            let targetSetParam = '';
+            if (targetSetId > 0) {
+                targetSetParam = `?setId=${targetSetId}`;
+            } else if (isNaN(targetSetId) && this.getAttribute('target-set')) {
+                targetSetParam = `?setName=${encodeURIComponent(this.getAttribute('target-set')!)}`;
+            }
+            request.open('POST', `/app/Pictures/Upload/${hash}/${encodeURIComponent(blob.name)}${targetSetParam}`);
             await new Promise<void>((resolve) => {
                 request.addEventListener('readystatechange', () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
@@ -222,12 +280,9 @@ export default class PictureUploaderElement extends HTMLElement {
             pictureEl.setAttribute('state', 'error');
             this.#uploadButton.classList.remove('loading');
             this.#errorAlert.style.display = '';
-            if ((e as Error).message) {
-                this.#errorMessage.textContent = (e as Error).message;
-            } else {
-                this.#errorMessage.textContent = 'Unknown error';
-            }
+            this.#errorMessage.textContent = `${blob.name}: ${(e as Error).message || 'Unknown error'}`;
             this.#isUploading = false;
+            this.#hasError = true;
             console.error(e);
         }
     }

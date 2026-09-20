@@ -1,4 +1,4 @@
-* Finish removing old frontend (remaining: pictures and redirects)
+* Finish removing old frontend (remaining: redirects; pictures browsing and upload are done)
 * Pictures UI can be added in a very minimal form at first, without details view, possibility to move pictures around
   picture sets (folders), etc.  But those should still be re-added later
 * Refactor backend, move code out of controllers

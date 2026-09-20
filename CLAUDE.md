@@ -10,7 +10,7 @@ Three .NET 10 projects in a single solution (`Pohjoiseen.sln`), plus their TypeS
 - **Fennica3/** — public blog at fennica.pohjoiseen.fi. ASP.NET MVC + Razor. The `ContentFormatter` class is the critical piece: it renders Markdown/HTML and resolves internal `post:XXX` / `picture:XXX` links and picture markup (figure/figcaption, srcset). Client assets under `Fennica3/Client/` (TypeScript, Bun, Leaflet + Glider for the map and galleries — no JS framework).
 - **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Has **two concurrent frontends**:
   - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the new server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
-  - `KoTi/ClientApp/` — legacy React/CRA app still used for pictures UI and redirects; being removed. See `KoTi/TODO.txt`.
+  - `KoTi/ClientApp/` — legacy React/CRA app, being removed; picture browsing (`/pictures/folders`, `/pictures/all`) and upload (`/pictures/upload`: folder picker, then upload queue) are already served by the new UI, redirects are not yet. See `KoTi/TODO.txt`.
 
 ## Fennica3 ↔ KoTi relationship
 

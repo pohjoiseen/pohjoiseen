@@ -5,11 +5,15 @@
     // Browse action with hx-push-url so the URL reflects state.  Otherwise (content editor
     // picture picker dialog) it targets the embedded List endpoint and uses the view
     // component's memcache to preserve state across dialog opens.
-    string NavUrl(int? folderId, string? setSearch = null) => Model.UseLinks
-        ? Url.Action("BrowseFolders", "Pictures", new { folderId, setSearch })!
-        : Url.Action("List", "Pictures", new { componentId = Model.ComponentId, setId = folderId, setSearch = setSearch ?? "#", limit = Model.Limit, offset = -1 })!;
+    // In UploadFolderPicker mode (folder picking step of standalone upload page, implies UseLinks),
+    // it's the same but navigation stays within UploadPickFolder action, and only folders are listed.
+    string NavUrl(int? folderId, string? setSearch = null) => Model.UploadFolderPicker
+        ? Url.Action("UploadPickFolder", "Pictures", new { folderId, setSearch })!
+        : Model.UseLinks
+            ? Url.Action("BrowseFolders", "Pictures", new { folderId, setSearch })!
+            : Url.Action("List", "Pictures", new { componentId = Model.ComponentId, setId = folderId, setSearch = setSearch ?? "#", limit = Model.Limit, offset = -1 })!;
 
-    var navTarget = Model.UseLinks ? "#browse-pictures" : "#" + Model.ComponentId;
+    var navTarget = "#" + Model.ComponentId;
     var navPushUrl = Model.UseLinks ? "true" : null;
 
     string paginatorBaseUrl;
@@ -46,6 +50,17 @@
                     </button>
                     @Model.PictureSet.Name
                </h3>
+          }
+          @if (Model.UploadFolderPicker)
+          {
+               <form class="hbox" style="margin-left: auto; padding-left: 5px;" hx-post hx-controller="Pictures" hx-action="UploadCreateFolder"
+                     hx-route-parentId="@Model.PictureSet.Id" hx-target="@navTarget" hx-disabled-elt="find button">
+                    <input type="text" name="name" required autocomplete="off" placeholder="New subfolder name" style="min-height: 32px;" />
+                    <button type="submit" class="koti-btn nowrap"><i class="bi bi-folder-plus"></i> Create</button>
+               </form>
+               <a class="koti-btn primary nowrap ml" asp-controller="Pictures" asp-action="UploadQueue" asp-route-folderId="@Model.PictureSet.Id">
+                    <i class="bi bi-upload"></i> @(Model.PictureSet.Id == 0 ? "Upload without folder" : "Upload here")
+               </a>
           }
      </div>
 }

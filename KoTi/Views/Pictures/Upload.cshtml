@@ -1,7 +1,0 @@
-@model Holvi.Models.Picture
-@{
-    Layout = null;
-}
-
-<koti-picture picture-id="@Model.Id" src="@Model.DetailsUrl" title="@($"{Model.PhotographedAt?.ToString("d.MM.yyyy")}\n{Model.Filename}")"
-              fullscreen-url="@Url.Action("Fullscreen", "PicturesApi", new { pictureId = Model.Id, componentId = "_Upload" })" fullscreen-manual-order="true"></koti-picture>
