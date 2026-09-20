@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.App.Pictures;
 
-[Route("app/[controller]")]
+[Route("[controller]")]
 public class PicturesController(HolviDbContext dbContext, PictureUpload pictureUpload) : Controller
 {
     private const string BrowseComponentId = "browse-pictures";
@@ -18,7 +18,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
     private bool IsHtmxPartialRequest() =>
         Request.IsHtmx() && !Request.Headers.ContainsKey("HX-History-Restore-Request");
 
-    [HttpGet("/pictures/folders")]
+    [HttpGet("Folders")]
     public IActionResult BrowseFolders(
         [FromQuery] int? folderId,
         [FromQuery] int offset,
@@ -44,7 +44,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         return View("~/Views/Pictures/Browse.cshtml");
     }
 
-    [HttpGet("/pictures/all")]
+    [HttpGet("All")]
     public IActionResult BrowseAll([FromQuery] int offset)
     {
         if (IsHtmxPartialRequest())
@@ -65,7 +65,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
     }
 
     // Standalone upload, step 1: pick a folder to upload to (or create a new one)
-    [HttpGet("/pictures/upload")]
+    [HttpGet("Upload")]
     public IActionResult UploadPickFolder([FromQuery] int? folderId, [FromQuery] string? setSearch)
     {
         var actualFolderId = folderId ?? 0;
@@ -78,7 +78,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         return View("~/Views/Pictures/UploadPickFolder.cshtml");
     }
 
-    [HttpPost("/pictures/upload/create-folder")]
+    [HttpPost("Upload/CreateFolder")]
     public async Task<IActionResult> UploadCreateFolder([FromQuery] int? parentId, [FromForm] string? name)
     {
         int? actualParentId = parentId > 0 ? parentId : null;
@@ -122,7 +122,7 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
     }
 
     // Standalone upload, step 2: upload queue for the picked folder (0 = no folder)
-    [HttpGet("/pictures/upload/{folderId:int}")]
+    [HttpGet("Upload/{folderId:int}")]
     public async Task<IActionResult> UploadQueue(int folderId)
     {
         // build full path of the folder for display

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KoTi.Controllers.App.Books;
 
-[Route("app/[controller]")]
+[Route("[controller]")]
 public class BooksController(BookViewModelFactory modelFactory, HolviDbContext dbContext)
     : AbstractContentController<Book, BookViewModel, BookFormViewComponent>(modelFactory)
 {

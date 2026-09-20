@@ -238,7 +238,7 @@ export default class PictureUploaderElement extends HTMLElement {
             } else if (isNaN(targetSetId) && this.getAttribute('target-set')) {
                 targetSetParam = `?setName=${encodeURIComponent(this.getAttribute('target-set')!)}`;
             }
-            request.open('POST', `/app/Pictures/Upload/${hash}/${encodeURIComponent(blob.name)}${targetSetParam}`);
+            request.open('POST', `/Pictures/Upload/${hash}/${encodeURIComponent(blob.name)}${targetSetParam}`);
             await new Promise<void>((resolve) => {
                 request.addEventListener('readystatechange', () => {
                     if (request.readyState === XMLHttpRequest.DONE) {

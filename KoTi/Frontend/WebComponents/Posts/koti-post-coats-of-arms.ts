@@ -35,7 +35,7 @@ export default class PostCoatsOfArmsElement extends HTMLElement {
     }
     
     onAdded(pictureId: number) {
-        htmx.ajax('get', '/app/Posts/CoatOfArms', { 
+        htmx.ajax('get', '/Posts/CoatOfArms', { 
             values: { url: 'picture:' + pictureId.toString(), index: this.querySelectorAll('.post-coatofarms').length },
             target: this.querySelector('.coats-of-arms')!,
             swap: 'beforeend'

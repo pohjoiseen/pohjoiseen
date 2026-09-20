@@ -4,14 +4,6 @@
       "commandName": "Project",
       "applicationUrl": "https://0.0.0.0:7169",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
-      }
-    },
-    "KoTi, skip SPA": {
-      "commandName": "Project",
-      "applicationUrl": "https://0.0.0.0:7169",
-      "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }

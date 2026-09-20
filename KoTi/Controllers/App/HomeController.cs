@@ -37,8 +37,8 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
         });
     }
     
-    [HttpGet("app/Publish")]
-    [HttpPost("app/Publish")]
+    [HttpGet("Publish")]
+    [HttpPost("Publish")]
     public async Task<IActionResult> Publish()
     {
         var dbFileInfo = new FileInfo(configuration["KoTi:LiveDatabase"]!);
@@ -70,7 +70,7 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
         return View("~/Views/Publish.cshtml");
     }
     
-    [HttpGet("app/Search")]
+    [HttpGet("Search")]
     public async Task<ActionResult<SearchResultsViewModel>> Search([FromQuery] string q, [FromQuery] int offset)
     {
         const int limit = 25;
@@ -112,6 +112,6 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
         return View("~/Views/Search.cshtml", results);
     }
 
-    [HttpGet("app/Blank")]
+    [HttpGet("Blank")]
     public IActionResult Blank() => Ok("");
 }

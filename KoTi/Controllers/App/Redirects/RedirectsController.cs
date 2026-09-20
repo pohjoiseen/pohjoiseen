@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.App.Redirects;
 
+[Route("[controller]")]
 public partial class RedirectsController(HolviDbContext dbContext) : Controller
 {
     private const int Limit = 50;
@@ -14,13 +15,13 @@ public partial class RedirectsController(HolviDbContext dbContext) : Controller
     [GeneratedRegex("^(post|article):([0-9]+)(#.*)?$")]
     private static partial Regex ContentTargetRegex();
 
-    [HttpGet("/redirects")]
+    [HttpGet("")]
     public async Task<IActionResult> Index([FromQuery] int offset)
     {
         return View(await GetList(offset));
     }
 
-    [HttpDelete("/redirects/{id:int}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, [FromQuery] int offset)
     {
         var redirect = await dbContext.Redirects.FindAsync(id);
@@ -33,7 +34,7 @@ public partial class RedirectsController(HolviDbContext dbContext) : Controller
         return View("_List", await GetList(offset));
     }
 
-    [HttpGet("/redirects/add/{kind:regex(^(url|post|article)$)}")]
+    [HttpGet("Add/{kind:regex(^(url|post|article)$)}")]
     public IActionResult Add(string kind, [FromQuery] string? language)
     {
         return View(new RedirectAddViewModel
@@ -43,7 +44,7 @@ public partial class RedirectsController(HolviDbContext dbContext) : Controller
         });
     }
 
-    [HttpPost("/redirects/add/{kind:regex(^(url|post|article)$)}")]
+    [HttpPost("Add/{kind:regex(^(url|post|article)$)}")]
     public async Task<IActionResult> Add(string kind, [FromForm] string? urlFrom, [FromForm] string? urlTo, [FromForm] string? anchor)
     {
         urlFrom = urlFrom?.Trim() ?? "";

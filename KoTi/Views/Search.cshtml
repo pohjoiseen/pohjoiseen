@@ -28,7 +28,7 @@
             @foreach (var result in Model.Results)
             {
                 <li class="mt mb">
-                    <a href="/app/@result.TableName/@result.TableId/"><b>@result.Title</b></a>
+                    <a href="/@result.TableName/@result.TableId/"><b>@result.Title</b></a>
                     <i class="muted">(@result.TableName.ToLower()[..^1])</i>
                     <br/>
                     @Html.Raw(result.Text)

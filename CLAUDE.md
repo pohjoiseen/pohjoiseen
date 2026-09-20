@@ -8,9 +8,9 @@ Three .NET 10 projects in a single solution (`Pohjoiseen.sln`), plus their TypeS
 
 - **Holvi/** — shared library: EF Core SQLite `HolviDbContext`, EF migrations, `PictureStorage` (S3/DigitalOcean Spaces), `PictureUpload`, and the domain models (`Article`, `Book`, `Post`, `Picture`, `PictureSet`, `Tag`, `Redirect`). All DB migrations live here; both apps consume its `AddHolviServices`.
 - **Fennica3/** — public blog at fennica.pohjoiseen.fi. ASP.NET MVC + Razor. The `ContentFormatter` class is the critical piece: it renders Markdown/HTML and resolves internal `post:XXX` / `picture:XXX` links and picture markup (figure/figcaption, srcset). Client assets under `Fennica3/Client/` (TypeScript, Bun, Leaflet + Glider for the map and galleries — no JS framework).
-- **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Has **two concurrent frontends**:
+- **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Frontend:
   - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
-  - `KoTi/ClientApp/` — legacy React/CRA app, no longer reachable: all its routes (`/pictures/folders`, `/pictures/all`, `/pictures/upload`, `/redirects`) are now served by MVC controllers in the new UI. Still in the tree (along with SpaProxy setup and the JSON `Controllers/API/` it used) pending removal. See `KoTi/TODO.txt`.
+  - `KoTi/Controllers/API/` holds the few JSON endpoints the frontend still calls directly (`Common/api.ts`: get picture/post/article by id, ensure web sizes of a picture); everything else is server-rendered under `Controllers/App/`. The old React app (`KoTi/ClientApp/`) and its API were removed in 3.4; picture details editing, moving pictures between folders, deletion and tags were only in that UI and are not reimplemented yet (see `KoTi/TODO.txt`, git history before 3.4 has the old code).
 
 ## Fennica3 ↔ KoTi relationship
 
@@ -35,9 +35,8 @@ Client builds use **Bun** (required). Each client has its own:
 
 - `cd Fennica3/Client && bun install && bun run build` (or `bun run watch` for dev). `bun run typecheck` runs `tsc --noEmit`. Build output: `Fennica3/wwwroot/{js,css}/`.
 - `cd KoTi/Frontend && bun install && bun run build` (or `bun run watch`). Output: `KoTi/wwwroot/frontend/`.
-- `cd KoTi/ClientApp && npm install && npm start` — legacy React dev server (CRA); `npm run build` for production.
 
-Both Bun-based client builds are wired into MSBuild via `PublishRunBun` targets in the `.csproj` files, so `dotnet publish` runs `bun install && bun run build` automatically. For Fennica3 the target runs `BeforeTargets="GenerateBuildCompressedStaticWebAssets"` (so compressed assets include the freshly built JS/CSS — do not move it back to `AfterTargets`).
+Both client builds are wired into MSBuild via `PublishRunBun` targets in the `.csproj` files, so `dotnet publish` runs `bun install && bun run build` automatically. For Fennica3 the target runs `BeforeTargets="GenerateBuildCompressedStaticWebAssets"` (so compressed assets include the freshly built JS/CSS — do not move it back to `AfterTargets`).
 
 ## Appsettings convention
 
@@ -54,6 +53,6 @@ Secrets (S3 access key etc.) are expected via .NET user secrets or the environme
 
 ## Conventions
 
-- No test suite, no linter config beyond the CRA defaults in the legacy React app. Type-check the Fennica3 client with `bun run typecheck` before shipping client changes.
+- No test suite, no linter config. Type-check the Fennica3 client with `bun run typecheck` before shipping client changes.
 - Commit messages in this repo are freeform and typically prefixed with the project they touch (`Fennica3:`, `KoTi:`). Multiple unrelated changes in one commit is the norm here — see recent git log.
 - Code is sparsely commented; the README files in each project directory are the primary prose documentation.

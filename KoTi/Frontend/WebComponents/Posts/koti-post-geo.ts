@@ -19,7 +19,7 @@ export default class PostGeoElement extends HTMLElement {
         
         // add button requests an empty form from server and adds it to the end of the list
         this.querySelector('.add-geo-btn')?.addEventListener('click', () => {
-            htmx.ajax('get', '/app/Posts/Geo', {
+            htmx.ajax('get', '/Posts/Geo', {
                 values: { index: this.countSubforms() },
                 target: this.#container,
                 swap: 'beforeend'

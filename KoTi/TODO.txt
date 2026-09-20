@@ -1,6 +1,5 @@
-* Finish removing old frontend: all pages are now replaced, ClientApp/ itself, SpaProxy and unused API controllers can be deleted
-* Pictures UI can be added in a very minimal form at first, without details view, possibility to move pictures around
-  picture sets (folders), etc.  But those should still be re-added later
+* Pictures UI is minimal (browse, fullscreen, upload).  Details view/editing, moving pictures between picture sets
+  (folders), deleting, tags were only in the old React UI (removed in 3.4) and should still be re-added later
 * Refactor backend, move code out of controllers
 * Think about how to structure the frontend, perhaps readd a framework after all?  (not React)
  
