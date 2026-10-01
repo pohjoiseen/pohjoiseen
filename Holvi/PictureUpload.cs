@@ -151,24 +151,9 @@ public class PictureUpload
             result.PhotographedAt = date;
 
             // find coordinates from EXIF, if any
-            if (inputImage.Metadata.ExifProfile?.TryGetValue(ExifTag.GPSLatitude,
-                    out IExifValue<Rational[]>? latitudeParts) == true && latitudeParts.Value?.Length == 3)
-            {
-                uint degrees = latitudeParts.Value[0].Numerator;
-                double minutes = latitudeParts.Value[1].Numerator / 60D;
-                double seconds = (latitudeParts.Value[2].Numerator / (double)latitudeParts.Value[2].Denominator) /
-                                 3600D;
-                result.Lat = degrees + minutes + seconds;
-            }
-            if (inputImage.Metadata.ExifProfile?.TryGetValue(ExifTag.GPSLongitude,
-                    out IExifValue<Rational[]>? longitudeParts) == true && longitudeParts.Value?.Length == 3)
-            {
-                uint degrees = longitudeParts.Value[0].Numerator;
-                double minutes = longitudeParts.Value[1].Numerator / 60D;
-                double seconds = (longitudeParts.Value[2].Numerator / (double)longitudeParts.Value[2].Denominator) /
-                                 3600D;
-                result.Lng = degrees + minutes + seconds;
-            }
+            var exif = inputImage.Metadata.ExifProfile;
+            result.Lat = GetExifCoordinate(exif, ExifTag.GPSLatitude, ExifTag.GPSLatitudeRef, "S");
+            result.Lng = GetExifCoordinate(exif, ExifTag.GPSLongitude, ExifTag.GPSLongitudeRef, "W");
             
             // camera and lens
             if (inputImage.Metadata.ExifProfile?.TryGetValue(ExifTag.Model, out IExifValue<string>? model) == true)
@@ -298,6 +283,34 @@ public class PictureUpload
         return image != null;
     }
     
+    /// <summary>
+    /// Read GPS latitude or longitude from EXIF (degrees, minutes, seconds as rationals, plus N/S or E/W reference).
+    /// </summary>
+    private static double? GetExifCoordinate(ExifProfile? exif, ExifTag<Rational[]> valueTag, ExifTag<string> refTag,
+        string negativeRef)
+    {
+        if (exif?.TryGetValue(valueTag, out var parts) != true || parts!.Value?.Length != 3)
+        {
+            return null;
+        }
+
+        var degrees = parts.Value[0].ToDouble();
+        var minutes = parts.Value[1].ToDouble();
+        var seconds = parts.Value[2].ToDouble();
+        if (!double.IsFinite(degrees) || !double.IsFinite(minutes) || !double.IsFinite(seconds))
+        {
+            return null;
+        }
+
+        var coordinate = degrees + minutes / 60D + seconds / 3600D;
+        if (exif.TryGetValue(refTag, out var reference) &&
+            reference!.Value?.Trim().Equals(negativeRef, StringComparison.OrdinalIgnoreCase) == true)
+        {
+            coordinate = -coordinate;
+        }
+        return coordinate;
+    }
+
     public static string GetFilenameWithSuffix(string filename, string suffix, bool forceJpg)
     {
         string extension = Path.GetExtension(filename);

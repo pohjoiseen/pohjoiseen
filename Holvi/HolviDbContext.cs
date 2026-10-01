@@ -13,6 +13,35 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     public DbSet<Book> Books { get; init; } = null!;
     public DbSet<Redirect> Redirects { get; init; } = null!;
 
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        SetUpdatedAt();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        SetUpdatedAt();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    /// <summary>
+    /// Stamp UpdatedAt (UTC) on all added/modified entities that have it.  This used to be done with triggers,
+    /// but those get silently dropped whenever EF rebuilds a SQLite table in a migration.
+    /// </summary>
+    private void SetUpdatedAt()
+    {
+        var now = DateTime.UtcNow;
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State is EntityState.Added or EntityState.Modified &&
+                entry.Metadata.FindProperty("UpdatedAt") is not null)
+            {
+                entry.Property("UpdatedAt").CurrentValue = now;
+            }
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // manually specify some JSON mappings

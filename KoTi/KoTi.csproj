@@ -10,8 +10,8 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <UserSecretsId>b0a9d1e2-3a02-49e7-8b8f-157ca08fb5bf</UserSecretsId>
     <LangVersion>default</LangVersion>
-    <AssemblyVersion>3.4.0</AssemblyVersion>
-    <InformationalVersion>3.4.0</InformationalVersion>
+    <AssemblyVersion>3.4.1</AssemblyVersion>
+    <InformationalVersion>3.4.1</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

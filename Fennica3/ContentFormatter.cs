@@ -90,6 +90,8 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
     {
         // do it in two steps, first collect all links to be resolved
         IList<(XElement, int, string)> links = new List<(XElement, int, string)>();
+        IList<(XElement, int, string)> articleLinks = new List<(XElement, int, string)>();
+        IList<(XElement, int, string)> bookLinks = new List<(XElement, int, string)>();
         
         // get all <a> in a document
         foreach (var link in from link in document.Descendants("a") select link)
@@ -101,7 +103,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                 continue;
             }
 
-            // handle only "post:" and "article:" links
+            // handle only "post:", "article:" and "book:" links
             if (href.Value.StartsWith("post:"))
             {
                 var match = Regex.Match(href.Value, "post:([0-9]+)(#.*)?");
@@ -111,11 +113,8 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     continue;
                 }
 
-                var postId = Int32.Parse(match.Groups[1].Value);
-                var hash = match.Length > 1 ? match.Groups[2].Value : "";
-
                 // request all posts at once as an optimization
-                links.Add((link, postId, hash));
+                links.Add((link, Int32.Parse(match.Groups[1].Value), match.Groups[2].Value));
             }
             else if (href.Value.StartsWith("article:"))
             {
@@ -126,18 +125,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     continue;
                 }
 
-                var articleId = Int32.Parse(match.Groups[1].Value);
-                var hash = match.Length > 1 ? match.Groups[2].Value : "";
-
-                // article links are rare, look up and replace right away
-                var article = dbContext.Articles.FirstOrDefault(a => a.Id == articleId);
-                if (article == null)
-                {
-                    logger.LogWarning("Article not found for article link: {href}", href.Value);
-                    continue;
-                }
-
-                link.SetAttributeValue("href", helpers.ArticleLink(article) + hash);
+                articleLinks.Add((link, Int32.Parse(match.Groups[1].Value), match.Groups[2].Value));
             }
             else if (href.Value.StartsWith("book:"))
             {
@@ -148,19 +136,29 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     continue;
                 }
 
-                var bookId = Int32.Parse(match.Groups[1].Value);
-                var hash = match.Length > 1 ? match.Groups[2].Value : "";
-
-                // book links are rare, look up and replace right away
-                var book = dbContext.Books.FirstOrDefault(b => b.Id == bookId);
-                if (book == null)
-                {
-                    logger.LogWarning("Book not found for book link: {href}", href.Value);
-                    continue;
-                }
-
-                link.SetAttributeValue("href", helpers.BookLink(book) + hash);
+                bookLinks.Add((link, Int32.Parse(match.Groups[1].Value), match.Groups[2].Value));
             }
+        }
+
+        // resolve articles and books, also all at once
+        var articleIds = articleLinks.Select(l => l.Item2).ToList();
+        var articles = articleIds.Count == 0 ? [] : await dbContext.Articles
+            .Where(a => articleIds.Contains(a.Id))
+            .ToDictionaryAsync(a => a.Id);
+        foreach (var (link, articleId, hash) in articleLinks)
+        {
+            articles.TryGetValue(articleId, out var article);
+            ResolveOrUnwrapLink(link, "Article", articleId, article?.Draft, () => helpers.ArticleLink(article!) + hash);
+        }
+
+        var bookIds = bookLinks.Select(l => l.Item2).ToList();
+        var books = bookIds.Count == 0 ? [] : await dbContext.Books
+            .Where(b => bookIds.Contains(b.Id))
+            .ToDictionaryAsync(b => b.Id);
+        foreach (var (link, bookId, hash) in bookLinks)
+        {
+            books.TryGetValue(bookId, out var book);
+            ResolveOrUnwrapLink(link, "Book", bookId, book?.Draft, () => helpers.BookLink(book!) + hash);
         }
 
         // second step, resolve all posts at once
@@ -168,8 +166,9 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         // the same post (by date and name) always in the same language.  This means contents of several posts could be
         // just copied as is to another language, and the links between them would continue working still.
         // TODO: really need to put this to Holvi, this is relatively heavy EF Core stuff...
-        var posts = await dbContext.Posts
-            .Where(p => links.Select(l => l.Item2).Contains(p.Id))
+        var postIds = links.Select(l => l.Item2).ToList();
+        var posts = postIds.Count == 0 ? [] : await dbContext.Posts
+            .Where(p => postIds.Contains(p.Id))
             .Join(dbContext.Posts,
                 p => new { p.Date, p.Name },
                 pp => new { pp.Date, pp.Name },
@@ -178,24 +177,37 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             .ToDictionaryAsync(p => p.Original.Id, p => p.TargetLanguage);
         foreach (var (link, postId, hash) in links)
         {
-            if (!posts.TryGetValue(postId, out var post))
-            {
-                logger.LogWarning("Post ID not found: {id}", postId);
-                // if not found, just unwrap link
-                link.ReplaceWith(link.Nodes());
-                continue;
-            }
-
-            // remove links to draft posts as well
-            if (post.Draft && configuration["Fennica3:WithDrafts"] == null)
-            {
-                logger.LogWarning("Linked to draft Post ID: {id}", postId);
-                link.ReplaceWith(link.Nodes());
-                continue;
-            }
-            
-            link.SetAttributeValue("href", helpers.PostLink(post) + hash);
+            posts.TryGetValue(postId, out var post);
+            ResolveOrUnwrapLink(link, "Post", postId, post?.Draft, () => helpers.PostLink(post!) + hash);
         }
+    }
+
+    /// <summary>
+    /// Set resolved href for a link, or if the target was not found or is a draft (and drafts are not shown),
+    /// just unwrap the link.
+    /// </summary>
+    /// <param name="link">&lt;a&gt; element</param>
+    /// <param name="type">Type name for logging</param>
+    /// <param name="id">Target ID for logging</param>
+    /// <param name="draft">Draft flag of target, null if target not found</param>
+    /// <param name="getHref">Builds actual URL, called only if target is found</param>
+    private void ResolveOrUnwrapLink(XElement link, string type, int id, bool? draft, Func<string> getHref)
+    {
+        if (draft is null)
+        {
+            logger.LogWarning("{type} ID not found: {id}", type, id);
+            link.ReplaceWith(link.Nodes());
+            return;
+        }
+
+        if (draft.Value && configuration["Fennica3:WithDrafts"] == null)
+        {
+            logger.LogWarning("Linked to draft {type} ID: {id}", type, id);
+            link.ReplaceWith(link.Nodes());
+            return;
+        }
+
+        link.SetAttributeValue("href", getHref());
     }
 
     /// <summary>

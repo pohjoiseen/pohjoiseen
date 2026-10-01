@@ -70,7 +70,7 @@
         <meta property="og:type" content="article" />
         @if (layoutParams.PublishDate != null)
         {
-            <meta property="article:published_time" content="@layoutParams.PublishDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture)" />
+            <meta property="article:published_time" content="@layoutParams.PublishDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" />
         }
         <meta property="article:author" content="@Fennica3.Author" />
     }

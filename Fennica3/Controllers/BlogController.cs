@@ -3,12 +3,14 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Text.Unicode;
 using System.Xml;
 using Fennica3.ResponseModels;
 using Fennica3.ViewModels;
 using Holvi;
 using Holvi.Models;
+using Markdig;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -142,6 +144,9 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             Language = language,
             CanonicalLink = helpers.PostLink(post),
             BodyClass = "body-post",
+            Description = GetPlainTextDescription(post),
+            PublishDate = post.Date,
+            IsOpenGraphArticle = true,
             TitleImage = post.TitlePicture?.Url ?? "",
             PrevPath = prevPost == null ? "" : helpers.PostLink(prevPost),
             PrevTitle = prevPost == null ? "" : prevPost.Title,
@@ -210,6 +215,9 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             Language = language,
             CanonicalLink = helpers.PostLink(post),
             BodyClass = "body-post",
+            Description = GetPlainTextDescription(post),
+            PublishDate = post.Date,
+            IsOpenGraphArticle = true,
             TitleImage = post.TitlePicture?.Url ?? "",
             UpPath = Url.Action("Book", new { language, bookName })!,
             UpTitle = book.Title,
@@ -309,6 +317,14 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
         var rssFormatter = new Rss20FeedFormatter(feed);
         rssFormatter.WriteTo(xmlWriter);
         await xmlWriter.FlushAsync();
+    }
+
+    /// <summary>
+    /// Post description (Markdown) as plain text on a single line, for meta description and such.
+    /// </summary>
+    private static string GetPlainTextDescription(Post post)
+    {
+        return Regex.Replace(Markdown.ToPlainText(post.Description), "\\s+", " ").Trim();
     }
 
     private async Task<Post?> GetPostAsync(string language, int year, int month, int day, string name)

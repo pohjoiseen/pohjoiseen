@@ -41,31 +41,54 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
     [HttpPost("Publish")]
     public async Task<IActionResult> Publish()
     {
-        var dbFileInfo = new FileInfo(configuration["KoTi:LiveDatabase"]!);
-        ViewBag.DatabaseLastPublishedAt = dbFileInfo.LastWriteTime;
-
         if (Request.Method == "POST")
         {
             SqliteConnection.ClearAllPools(); // flushes unsaved data
-            // ensure database is not modified while being copied
-            await dbContext.Database.ExecuteSqlAsync($"BEGIN EXCLUSIVE");
-            // execute the publish script, wait for completion and capture its output
-            var psi = new ProcessStartInfo
+            // ensure database is not modified while being copied: hold an exclusive lock on a dedicated
+            // connection (EF opens/closes pooled connections per command, so a lock taken through it is not kept)
+            var connectionString = new SqliteConnectionStringBuilder(dbContext.Database.GetConnectionString())
             {
-                FileName = "/bin/sh",
-                ArgumentList = { "-c", configuration["KoTi:PublishCommand"]! },
-                UseShellExecute = false, // a bit confusing when we're running /bin/sh :)
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-            var process = new Process { StartInfo = psi };
-            process.Start();
-            await process.WaitForExitAsync();
-            await dbContext.Database.ExecuteSqlAsync($"COMMIT");
-            ViewBag.ExitCode = process.ExitCode;
-            ViewBag.Stdout = await process.StandardOutput.ReadToEndAsync();
-            ViewBag.Stderr = await process.StandardError.ReadToEndAsync();
+                Pooling = false
+            }.ToString();
+            await using var lockConnection = new SqliteConnection(connectionString);
+            await lockConnection.OpenAsync();
+            await using (var lockCommand = lockConnection.CreateCommand())
+            {
+                lockCommand.CommandText = "BEGIN EXCLUSIVE";
+                await lockCommand.ExecuteNonQueryAsync();
+            }
+
+            try
+            {
+                // execute the publish script, wait for completion and capture its output
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "/bin/sh",
+                    ArgumentList = { "-c", configuration["KoTi:PublishCommand"]! },
+                    UseShellExecute = false, // a bit confusing when we're running /bin/sh :)
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                using var process = new Process { StartInfo = psi };
+                process.Start();
+                // read output while the process runs, otherwise it blocks once pipe buffers are full
+                var stdoutTask = process.StandardOutput.ReadToEndAsync();
+                var stderrTask = process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+                ViewBag.ExitCode = process.ExitCode;
+                ViewBag.Stdout = await stdoutTask;
+                ViewBag.Stderr = await stderrTask;
+            }
+            finally
+            {
+                await using var unlockCommand = lockConnection.CreateCommand();
+                unlockCommand.CommandText = "ROLLBACK"; // nothing was written anyway
+                await unlockCommand.ExecuteNonQueryAsync();
+            }
         }
+
+        var dbFileInfo = new FileInfo(configuration["KoTi:LiveDatabase"]!);
+        ViewBag.DatabaseLastPublishedAt = dbFileInfo.LastWriteTime;
 
         return View("~/Views/Publish.cshtml");
     }

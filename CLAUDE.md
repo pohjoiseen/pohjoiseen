@@ -10,7 +10,7 @@ Three .NET 10 projects in a single solution (`Pohjoiseen.sln`), plus their TypeS
 - **Fennica3/** — public blog at fennica.pohjoiseen.fi. ASP.NET MVC + Razor. The `ContentFormatter` class is the critical piece: it renders Markdown/HTML and resolves internal `post:XXX` / `picture:XXX` links and picture markup (figure/figcaption, srcset). Client assets under `Fennica3/Client/` (TypeScript, Bun, Leaflet + Glider for the map and galleries — no JS framework).
 - **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Frontend:
   - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
-  - `KoTi/Controllers/API/` holds the few JSON endpoints the frontend still calls directly (`Common/api.ts`: get picture/post/article by id, ensure web sizes of a picture); everything else is server-rendered under `Controllers/App/`. The old React app (`KoTi/ClientApp/`) and its API were removed in 3.4; picture details editing, moving pictures between folders, deletion and tags were only in that UI and are not reimplemented yet (see `KoTi/TODO.txt`, git history before 3.4 has the old code).
+  - `KoTi/Controllers/API/` holds the few JSON endpoints the frontend still calls directly (`Common/api.ts`: get picture/post/article by id, ensure web sizes of a picture); everything else is server-rendered under `Controllers/App/`. The old React app (`KoTi/ClientApp/`) and its API were removed in 3.4; picture details editing, moving pictures between folders, deletion and tags were only in that UI and are not reimplemented yet (see `TODO.md`, git history before 3.4 has the old code).
 
 ## Fennica3 ↔ KoTi relationship
 
@@ -21,6 +21,8 @@ KoTi fully embeds Fennica3 for previews: in `KoTi/Program.cs`, `typeof(Fennica3.
 Single SQLite file `pohjoiseen.db` at repo root (git-ignored). In production there are two copies: a "live" copy for Fennica3 and a "draft" copy for KoTi. Configured via `Holvi:DatabaseFile` in each app's appsettings.
 
 All EF migrations live in `Holvi/Migrations/`. Apply migrations either via `dotnet ef database update` from the `Holvi/` directory (pointing at the correct DB file), or — in production, where the .NET SDK isn't installed — by running the KoTi executable with the `migrate` argument (handled in `KoTi/Program.cs`).
+
+Full-text search is an FTS5 table `Search` (not an EF entity) kept up to date by SQLite triggers on Posts, Articles, Books and PictureSets (see `20261001120000_SearchRebuild`). **EF rebuilds SQLite tables for some schema changes (e.g. AddForeignKey/DropForeignKey, altering columns), and a rebuild silently drops all triggers on that table** — any such migration must recreate the triggers. `UpdatedAt` is stamped (UTC) in `HolviDbContext.SaveChanges`, not by triggers, for this reason.
 
 ## Build & run
 
