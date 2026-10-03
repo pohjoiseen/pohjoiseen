@@ -15,4 +15,10 @@ but I never used it too much for that; added picture storage in 2024 and blog ba
 Holvi then separated from KoTi as a bit of common code between projects.  There are
 somewhat more detailed READMEs in project directories.
 
-(c) 2015-2025 Alexander Ulyanov
+Everything was handcoded until autumn 2026, at which point I basically switched to 
+having AI work on the code.  Despite my very strong skepticism only a year before,
+as of October 2026 I have to concede, as a software developer with 17 years of experience,
+that AI has really become extremely good and that this is just how it's going to be from now on.
+Certainly it's doing a very good job so far at this modest (~20 KLoC) project.
+
+(c) 2015-2026 Alexander Ulyanov
