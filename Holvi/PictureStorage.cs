@@ -7,13 +7,17 @@ public class PictureStorage
 {
     private readonly IAmazonS3 _amazonS3;
     private readonly string _bucketName;
+    private readonly HttpClient _httpClient;
     public string PublicUrl { get; private init; }
+
+    private static readonly HttpClient DefaultHttpClient = new();
     
-    public PictureStorage(IAmazonS3 amazonS3, string bucketName, string publicUrl)
+    public PictureStorage(IAmazonS3 amazonS3, string bucketName, string publicUrl, HttpClient? httpClient = null)
     {
         _amazonS3 = amazonS3;
         _bucketName = bucketName;
         PublicUrl = publicUrl;
+        _httpClient = httpClient ?? DefaultHttpClient;
     }
 
     public async Task<string?> CheckPictureAlreadyUploadedAsync(string name)
@@ -26,6 +30,15 @@ public class PictureStorage
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Download an uploaded picture by its public URL (not necessarily under current PublicUrl, as that might have
+    /// changed over time).
+    /// </summary>
+    public Task<Stream> DownloadPictureAsync(string url)
+    {
+        return _httpClient.GetStreamAsync(new Uri(url));
     }
 
     public async Task UploadPictureAsync(string name, Stream content)

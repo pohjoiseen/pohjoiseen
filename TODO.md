@@ -23,6 +23,7 @@ Ideas and known gaps, roughly in order of payoff within each section.
   as changed.
 * Dark mode (`prefers-color-scheme`), colours as CSS variables first.
 * Privacy-friendlier analytics (GoatCounter/Plausible/Umami) instead of Google Analytics.
+* `[text](picture:123)` links are not resolved (only `post:`, `article:`, `book:` are), post 51 has some.
 * JSON-LD `BlogPosting` markup; "related/nearby posts" based on geo points; link from post to its location on map.
 
 ## KoTi
@@ -33,7 +34,9 @@ Ideas and known gaps, roughly in order of payoff within each section.
   could e.g. POST to `/Publish` or `/Posts/Create` (CSRF).  Enable ASP.NET antiforgery globally (htmx can send the
   token as a header) plus a simple single-user login or reverse-proxy basic auth.
 * Pre-publish link checker: `post:`/`picture:`/`article:`/`book:` links to missing or draft items, pictures without
-  web sizes; show on Publish page.
+  web sizes; show on Publish page.  (`Tests/RealData/RealDatabaseTests.cs` does some of this already.)
+* Search: `ё` and `е` are different for FTS (`remove_diacritics` only handles Latin script).  Could normalize
+  both in the triggers and in the query.
 * "What changed since last publish" on Publish page (`UpdatedAt` vs live DB mtime; note `UpdatedAt` is UTC).
 * Warn on Home/Publish page if expected search triggers are missing from `sqlite_master` (EF table rebuilds drop
   them silently, see `Holvi/Migrations/20261001120000_SearchRebuild.cs`).
@@ -43,11 +46,9 @@ Ideas and known gaps, roughly in order of payoff within each section.
 
 ## Engineering
 
-* Snapshot tests for `ContentFormatter` (Markdown in → expected HTML out): XML parsing, typography regexes,
-  gallery/figure generation.
-* A CLI command that renders every post through `ContentFormatter` and reports failures — `XElement.Parse` has no
-  error handling, so handwritten non-well-formed HTML breaks a page only at runtime.
-* Minimal CI: `dotnet build`, `bun run typecheck`, tests.
+* Minimal CI: `dotnet build`, `bun run typecheck`, `dotnet test --project Tests` (needs Bun and Chromium).
+* `XElement.Parse` in `ContentFormatter` has no error handling, so handwritten non-well-formed HTML breaks a page
+  only at runtime.  `Tests/RealData` catches it for an existing database, a check on save in KoTi would be better.
 * Continuous backups of the draft DB (Litestream, or nightly `VACUUM INTO` to Spaces) — the only copy of
   unpublished work.
 * Both `Program.cs` files add `*.appsettings*.json` *after* the default config sources, so environment variables and

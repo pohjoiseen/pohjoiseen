@@ -233,9 +233,7 @@ public class PictureUpload
                 // load image if not done yet
                 if (image == null)
                 {
-                    var url = new Uri(picture.Url);
-                    using var httpClient = new HttpClient();
-                    await using var responseStream = await httpClient.GetStreamAsync(url);
+                    await using var responseStream = await _pictureStorage.DownloadPictureAsync(picture.Url);
                     image = await Image.LoadAsync(responseStream);
                 }
 

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holvi", "Holvi\Holvi.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fennica3", "Fennica3\Fennica3.csproj", "{BF9F3C84-8D2F-448F-9CC6-4C59F2313D09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4FA2D8E7-079F-4ED4-A169-9EB37DE8689B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BF9F3C84-8D2F-448F-9CC6-4C59F2313D09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF9F3C84-8D2F-448F-9CC6-4C59F2313D09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF9F3C84-8D2F-448F-9CC6-4C59F2313D09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FA2D8E7-079F-4ED4-A169-9EB37DE8689B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FA2D8E7-079F-4ED4-A169-9EB37DE8689B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FA2D8E7-079F-4ED4-A169-9EB37DE8689B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FA2D8E7-079F-4ED4-A169-9EB37DE8689B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

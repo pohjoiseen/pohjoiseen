@@ -62,7 +62,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new CompositeFileProvider(
         app.Environment.WebRootFileProvider,
-        new PhysicalFileProvider(Path.GetFullPath("../Fennica3/wwwroot")))
+        new PhysicalFileProvider(Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "../Fennica3/wwwroot"))))
 });
 app.UseRouting();
 app.UseRequestLocalization();

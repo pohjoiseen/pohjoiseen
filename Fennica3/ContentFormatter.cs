@@ -255,7 +255,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         }
         
         // second step, resolve all pictures at once
-        var pictures = await dbContext.Pictures
+        var pictures = images.Count == 0 ? [] : await dbContext.Pictures
             .Where(p => images.Select(l => l.Item2).Contains(p.Id))
             .ToDictionaryAsync(p => p.Id);
         foreach (var (image, pictureId) in images)
@@ -338,13 +338,29 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
                     //image.SetAttributeValue("alt", "");
                 }
 
-                // unwrap from <p>
-                if (figure.Parent != null && figure.Parent.Name == "p" && figure.Parent.Elements().Count() == 1)
+                // unwrap from <p>, splitting it if there's any other content around the picture
+                // (nodes are moved, not copied, there might be more pictures to process in the same paragraph)
+                if (figure.Parent is { Name.LocalName: "p" } paragraph)
                 {
-                   figure.Parent.ReplaceWith(figure);
+                    var before = MoveIntoParagraph(figure.NodesBeforeSelf().ToList());
+                    var after = MoveIntoParagraph(figure.NodesAfterSelf().ToList());
+                    figure.Remove();
+                    paragraph.ReplaceWith(before, figure, after);
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Detach nodes and wrap them into a new &lt;p&gt;, or return null if there's nothing but whitespace.
+    /// </summary>
+    private static XElement? MoveIntoParagraph(IList<XNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            node.Remove();
+        }
+        return nodes.All(n => n is XText text && String.IsNullOrWhiteSpace(text.Value)) ? null : new XElement("p", nodes);
     }
 
     /// <summary>
@@ -554,7 +570,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         html = Regex.Replace(html, "\\s—", "\u00a0—");
         
         // no break before various units
-        html = Regex.Replace(html, "([.0-9]+)\\s+(с|сек|мин|ч|дн\\.|лет|год\\S*|век\\S*|шт\\.|м|км|см|мм|МВт|кВт|ГВт|кг|т|тонн\\S*|л|кв\\.|куб\\.|чел\\S*|тыс\\S*|млн\\.|млрд\\.)\\b", "$1\u00a0$2");
+        html = Regex.Replace(html, "([.0-9]+)\\s+(с|сек|мин|ч|дн\\.|лет|год\\S*|век\\S*|шт\\.|м|км|см|мм|МВт|кВт|ГВт|кг|т|тонн\\S*|л|кв\\.|куб\\.|чел\\S*|тыс\\S*|млн\\.|млрд\\.)(?!\\w)", "$1\u00a0$2");
         html = Regex.Replace(html, "(кв\\.|куб\\.)\\s+", "$1\u00a0");
         
         // no break before numbers, including Roman ones

@@ -5,6 +5,11 @@
     int miniCounter = 0;
     bool firstPost = true;
     bool useTitleImage = Model.Book?.TitlePictureId is not null;
+
+    // pagination link for blog or book, first page without number
+    string? PageLink(int page) => Model.Book is null
+        ? Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page = page > 1 ? page : (int?)null })
+        : Url.Action("Book", "Blog", new { language = Model.LayoutParams.Language, bookName = Model.Book.Name, page = page > 1 ? page : (int?)null });
 }
 
 @if (Model.Book != null)
@@ -124,7 +129,7 @@
             <div class="nav-links">
                 @if (Model.Page != 1)
                 {
-                    <a class="prev page-numbers" href="@(Model.Page == 1 ? Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language }) : Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page = Model.Page - 1 }))"><span class="screen-reader-text">Previous</span><i class="fas fa-arrow-left"></i></a>                     
+                    <a class="prev page-numbers" href="@PageLink(Model.Page - 1)"><span class="screen-reader-text">Previous</span><i class="fas fa-arrow-left"></i></a>                     
                 }
                 @foreach (int page in Model.Pagination)
                 {
@@ -138,12 +143,12 @@
                     }
                     else
                     {
-                        <a class="page-numbers" href="@Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page })"><span class="meta-nav screen-reader-text">Page </span>@(page)</a>
+                        <a class="page-numbers" href="@PageLink(page)"><span class="meta-nav screen-reader-text">Page </span>@(page)</a>
                     }
                 }
                 @if (Model.Page != Model.TotalPages)
                 {
-                    <a class="next page-numbers" href="@Url.Action("Blog", "Blog", new { language = Model.LayoutParams.Language, page = Model.Page + 1 })"><span class="screen-reader-text">Next</span><i class="fas fa-arrow-right"></i></a>                    
+                    <a class="next page-numbers" href="@PageLink(Model.Page + 1)"><span class="screen-reader-text">Next</span><i class="fas fa-arrow-right"></i></a>                    
                 }
             </div>
         </nav>

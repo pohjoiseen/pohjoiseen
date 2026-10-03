@@ -7,7 +7,7 @@ namespace Holvi.Migrations
     /// <summary>
     /// Rebuild full-text search from scratch:
     /// - switch tokenizer from porter (English-only stemming) to unicode61 with diacritics folding
-    ///   (ё = е, ä = a etc.), which works sensibly for Russian and Finnish
+    ///   (ä = a etc.; only for Latin script though, ё and е are still different), and case folding also for Cyrillic
     /// - drop index content and triggers for long gone tables (Places, Areas, Regions, Countries) and
     ///   for Pictures (not searched anymore, triggers were lost long ago anyway)
     /// - recreate triggers for Posts, they were silently dropped when EF rebuilt the table in Books migration

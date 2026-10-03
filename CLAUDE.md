@@ -55,6 +55,7 @@ Secrets (S3 access key etc.) are expected via .NET user secrets or the environme
 
 ## Conventions
 
-- No test suite, no linter config. Type-check the Fennica3 client with `bun run typecheck` before shipping client changes.
+- Tests: `dotnet test --project Tests` (xUnit v3, in-process apps on a seeded temporary DB, plus Playwright browser tests; see `Tests/README.md`). Add or update tests with changes, especially to `ContentFormatter`. After formatter changes, also run the real-data check against a DB copy (`POHJOISEEN_TEST_DB`, see `Tests/README.md`).
+- No linter config. Type-check the Fennica3 client with `bun run typecheck` before shipping client changes.
 - Commit messages in this repo are freeform and typically prefixed with the project they touch (`Fennica3:`, `KoTi:`). Multiple unrelated changes in one commit is the norm here — see recent git log.
 - Code is sparsely commented; the README files in each project directory are the primary prose documentation.

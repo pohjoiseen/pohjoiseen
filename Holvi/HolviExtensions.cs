@@ -11,7 +11,8 @@ public static class HolviExtensions
     public static IServiceCollection AddHolviServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<HolviDbContext>(o =>
-            o.UseSqlite($"Data Source={configuration["Holvi:DatabaseFile"]}"));
+            o.UseSqlite($"Data Source={configuration["Holvi:DatabaseFile"]}")
+                .AddInterceptors(new UnicodeCaseInterceptor()));
         // TODO: this should be optional for Fennica3
         services.AddScoped<IAmazonS3, AmazonS3Client>(provider => new AmazonS3Client(
             configuration["Holvi:S3:AccessKey"],
