@@ -52,7 +52,7 @@ export default class PictureUploaderElement extends HTMLElement {
                         <span class="spinner"></span>
                         <i class="bi bi-upload"></i> Choose picture(s) to upload...
                     </button>
-                    <input type="file" name="files" accept="image/jpeg, image/png" multiple="multiple" hidden="hidden" class="upload-hidden-button">
+                    <input type="file" name="files" accept="image/jpeg, image/png, image/webp" multiple="multiple" hidden="hidden" class="upload-hidden-button">
                     <div class="mt target-set-message"></div>
                 </div>
             </div>
@@ -153,7 +153,7 @@ export default class PictureUploaderElement extends HTMLElement {
      * @param {File} file
      */
     addPicture(file: File) {
-        if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+        if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/webp') {
             return;
         }
 

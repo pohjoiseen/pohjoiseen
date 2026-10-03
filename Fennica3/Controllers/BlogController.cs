@@ -302,7 +302,7 @@ public class BlogController(HolviDbContext dbContext, Helpers helpers, ContentFo
             if (post.TitlePicture != null)
             {
                 var link = SyndicationLink.CreateMediaEnclosureLink(new Uri(post.TitlePicture.Url),
-                    "image/jpeg", 0);
+                    PictureStorage.GetContentType(post.TitlePicture.Url), 0);
                 item.Links.Add(link);
             }
 

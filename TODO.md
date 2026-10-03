@@ -6,8 +6,9 @@ Ideas and known gaps, roughly in order of payoff within each section.
 
 * Post header background (`Post.cshtml`) and `og:image` use the full 3000x2000 original (`TitlePicture.Url`),
   several MB on every post view.  Use `Website2xUrl` for the background, keep the original only for click-through.
-* WebP/AVIF variants of web sizes (`.1x`/`.2x`), served via `<picture>`/`srcset` — should cut image bandwidth
-  by 30–50%.  ImageSharp can write WebP.
+* Resized versions are WebP since 3.5, but pictures uploaded/resized earlier still have `.jpg`/`.png` ones.  Could
+  convert those in the background (S3 keys and `Picture` URLs change, so the nginx cache needs a DB redeploy anyway).
+  AVIF would save more but ImageSharp cannot write it.
 * `ContentFormatter` calls `EnsureWebsiteVersionsExist` during public page rendering, i.e. Fennica3 may download
   an original from S3 and resize it inside a request on a 1 GB droplet, and needs S3 write credentials for it.
   Move to KoTi (on save/publish) so Fennica3 is read-only and credential-free (see also TODO in `HolviExtensions`).

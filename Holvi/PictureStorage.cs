@@ -35,9 +35,19 @@ public class PictureStorage
             BucketName = _bucketName,
             Key = name,
             InputStream = content,
-            ContentType = name.EndsWith(".png") ? "image/png" : "image/jpeg",
+            ContentType = GetContentType(name),
             CannedACL = S3CannedACL.PublicRead
         });
+    }
+
+    public static string GetContentType(string name)
+    {
+        return Path.GetExtension(name).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            _ => "image/jpeg"
+        };
     }
 
     public async Task DeletePictureAsync(string name)

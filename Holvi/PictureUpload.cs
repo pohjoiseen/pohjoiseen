@@ -3,8 +3,10 @@ using Holvi.Models;
 using Holvi.ResponseModels;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Processing;
 
@@ -22,6 +24,17 @@ public class PictureUpload
     /// This is only for resized versions, the original is always kept as is.  75 seems to be a good compromise
     /// </summary>
     private const int JpegQualityLevel = 75;
+
+    /// <summary>
+    /// Same for lossy WebP, which resized versions are normally saved as since 3.5 (before, they were .jpg/.png;
+    /// these are not reconverted)
+    /// </summary>
+    private const int WebpQualityLevel = 75;
+
+    /// <summary>
+    /// WebP cannot store larger images, resized versions of very long panoramas fall back to JPEG/PNG
+    /// </summary>
+    private const int WebpMaxDimension = 16383;
 
     public PictureUpload(PictureStorage pictureStorage, HolviDbContext context)
     {
@@ -57,11 +70,9 @@ public class PictureUpload
                     ExistedInStorage = true,
                     ExistingId = existing.Id,
                     Hash = hash,
-                    PictureUrl = _pictureStorage.PublicUrl + existingKey,
-                    ThumbnailUrl = _pictureStorage.PublicUrl +
-                                   GetFilenameWithSuffix(existingKey, Picture.ThumbnailSuffix, true),
-                    DetailsUrl = _pictureStorage.PublicUrl +
-                                 GetFilenameWithSuffix(existingKey, Picture.DetailsSuffix, true),
+                    PictureUrl = existing.Url,
+                    ThumbnailUrl = existing.ThumbnailUrl,
+                    DetailsUrl = existing.DetailsUrl,
                     Width = existing.Width,
                     Height = existing.Height,
                     Size = existing.Size,
@@ -96,19 +107,14 @@ public class PictureUpload
             // if height is no bigger than target size, do not do anything else, base filename will be used
             if (height > Picture.ThumbnailSize * 2)
             {
-                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.ThumbnailSuffix, true);
-                if (existingKey is null || await _pictureStorage.CheckPictureAlreadyUploadedAsync(outputName) is null)
+                string? outputName = existingKey is null
+                    ? null
+                    : await FindDownsizedVersionAsync(baseOutputName, Picture.ThumbnailSuffix);
+                if (outputName is null)
                 {
                     double scale = Picture.ThumbnailSize * 2.0 / height;
-                    MemoryStream output = new MemoryStream();
-                    using (var resizedImage =
-                           inputImage.Clone(x => x.Resize((int)(width * scale), Picture.ThumbnailSize * 2)))
-                    {
-                        await resizedImage.SaveAsync(output, new JpegEncoder());
-                    }
-
-                    output.Seek(0, SeekOrigin.Begin);
-                    await _pictureStorage.UploadPictureAsync(outputName, output);
+                    outputName = await UploadDownsizedVersionAsync(inputImage, (int)(width * scale),
+                        Picture.ThumbnailSize * 2, baseOutputName, Picture.ThumbnailSuffix, false);
                 }
 
                 result.ThumbnailUrl = outputName;
@@ -118,19 +124,14 @@ public class PictureUpload
             // same but match width
             if (width > Picture.DetailsSize * 2)
             {
-                string outputName = GetFilenameWithSuffix(baseOutputName, Picture.DetailsSuffix, true);
-                if (existingKey is null || await _pictureStorage.CheckPictureAlreadyUploadedAsync(outputName) is null)
+                string? outputName = existingKey is null
+                    ? null
+                    : await FindDownsizedVersionAsync(baseOutputName, Picture.DetailsSuffix);
+                if (outputName is null)
                 {
                     double scale = Picture.DetailsSize * 2.0 / width;
-                    MemoryStream output = new MemoryStream();
-                    using (var resizedImage =
-                           inputImage.Clone(x => x.Resize(Picture.DetailsSize * 2, (int)(height * scale))))
-                    {
-                        await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JpegQualityLevel });
-                    }
-
-                    output.Seek(0, SeekOrigin.Begin);
-                    await _pictureStorage.UploadPictureAsync(outputName, output);
+                    outputName = await UploadDownsizedVersionAsync(inputImage, Picture.DetailsSize * 2,
+                        (int)(height * scale), baseOutputName, Picture.DetailsSuffix, false);
                 }
 
                 result.DetailsUrl = outputName;
@@ -224,10 +225,10 @@ public class PictureUpload
                 continue;  // too small, skip this size
             }
 
-	        // might be already resized but not in database
-            var resizedName = $"{picture.Hash}/{GetFilenameWithSuffix(picture.Filename, sizeSuffix, false)}";
-	        var alreadyUploaded = await _pictureStorage.CheckPictureAlreadyUploadedAsync(resizedName);
-	        if (alreadyUploaded == null)
+            // might be already resized but not in database
+            var baseName = $"{picture.Hash}/{picture.Filename}";
+            var resizedName = await FindDownsizedVersionAsync(baseName, sizeSuffix);
+            if (resizedName == null)
             {
                 // load image if not done yet
                 if (image == null)
@@ -238,28 +239,8 @@ public class PictureUpload
                     image = await Image.LoadAsync(responseStream);
                 }
 
-                // actually resize and save
-                using Image resizedImage = image.Clone(x => x.Resize(width, height));
-                // clear metadata from resized versions
-                resizedImage.Metadata.ExifProfile = null;
-                resizedImage.Metadata.XmpProfile = null;
-
-                MemoryStream output = new MemoryStream();
-                if (picture.Filename.EndsWith(".jpg") || picture.Filename.EndsWith(".jpeg"))
-                {
-                    await resizedImage.SaveAsync(output, new JpegEncoder { Quality = JpegQualityLevel });
-                }
-                else if (picture.Filename.EndsWith(".png"))
-                {
-                    await resizedImage.SaveAsync(output, new PngEncoder());
-                }
-                else
-                {
-                    throw new Exception("Could not determine format for " + picture.Filename);
-                }
-                     
-                output.Seek(0,  SeekOrigin.Begin);
-                await _pictureStorage.UploadPictureAsync(resizedName, output);
+                // actually resize and save, clearing metadata
+                resizedName = await UploadDownsizedVersionAsync(image, width, height, baseName, sizeSuffix, true);
             }
 
             if (sizeSuffix == ".1x")
@@ -311,10 +292,66 @@ public class PictureUpload
         return coordinate;
     }
 
-    public static string GetFilenameWithSuffix(string filename, string suffix, bool forceJpg)
+    /// <summary>
+    /// Find a resized version (by suffix) of an already uploaded picture, in whatever format it was saved.
+    /// </summary>
+    /// <returns>Key in storage, or null if not found</returns>
+    private Task<string?> FindDownsizedVersionAsync(string baseName, string suffix)
+    {
+        // storage lookup is by prefix, so this finds e.g. both older .t.jpg and newer .t.webp
+        return _pictureStorage.CheckPictureAlreadyUploadedAsync(GetFilenameWithSuffix(baseName, suffix, "."));
+    }
+
+    /// <summary>
+    /// Resize a picture and upload it.  Saves as WebP, lossy for lossy originals (JPEG, lossy WebP),
+    /// lossless otherwise (PNG, lossless WebP); unless too large for WebP, then JPEG/PNG respectively.
+    /// </summary>
+    /// <returns>Key in storage</returns>
+    private async Task<string> UploadDownsizedVersionAsync(Image image, int width, int height, string baseName,
+        string suffix, bool clearMetadata)
+    {
+        var format = image.Metadata.DecodedImageFormat;
+        bool isLossy = format is JpegFormat ||
+                       (format is WebpFormat && image.Metadata.GetWebpMetadata().FileFormat == WebpFileFormatType.Lossy);
+
+        IImageEncoder encoder;
+        string extension;
+        if (width <= WebpMaxDimension && height <= WebpMaxDimension)
+        {
+            encoder = isLossy
+                ? new WebpEncoder { FileFormat = WebpFileFormatType.Lossy, Quality = WebpQualityLevel }
+                : new WebpEncoder { FileFormat = WebpFileFormatType.Lossless };
+            extension = ".webp";
+        }
+        else if (isLossy)
+        {
+            encoder = new JpegEncoder { Quality = JpegQualityLevel };
+            extension = ".jpg";
+        }
+        else
+        {
+            encoder = new PngEncoder();
+            extension = ".png";
+        }
+
+        using var resizedImage = image.Clone(x => x.Resize(width, height));
+        if (clearMetadata)
+        {
+            resizedImage.Metadata.ExifProfile = null;
+            resizedImage.Metadata.XmpProfile = null;
+        }
+
+        var name = GetFilenameWithSuffix(baseName, suffix, extension);
+        var output = new MemoryStream();
+        await resizedImage.SaveAsync(output, encoder);
+        output.Seek(0, SeekOrigin.Begin);
+        await _pictureStorage.UploadPictureAsync(name, output);
+        return name;
+    }
+
+    private static string GetFilenameWithSuffix(string filename, string suffix, string newExtension)
     {
         string extension = Path.GetExtension(filename);
-        return filename.Substring(0, filename.Length - extension.Length) + suffix +
-               (forceJpg ? ".jpg" : extension);
+        return filename.Substring(0, filename.Length - extension.Length) + suffix + newExtension;
     }
 }
