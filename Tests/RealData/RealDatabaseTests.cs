@@ -1,8 +1,10 @@
 using System.Net;
 using System.Text.RegularExpressions;
+using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Fennica3;
 using Holvi;
+using KoTi.LiveJournal;
 using Markdig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,6 +99,99 @@ public class RealDatabaseTests(RealDatabaseFactory factory) : IClassFixture<Real
         }
 
         Assert.True(failures.Count == 0, $"{failures.Count} of {items.Count} failed to render:\n" + string.Join("\n", failures));
+    }
+
+    [Fact]
+    public async Task AllPostsConvertForLJ()
+    {
+        Assert.SkipUnless(Enabled, "POHJOISEEN_TEST_DB not set");
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<HolviDbContext>();
+        var formatter = scope.ServiceProvider.GetRequiredService<ContentFormatter>();
+        var ljFormatter = ActivatorUtilities.CreateInstance<LJCrosspostFormatter>(scope.ServiceProvider);
+
+        // defaults, and settings that keep all content
+        var defaults = new LJCrosspostOptions();
+        var everything = new LJCrosspostOptions
+        {
+            Galleries = LJGalleryMode.LJGallery, Asides = LJAsideMode.Blockquote, RemoveNewlines = true,
+            ImageSource = LJImageSourceMode.Src2x
+        };
+
+        var posts = await db.Posts.AsNoTracking().OrderBy(p => p.Id).ToListAsync(TestContext.Current.CancellationToken);
+        var failures = new List<string>();
+        var sizes = new List<(int Bytes, string Name)>();
+        var parser = new HtmlParser();
+        foreach (var post in posts)
+        {
+            var name = $"post {post.Id} {post}";
+            try
+            {
+                foreach (var options in new[] { defaults, everything })
+                {
+                    var html = (await ljFormatter.FormatAsync(post.Id, post.Language, options))!;
+                    if (options == defaults)
+                    {
+                        sizes.Add((System.Text.Encoding.UTF8.GetByteCount(html), name));
+                    }
+
+                    if (!html.StartsWith("<lj-raw>") || !html.EndsWith("</lj-raw>"))
+                    {
+                        failures.Add($"{name}: not wrapped in lj-raw");
+                    }
+                    foreach (var leftover in new[] { "</p>", "/>", "<!--", "<figure", "<aside", "glider", "<strong", "<em>" })
+                    {
+                        if (html.Contains(leftover))
+                        {
+                            failures.Add($"{name}: contains {leftover}");
+                        }
+                    }
+                    if (options.RemoveNewlines && Regex.IsMatch(html, "\n(?![^<]*</code>)"))
+                    {
+                        failures.Add($"{name}: newlines left");
+                    }
+
+                    var document = parser.ParseDocument(html);
+                    var urls = document.QuerySelectorAll("a[href]").Select(a => a.GetAttribute("href")!)
+                        .Concat(document.QuerySelectorAll("img[src], lj-gallery-item").Select(i => i.GetAttribute("src")!))
+                        .Concat(document.QuerySelectorAll("img[srcset]")
+                            .SelectMany(i => i.GetAttribute("srcset")!.Split(',').Select(c => c.Trim().Split(' ')[0])));
+                    // ([text](picture:XXX) links are not resolved by ContentFormatter, reported by AllContentRenders)
+                    foreach (var url in urls.Where(u => !Regex.IsMatch(u, "^(https?://|#|mailto:|picture:)")))
+                    {
+                        failures.Add($"{name}: not absolute URL: {url}");
+                    }
+
+                    // nothing may be lost compared to what is shown on the blog, if all content is kept
+                    if (options == everything)
+                    {
+                        // (text nodes joined with spaces: without newlines, words in separate paragraphs are not separated,
+                        // neither are Glider gallery captions on the blog; style is not text)
+                        static string Text(IElement element) => string.Join(" ", element.GetDescendants().OfType<IText>()
+                            .Where(t => t.ParentElement?.LocalName != "style").Select(t => t.Data));
+                        var blogText = Text(parser.ParseDocument(await formatter.FormatMarkdownAsync(post.ContentMD, post.Language)).Body!);
+                        var ljWords = Words(Text(document.Body!)).CountBy(w => w).ToDictionary();
+                        var missing = Words(blogText).CountBy(w => w)
+                            .Where(w => w.Value > ljWords.GetValueOrDefault(w.Key))
+                            .Select(w => w.Key).Take(10).ToList();
+                        if (missing.Count > 0)
+                        {
+                            failures.Add($"{name}: text lost: {string.Join(" ", missing)}");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                failures.Add($"{name}: {e.GetType().Name}: {e.Message}");
+            }
+        }
+
+        TestContext.Current.TestOutputHelper?.WriteLine("LJ HTML sizes with default settings, largest: " +
+            string.Join(", ", sizes.OrderByDescending(s => s.Bytes).Take(10).Select(s => $"{s.Name} {s.Bytes}")) +
+            $"; over 64 KB: {sizes.Count(s => s.Bytes > 65535)} of {sizes.Count}");
+        Assert.True(failures.Count == 0, $"{failures.Count} problems in {posts.Count} posts:\n" + string.Join("\n", failures));
     }
 
     private static IEnumerable<string> Words(string text) =>

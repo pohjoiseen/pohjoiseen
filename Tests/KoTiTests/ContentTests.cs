@@ -23,7 +23,7 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     {
         var doc = await _client.GetDocumentAsync("/");
         var text = doc.Body!.TextContent;
-        Assert.Contains("3.5", text);  // version
+        Assert.Contains("3.6", text);  // version
         Assert.Contains("test", text);  // bucket
     }
 

@@ -1,6 +1,7 @@
 using Holvi;
 using Holvi.Models;
 using Koti.Controllers.App;
+using KoTi.LiveJournal;
 using KoTi.ModelFactories;
 using KoTi.ViewModels;
 using KoTi.ViewModels.Posts;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace KoTi.Controllers.App.Posts;
 
 [Route("[controller]")]
-public class PostsController(PostViewModelFactory modelFactory, HolviDbContext dbContext)
+public class PostsController(PostViewModelFactory modelFactory, HolviDbContext dbContext, LJCrosspostFormatter ljFormatter)
     : AbstractContentController<Post, PostViewModel, PostFormViewComponent>(modelFactory)
 {
     [HttpGet]
@@ -98,5 +99,33 @@ public class PostsController(PostViewModelFactory modelFactory, HolviDbContext d
         
         Response.Headers.Append("HX-Redirect", Url.Action("Index", new { language }));
         return NoContent();
+    }
+
+    [HttpGet("{id:int}/{language}/LJ")]
+    public async Task<IActionResult> LJCrosspost(int id, string language)
+    {
+        var options = new LJCrosspostOptions();
+        var html = await ljFormatter.FormatAsync(id, language, options);
+        if (html is null)
+        {
+            return NotFound();
+        }
+
+        // the view renders a <dialog>, make sure it is opened
+        Response.Headers.Append("HX-Trigger-After-Swap", "{\"dialogopenmodal\":{\"target\":\"#lj-crosspost-dialog\"}}");
+
+        return View("_LJCrosspost", new LJCrosspostViewModel { Id = id, Language = language, Options = options, Html = html });
+    }
+
+    [HttpGet("{id:int}/{language}/LJ/Html")]
+    public async Task<IActionResult> LJCrosspostHtml(int id, string language, [FromQuery] LJCrosspostOptions options)
+    {
+        var html = await ljFormatter.FormatAsync(id, language, options);
+        if (html is null)
+        {
+            return NotFound();
+        }
+
+        return Content(html, "text/plain; charset=utf-8");
     }
 }

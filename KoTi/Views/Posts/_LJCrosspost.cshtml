@@ -1,0 +1,78 @@
+@using KoTi.LiveJournal
+@model KoTi.ViewModels.Posts.LJCrosspostViewModel
+
+<koti-lj-crosspost html-url="@Url.Action("LJCrosspostHtml", "Posts", new { id = Model.Id, language = Model.Language })"
+                   initial-html-id="lj-crosspost-initial-html">
+    <dialog id="lj-crosspost-dialog" class="lj-crosspost-dialog">
+        <header>
+            <h2>LJ crosspost</h2>
+            <nav class="flex gap">
+                <span class="lj-crosspost-bytes"></span>
+                <button type="button" class="koti-btn primary copy-btn"><i class="bi bi-clipboard"></i> Copy</button>
+                <button type="button" class="koti-btn cancel-btn">Close</button>
+            </nav>
+        </header>
+        <form class="lj-crosspost-options formbox">
+            <div>
+                <input id="lj-title-picture" type="checkbox" name="TitlePicture" checked="@Model.Options.TitlePicture"/>
+                <label for="lj-title-picture">Title picture</label>
+            </div>
+            <div>
+                <label for="lj-galleries">Galleries:</label>
+                <select id="lj-galleries" name="Galleries" class="input-block">
+                    <option value="@LJGalleryMode.Individual" selected="@(Model.Options.Galleries == LJGalleryMode.Individual)">Individual pictures</option>
+                    <option value="@LJGalleryMode.LJGallery" selected="@(Model.Options.Galleries == LJGalleryMode.LJGallery)">LJ galleries</option>
+                    <option value="@LJGalleryMode.LJGalleryIfMoreThan3" selected="@(Model.Options.Galleries == LJGalleryMode.LJGalleryIfMoreThan3)">LJ galleries if more than 3 pictures</option>
+                </select>
+            </div>
+            <div>
+                <label for="lj-asides">Asides:</label>
+                <select id="lj-asides" name="Asides" class="input-block">
+                    <option value="@LJAsideMode.Remove" selected="@(Model.Options.Asides == LJAsideMode.Remove)">Remove</option>
+                    <option value="@LJAsideMode.Blockquote" selected="@(Model.Options.Asides == LJAsideMode.Blockquote)">Blockquote</option>
+                </select>
+            </div>
+            <div>
+                <label for="lj-image-source">Picture source:</label>
+                <select id="lj-image-source" name="ImageSource" class="input-block">
+                    <option value="@LJImageSourceMode.SrcAndSrcset" selected="@(Model.Options.ImageSource == LJImageSourceMode.SrcAndSrcset)">src and srcset</option>
+                    <option value="@LJImageSourceMode.SrcsetOnly" selected="@(Model.Options.ImageSource == LJImageSourceMode.SrcsetOnly)">srcset only</option>
+                    <option value="@LJImageSourceMode.Src2x" selected="@(Model.Options.ImageSource == LJImageSourceMode.Src2x)">src only, 2x picture</option>
+                </select>
+            </div>
+            <div class="flex flex-col gap">
+                <div>
+                    <input id="lj-link-pictures" type="checkbox" name="LinkPicturesToOriginals" checked="@Model.Options.LinkPicturesToOriginals"/>
+                    <label for="lj-link-pictures">Link pictures to originals</label>
+                </div>
+                <div>
+                    <input id="lj-remove-alts" type="checkbox" name="RemoveAlts" checked="@Model.Options.RemoveAlts"/>
+                    <label for="lj-remove-alts">Remove all alt texts</label>
+                </div>
+                <div>
+                    <input id="lj-remove-lazy-loading" type="checkbox" name="RemoveLazyLoading" checked="@Model.Options.RemoveLazyLoading"/>
+                    <label for="lj-remove-lazy-loading">Remove lazy loading</label>
+                </div>
+                <div>
+                    <input id="lj-heading-ids" type="checkbox" name="HeadingIds" checked="@Model.Options.HeadingIds"/>
+                    <label for="lj-heading-ids">Heading ids</label>
+                </div>
+                <div>
+                    <input id="lj-cut" type="checkbox" name="LJCut" checked="@Model.Options.LJCut"/>
+                    <label for="lj-cut">LJ-cut after first paragraph</label>
+                </div>
+                <div>
+                    <input id="lj-link-to-original" type="checkbox" name="LinkToOriginalPost" checked="@Model.Options.LinkToOriginalPost"/>
+                    <label for="lj-link-to-original">Link to original post</label>
+                </div>
+                <div>
+                    <input id="lj-remove-newlines" type="checkbox" name="RemoveNewlines" checked="@Model.Options.RemoveNewlines"/>
+                    <label for="lj-remove-newlines">Remove newlines</label>
+                </div>
+            </div>
+            <p class="muted">Generated from the last saved version.</p>
+        </form>
+        <div class="lj-crosspost-editor"></div>
+    </dialog>
+    <textarea id="lj-crosspost-initial-html" hidden>@Model.Html</textarea>
+</koti-lj-crosspost>

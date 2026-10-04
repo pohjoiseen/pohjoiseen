@@ -17,6 +17,7 @@ import PictureUploadModalElement from './WebComponents/Pictures/koti-picture-upl
 import PictureUploaderElement from './WebComponents/Pictures/koti-picture-uploader.ts';
 import RedirectFormElement from './WebComponents/Redirects/koti-redirect-form.ts';
 import GeoExternalLinksElement from './WebComponents/Posts/koti-geo-external-links.ts';
+import LJCrosspostElement from './WebComponents/Posts/koti-lj-crosspost.ts';
 import PostCoatsOfArmsElement from './WebComponents/Posts/koti-post-coats-of-arms.ts';
 import PostGeoElement from './WebComponents/Posts/koti-post-geo.ts';
 import PostTitlePictureElement from './WebComponents/Posts/koti-post-title-picture.ts';
@@ -49,6 +50,7 @@ customElements.define('koti-picture-uploader', PictureUploaderElement);
 
 // posts
 customElements.define('koti-geo-external-links', GeoExternalLinksElement);
+customElements.define('koti-lj-crosspost', LJCrosspostElement);
 customElements.define('koti-post-coats-of-arms', PostCoatsOfArmsElement);
 customElements.define('koti-post-geo', PostGeoElement);
 customElements.define('koti-post-title-picture', PostTitlePictureElement);

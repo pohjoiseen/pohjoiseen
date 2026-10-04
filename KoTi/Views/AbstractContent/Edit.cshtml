@@ -101,6 +101,15 @@
                     <button class="koti-btn" onclick="window.open('@Model.FennicaURL', '_blank')">
                         <i class="bi bi-box-arrow-up-right"></i> Open in new tab
                     </button>
+                    @if (Model is KoTi.ViewModels.Posts.PostViewModel)
+                    {
+                        <button class="koti-btn with-indicator" id="lj-crosspost-button"
+                                hx-get hx-controller="Posts" hx-action="LJCrosspost" hx-route-id="@Model.Id" hx-route-language="@Model.Language"
+                                hx-target="#lj-crosspost-container" hx-disabled-elt="this" hx-indicator="#lj-crosspost-indicator">
+                            <span id="lj-crosspost-indicator" class="spinner htmx-indicator"></span>
+                            <i class="bi bi-journal-text"></i> LJ crosspost
+                        </button>
+                    }
                     <span>&nbsp;&nbsp;&nbsp;Preview shows the last saved version.</span>
                 </div>
                 <iframe id="preview-iframe" src="@Model.FennicaURL"></iframe>
@@ -108,5 +117,7 @@
         </koti-tab>
     </koti-tabs>
 </aside>
+
+<div id="lj-crosspost-container"></div>
 
 <textarea id="content-md-initial" style="position: fixed; width: 0; height: 0; visibility: hidden; pointer-events: none;">@Model.ContentMD</textarea>
