@@ -26,7 +26,7 @@ public class Fennica3
 
     public static readonly int PostsPerPage = 24;
 
-    public static readonly string GAID = "G-LGDZY44QS4";
+    public static readonly string UmamiWebsiteId = "f8afe2f4-792c-461d-841e-635206360487";
     
     public static readonly string Telegram = "https://t.me/northern_lands_ru";
 }

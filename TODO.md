@@ -22,7 +22,6 @@ Ideas and known gaps, roughly in order of payoff within each section.
 * Full content in RSS; also `LastUpdatedTime = Now` and enclosure length 0 make some readers treat everything
   as changed.
 * Dark mode (`prefers-color-scheme`), colours as CSS variables first.
-* Privacy-friendlier analytics (GoatCounter/Plausible/Umami) instead of Google Analytics.
 * `[text](picture:123)` links are not resolved (only `post:`, `article:`, `book:` are), post 51 has some.
 * JSON-LD `BlogPosting` markup; "related/nearby posts" based on geo points; link from post to its location on map.
 

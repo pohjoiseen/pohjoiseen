@@ -43,15 +43,9 @@
             href="@layoutParams.RSSLink" />
     }
 
-    @* Google Analytics inline script *@
-    <script async src="https://www.googletagmanager.com/gtag/js?id=@Fennica3.GAID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', '@Fennica3.GAID');
-    </script>
+    @* Umami analytics, counted only on the public domain (not in KoTi previews or local runs) *@
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="@Fennica3.UmamiWebsiteId"
+            data-domains="@(new Uri(Fennica3.PublicBase).Host)"></script>
 
     @* favicons *@
     <link rel="icon" href="@Fennica3.FaviconLink" />

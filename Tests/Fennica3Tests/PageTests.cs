@@ -54,6 +54,12 @@ public class PageTests(Fennica3Factory factory) : IClassFixture<Fennica3Factory>
         // pagination
         Assert.Equal("1", doc.QuerySelector(".pagination .current")!.TextContent);
         Assert.Equal("/ru/2/", doc.QuerySelector(".pagination a.next")!.GetAttribute("href"));
+
+        // analytics: Umami, counting the public domain only, no Google Analytics
+        var umami = doc.QuerySelector("script[src='https://cloud.umami.is/script.js']")!;
+        Assert.Equal("f8afe2f4-792c-461d-841e-635206360487", umami.GetAttribute("data-website-id"));
+        Assert.Equal("fennica.pohjoiseen.fi", umami.GetAttribute("data-domains"));
+        Assert.DoesNotContain("googletagmanager", doc.DocumentElement.OuterHtml);
     }
 
     [Fact]
