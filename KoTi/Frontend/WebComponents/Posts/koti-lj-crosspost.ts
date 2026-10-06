@@ -37,6 +37,8 @@ export default class LJCrosspostElement extends HTMLElement {
             },
             lineNumbers: 'off',
             wordBasedSuggestions: 'off',
+            // no multiple cursors, too easy to add by accident (Alt-click etc.), never used
+            multiCursorLimit: 1,
             automaticLayout: true,
             fontFamily: 'JetBrains Mono, monospace'
         });

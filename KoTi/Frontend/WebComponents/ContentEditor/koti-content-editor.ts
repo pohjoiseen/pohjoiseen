@@ -99,6 +99,8 @@ export default class ContentEditorElement extends HTMLElement {
             },
             // this is more annoying than useful in my experience
             wordBasedSuggestions: 'off',
+            // no multiple cursors, too easy to add by accident (Alt-click etc.), never used
+            multiCursorLimit: 1,
             // assume we have JetBrains Mono (which I certainly do), if not then whatever
             fontFamily: 'JetBrains Mono, monospace'
         });
