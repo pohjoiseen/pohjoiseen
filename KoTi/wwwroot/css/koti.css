@@ -612,6 +612,11 @@
     }
   }
 
+  /* wrapper of list and pagination, swapped by search input without the header; keep its children in the layout */
+  .list-results {
+    display: contents;
+  }
+
   .list {
     overflow: auto;
     display: flex;

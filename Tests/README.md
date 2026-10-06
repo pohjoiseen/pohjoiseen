@@ -31,7 +31,7 @@ or `--filter-namespace Tests.Browser`.
 * `DatabaseTests.cs` — no model changes without migration, search triggers exist after all migrations.
 * `UnitTests/` — small pure functions.
 * `Browser/` — Playwright in headless Chromium: Fennica3 maps/popups, galleries, keyboard navigation; KoTi
-  editor save round trip (Monaco + web components), creating posts, uploading pictures, LJ crosspost dialog.  These use the system
+  editor save round trip (Monaco + web components), creating posts, uploading pictures, LJ crosspost dialog, searching in list panels.  These use the system
   Chromium (`/usr/bin/chromium`, or set `CHROMIUM_PATH`), or one installed by Playwright
   (`pwsh Tests/bin/Debug/net10.0/playwright.ps1 install chromium`); skipped if there is none.  KoTi browser tests
   need the KoTi frontend built (`cd KoTi/Frontend && bun run build`).  All external requests (fonts, CDNs,

@@ -45,6 +45,12 @@ htmx.onLoad((el) => {
     handleElements(el as HTMLElement, '.list[data-remember-state]', saveAndRestoreListState);
 });
 
+// history snapshots are innerHTML, which has value attributes, not what has been typed since; matters for
+// search inputs that stay in place while results below them are reloaded
+document.addEventListener('htmx:beforeHistorySave', () => {
+    document.querySelectorAll<HTMLInputElement>('input[type=text]').forEach((el) => el.setAttribute('value', el.value));
+});
+
 // custom event to open any dialog with showModal(), useful for HX-Trigger
 document.addEventListener('dialogopenmodal', (e) => {
     if (e.target instanceof HTMLDialogElement) e.target.showModal(); 

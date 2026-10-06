@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Holvi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Tests.Infrastructure;
@@ -158,6 +159,108 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
             page.Dialog -= AcceptOnce;
             await d.AcceptAsync();
         }
+    }
+
+    private async Task CreateFoldersAsync()
+    {
+        await using var db = factory.OpenDb();
+        if (await db.PictureSets.AnyAsync(ps => ps.Name == "Lapland", Ct)) return;
+        db.PictureSets.AddRange(new PictureSet { Name = "Lapland" }, new PictureSet { Name = "Lapinlahti" },
+            new PictureSet { Name = "Helsinki" });
+        await db.SaveChangesAsync(Ct);
+    }
+
+    // Search box filters folders, and only the results below it are reloaded: the input itself stays
+    // (same element, focus and everything typed while a request was running)
+    private static async Task SearchFoldersAsync(IPage page, ILocator panel)
+    {
+        var input = panel.Locator("input.picture-set-search-input");
+        var folders = panel.Locator(".list button.folder");
+        await Expect(folders).ToHaveCountAsync(3);
+        await input.EvaluateAsync("el => el.dataset.testMarker = 'kept'");
+
+        await input.PressSequentiallyAsync("lap");
+        await Expect(folders).ToHaveCountAsync(2);
+        await Expect(folders.Nth(0)).ToContainTextAsync("Lapinlahti");
+        await Expect(input).ToBeFocusedAsync();
+        await page.Keyboard.TypeAsync("l");
+        await Expect(folders).ToHaveCountAsync(1);
+        await Expect(folders).ToContainTextAsync("Lapland");
+        await Expect(input).ToHaveValueAsync("lapl");
+        await Expect(input).ToBeFocusedAsync();
+        await Expect(input).ToHaveAttributeAsync("data-test-marker", "kept");
+        // pictures without folder are still shown
+        await Expect(panel.Locator(".list koti-picture")).Not.ToHaveCountAsync(0);
+    }
+
+    [Fact]
+    public async Task SearchPictureFoldersInEditor()
+    {
+        await CreateFoldersAsync();
+        await using var t = await OpenAsync($"/Posts/{TurkuId}/ru/");
+        var page = t.Page;
+        await page.Locator("label[for=topleveltab-Insert]").ClickAsync();
+        var panel = page.Locator(".insert-picture .picture-list");
+
+        await SearchFoldersAsync(page, panel);
+
+        // going into a folder and back up keeps the search (remembered per panel)
+        await panel.Locator("button.folder").ClickAsync();
+        await Expect(panel.Locator("h3")).ToContainTextAsync("Lapland");
+        await panel.Locator("h3 button").ClickAsync();
+        await Expect(panel.Locator("input.picture-set-search-input")).ToHaveValueAsync("lapl");
+        await Expect(panel.Locator(".list button.folder")).ToHaveCountAsync(1);
+
+        Assert.Empty(t.Errors);
+    }
+
+    [Fact]
+    public async Task SearchPictureFoldersInBrowser()
+    {
+        await CreateFoldersAsync();
+        await using var t = await OpenAsync("/Pictures/Folders");
+        var page = t.Page;
+        var panel = page.Locator("#browse-pictures");
+
+        await SearchFoldersAsync(page, panel);
+        await Expect(page).ToHaveURLAsync(new System.Text.RegularExpressions.Regex("setSearch=lapl"));
+
+        // Back from a folder restores the search, also in the input
+        await panel.Locator("button.folder").ClickAsync();
+        await Expect(panel.Locator("h3")).ToContainTextAsync("Lapland");
+        await page.GoBackAsync();
+        await Expect(panel.Locator("input.picture-set-search-input")).ToHaveValueAsync("lapl");
+        await Expect(panel.Locator(".list button.folder")).ToHaveCountAsync(1);
+
+        // and so does a full page load
+        await page.ReloadAsync();
+        await Expect(panel.Locator("input.picture-set-search-input")).ToHaveValueAsync("lapl");
+        await Expect(panel.Locator(".list button.folder")).ToHaveCountAsync(1);
+
+        Assert.Empty(t.Errors);
+    }
+
+    [Theory]
+    [InlineData("/Posts/ru/", "turku")]
+    [InlineData("/Articles/ru/", "about")]
+    [InlineData("/Books/ru/", "lapland")]
+    public async Task SearchContent(string url, string query)
+    {
+        await using var t = await OpenAsync(url);
+        var page = t.Page;
+        var input = page.Locator("input.picture-set-search-input");
+        var items = page.Locator(".list koti-content-item");
+        await Expect(items).Not.ToHaveCountAsync(0);
+        await input.EvaluateAsync("el => el.dataset.testMarker = 'kept'");
+
+        await input.PressSequentiallyAsync(query);
+        await Expect(items).ToHaveCountAsync(1);
+        await Expect(items).ToHaveAttributeAsync("name", new System.Text.RegularExpressions.Regex(query));
+        await Expect(input).ToHaveValueAsync(query);
+        await Expect(input).ToBeFocusedAsync();
+        await Expect(input).ToHaveAttributeAsync("data-test-marker", "kept");
+
+        Assert.Empty(t.Errors);
     }
 
     [Fact]

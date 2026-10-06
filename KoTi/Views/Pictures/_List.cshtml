@@ -13,6 +13,11 @@
             ? Url.Action("BrowseFolders", "Pictures", new { folderId, setSearch })!
             : Url.Action("List", "Pictures", new { componentId = Model.ComponentId, setId = folderId, setSearch = setSearch ?? "#", limit = Model.Limit, offset = -1 })!;
 
+    // search input sends setSearch itself, so it must not be in the URL (a "#" there, meaning "use cached",
+    // would come first in the query string and win over the typed value); it only reloads the results below it
+    var searchUrl = Model.UseLinks ? NavUrl(0) : Url.Action("List", "Pictures", new { componentId = Model.ComponentId, setId = 0, limit = Model.Limit, offset = 0 })!;
+    var resultsId = Model.ComponentId + "-results";
+
     var navTarget = "#" + Model.ComponentId;
     var navPushUrl = Model.UseLinks ? "true" : null;
 
@@ -37,8 +42,8 @@
                <label for="@Model.ComponentId-picture-set-search-input" style="text-wrap-mode: nowrap;" class="mr">Search for folders:</label>
                <input type="text" id="@Model.ComponentId-picture-set-search-input" class="input-block picture-set-search-input"
                       value="@Model.PictureSetSearchQuery"
-                      hx-get="@NavUrl(0)" hx-target="@navTarget" hx-push-url="@navPushUrl"
-                      hx-trigger="keyup changed delay:500ms"
+                      hx-get="@searchUrl" hx-target="#@resultsId" hx-select="#@resultsId" hx-swap="outerHTML" hx-push-url="@navPushUrl"
+                      hx-trigger="input changed delay:500ms" hx-sync="this:replace" autocomplete="off"
                       hx-vals='js:{"setSearch":this.value}' />
           }
           else
@@ -65,6 +70,7 @@
      </div>
 }
 
+<div id="@resultsId" class="list-results">
 <div class="list" data-remember-state="@Model.ComponentId-set@(Model.PictureSet is not null ? Model.PictureSet.Id : "null")-offset@(Model.Offset)">
      @if (Model.PictureSet != null)
      {
@@ -99,3 +105,4 @@
 </div>
 
 <partial name="_Pagination" model="@(new PaginatorViewModel { Data = Model, HxTarget = navTarget, BaseUrl = paginatorBaseUrl, PushUrl = Model.UseLinks })" />
+</div>
