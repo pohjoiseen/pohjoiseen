@@ -24,6 +24,7 @@ export default class PictureItemElement extends HTMLElement {
         
         this.#button.classList.toggle('pending', state === 'pending');
         this.#button.classList.toggle('dup', state === 'duplicate');
+        this.#button.classList.toggle('upd', state === 'replaced');
         this.#button.classList.toggle('error', state === 'error');
         this.#button.classList.toggle('uploading', state?.startsWith('uploading') || false);
         this.#button.setAttribute('title', title || '');
@@ -32,6 +33,8 @@ export default class PictureItemElement extends HTMLElement {
         this.#img.setAttribute('height', height || '');
         if (state === 'duplicate') {
             this.#text.textContent = 'DUP';
+        } else if (state === 'replaced') {
+            this.#text.textContent = 'UPD';
         } else if (state?.startsWith('uploading')) {
             const percent = state.split(' ')[1];
             this.#text.textContent = `${percent}%`;

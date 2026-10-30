@@ -44,7 +44,7 @@ public class PictureUpload
     
     /// <summary>
     /// Uploads a picture file to S3, creating also its required resized versions (thumbnail and "details view").
-    /// Detects duplicates, will not reupload anything then.
+    /// Detects duplicates (same content, whatever the filename), will not reupload anything then.
     /// </summary>
     /// <param name="input">File to upload, as a stream</param>
     /// <param name="hash">SHA-1 hash of the content</param>
@@ -54,36 +54,33 @@ public class PictureUpload
     {
         string baseOutputName = $"{hash}/{filename}";
         
-        // first of all check if it already exists in storage 
-        string? existingKey = await _pictureStorage.CheckPictureAlreadyUploadedAsync(baseOutputName);
-        if (existingKey != null)
+        // first of all check if it already exists in database (hash is unique there), if so, nothing to do
+        var existing = await _context
+            .Pictures
+            .Where(p => p.Hash == hash).FirstOrDefaultAsync();
+        if (existing != null)
         {
-            // check if it also exists in database, if so, nothing to do
-            var existing = await _context
-                .Pictures
-                .Where(p => p.Hash == hash).FirstOrDefaultAsync();
-
-            if (existing != null)
+            return new UploadResult
             {
-                return new UploadResult
-                {
-                    ExistedInStorage = true,
-                    ExistingId = existing.Id,
-                    Hash = hash,
-                    PictureUrl = existing.Url,
-                    ThumbnailUrl = existing.ThumbnailUrl,
-                    DetailsUrl = existing.DetailsUrl,
-                    Width = existing.Width,
-                    Height = existing.Height,
-                    Size = existing.Size,
-                    PhotographedAt = existing.PhotographedAt,
-                    Camera = existing.Camera,
-                    Lens = existing.Lens,
-                    Lat = existing.Lat,
-                    Lng = existing.Lng
-                };
-            }
+                ExistedInStorage = true,
+                ExistingId = existing.Id,
+                Hash = hash,
+                PictureUrl = existing.Url,
+                ThumbnailUrl = existing.ThumbnailUrl,
+                DetailsUrl = existing.DetailsUrl,
+                Width = existing.Width,
+                Height = existing.Height,
+                Size = existing.Size,
+                PhotographedAt = existing.PhotographedAt,
+                Camera = existing.Camera,
+                Lens = existing.Lens,
+                Lat = existing.Lat,
+                Lng = existing.Lng
+            };
         }
+
+        // might be in storage without being in database (e.g. failed halfway before), reuse what is there then
+        string? existingKey = await _pictureStorage.CheckPictureAlreadyUploadedAsync(baseOutputName);
         
         var result = new UploadResult
         {
@@ -143,11 +140,12 @@ public class PictureUpload
             DateTime date = DateTime.UtcNow;
             var originalDateTimeString = (string?)inputImage.Metadata.ExifProfile?.Values
                 .FirstOrDefault(v => v.Tag == ExifTag.DateTimeOriginal)?.GetValue();
-            if (originalDateTimeString != null && originalDateTimeString != "0000:00:00 00:00:00")
-            {
+            if (originalDateTimeString != null && originalDateTimeString != "0000:00:00 00:00:00" &&
                 DateTime.TryParseExact(originalDateTimeString, "yyyy:MM:dd HH:mm:ss",
-                    CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date);
-                date = date.ToUniversalTime();
+                    CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var exifDate))
+            {
+                date = exifDate.ToUniversalTime();
+                result.PhotographedAtFromExif = true;
             }
             result.PhotographedAt = date;
 
@@ -187,6 +185,15 @@ public class PictureUpload
         result.PictureUrl = _pictureStorage.PublicUrl + result.PictureUrl;
         
         return result;
+    }
+
+    /// <summary>
+    /// Deletes all stored files of a picture (original and all resized versions) by its hash, e.g. after
+    /// the picture has been replaced with a new version.
+    /// </summary>
+    public Task DeleteFromStorageAsync(string hash)
+    {
+        return _pictureStorage.DeletePicturesWithPrefixAsync($"{hash}/");
     }
 
     /// <summary>

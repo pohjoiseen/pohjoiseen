@@ -14,6 +14,8 @@ public class UploadResult
     public int Size { get; set; }
 
     public DateTime? PhotographedAt { get; set; }
+    // false if there was no (valid) date in EXIF and PhotographedAt is upload time
+    public bool PhotographedAtFromExif { get; set; }
     public string? Camera { get; set; } = "";
     public string? Lens { get; set; } = "";
     public double? Lat { get; set; }

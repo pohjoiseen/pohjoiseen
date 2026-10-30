@@ -10,18 +10,26 @@
 //   if necessary; with target-set-id this is for display only
 // - global-paste: accept pictures pasted anywhere in the document, not just into the component itself
 //
+// If the folder already has a picture with the same filename (but different content), uploading stops and asks
+// whether to replace it with the new version (keeping the id, marked "UPD") or upload as a new picture with
+// "-1", "-2"... added to the filename.  The answer applies to the rest of the pictures uploaded here.
+//
 export default class PictureUploaderElement extends HTMLElement {
     // list of blobs to be uploaded or picture ids already uploaded
     #pictures: (File | number)[] = [];
     #isUploading = false;
-    // after an error, uploading stops until explicitly resumed
+    // after an error (or a question about a filename conflict), uploading stops until explicitly resumed
     #hasError = false;
+    // answer to the filename conflict question, once given
+    #onConflict: 'replace' | 'rename' | null = null;
     
     // DOM elements
     #pictureList: HTMLElement = null!;
     #uploadButton: HTMLButtonElement = null!;
     #errorAlert: HTMLElement = null!;
     #errorMessage: HTMLElement = null!;
+    #conflictAlert: HTMLElement = null!;
+    #conflictMessage: HTMLElement = null!;
     #uploadInput: HTMLInputElement = null!;
     
     constructor() {
@@ -44,7 +52,14 @@ export default class PictureUploaderElement extends HTMLElement {
                     <h2 class="placeholder-heading">Paste or drop picture(s) here</h2>            
                 </div>
                 <div class="footer">
-                    <div class="alert mb" style="display: none;">
+                    <div class="alert question conflict-alert mb" style="display: none;">
+                        <span><span class="conflict-message"></span> already exists in this folder.  Replace it and subsequent pictures with the same name?</span>
+                        <span>
+                            <button type="button" class="koti-btn primary replace-button">Yes, replace</button>
+                            <button type="button" class="koti-btn rename-button">No, upload as new</button>
+                        </span>
+                    </div>
+                    <div class="alert error-alert mb" style="display: none;">
                         <span>Error uploading picture: <span class="error-message"></span>.  Click any not yet uploaded picture or Retry to resume.</span>
                         <button type="button" class="koti-btn primary retry-button">Retry</button>
                     </div>
@@ -60,9 +75,13 @@ export default class PictureUploaderElement extends HTMLElement {
         this.#pictureList = this.querySelector('.list')!;
         this.#uploadButton = this.querySelector('.upload-button')!;
         this.#uploadInput = this.querySelector('.upload-hidden-button')!;
-        this.#errorAlert = this.querySelector('.alert')!;
+        this.#errorAlert = this.querySelector('.error-alert')!;
         this.#errorMessage = this.querySelector('.error-message')!;
+        this.#conflictAlert = this.querySelector('.conflict-alert')!;
+        this.#conflictMessage = this.querySelector('.conflict-message')!;
         this.querySelector('.retry-button')!.addEventListener('click', () => this.uploadNextPicture());
+        this.querySelector('.replace-button')!.addEventListener('click', () => this.#answerConflict('replace'));
+        this.querySelector('.rename-button')!.addEventListener('click', () => this.#answerConflict('rename'));
         
         const targetSetMessage = this.querySelector('.target-set-message')!;
         if (this.getAttribute('target-set')) {
@@ -141,6 +160,12 @@ export default class PictureUploaderElement extends HTMLElement {
         }
     };
     
+    #answerConflict(onConflict: 'replace' | 'rename') {
+        this.#onConflict = onConflict;
+        this.#conflictAlert.style.display = 'none';
+        this.uploadNextPicture();
+    }
+
     // warn when leaving the page with pictures still not uploaded
     #onBeforeUnload = (e: BeforeUnloadEvent) => {
         if (this.#pictures.some(p => typeof p !== 'number')) {
@@ -187,6 +212,7 @@ export default class PictureUploaderElement extends HTMLElement {
             this.#isUploading = true;
             this.#uploadButton.classList.add('loading');
             this.#errorAlert.style.display = 'none';
+            this.#conflictAlert.style.display = 'none';
             // not requestAnimationFrame or timers: these don't run or get throttled when the tab is in background
             void this.uploadPicture(index);
         } else {
@@ -233,13 +259,17 @@ export default class PictureUploaderElement extends HTMLElement {
                 pictureEl.setAttribute('state', `uploading ${percent.toFixed(0)}`);
             });
             const targetSetId = parseInt(this.getAttribute('target-set-id') || '');
-            let targetSetParam = '';
+            const params = new URLSearchParams();
             if (targetSetId > 0) {
-                targetSetParam = `?setId=${targetSetId}`;
+                params.set('setId', targetSetId.toString());
             } else if (isNaN(targetSetId) && this.getAttribute('target-set')) {
-                targetSetParam = `?setName=${encodeURIComponent(this.getAttribute('target-set')!)}`;
+                params.set('setName', this.getAttribute('target-set')!);
             }
-            request.open('POST', `/Pictures/Upload/${hash}/${encodeURIComponent(blob.name)}${targetSetParam}`);
+            if (this.#onConflict) {
+                params.set('onConflict', this.#onConflict);
+            }
+            const query = params.size ? `?${params}` : '';
+            request.open('POST', `/Pictures/Upload/${hash}/${encodeURIComponent(blob.name)}${query}`);
             await new Promise<void>((resolve) => {
                 request.addEventListener('readystatechange', () => {
                     if (request.readyState === XMLHttpRequest.DONE) {
@@ -249,6 +279,17 @@ export default class PictureUploaderElement extends HTMLElement {
                 request.send(blob);
             });
             const response = request.response;
+
+            // same filename already in the folder: stop and ask what to do, then continue with this picture
+            if (request.status === 409 && !this.#onConflict) {
+                pictureEl.setAttribute('state', 'pending');
+                this.#conflictMessage.textContent = blob.name;
+                this.#conflictAlert.style.display = '';
+                this.#uploadButton.classList.remove('loading');
+                this.#isUploading = false;
+                this.#hasError = true;
+                return;
+            }
 
             // handle errors
             if (request.status !== 200) {
@@ -265,7 +306,7 @@ export default class PictureUploaderElement extends HTMLElement {
             
             // replace attributes on picture element
             // endpoint could return an HTML snippet and we could outerHTML it, but this would cause flicker
-            pictureEl.setAttribute('state', response.isDuplicate ? 'duplicate' : '');
+            pictureEl.setAttribute('state', response.isDuplicate ? 'duplicate' : response.isReplaced ? 'replaced' : '');
             pictureEl.setAttribute('picture-id', response.id);
             pictureEl.setAttribute('title', response.title);
             pictureEl.setAttribute('src', response.src);

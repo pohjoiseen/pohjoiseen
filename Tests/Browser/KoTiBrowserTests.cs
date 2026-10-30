@@ -295,4 +295,76 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
 
         Assert.Empty(t.Errors);
     }
+
+    [Fact]
+    public async Task UploadNewVersionsOfPictures()
+    {
+        // as a subfolder, not to change top-level folders for other tests
+        await CreateFoldersAsync();
+        int setId;
+        await using (var db = factory.OpenDb())
+        {
+            var parent = await db.PictureSets.SingleAsync(ps => ps.Name == "Helsinki", Ct);
+            var set = new PictureSet { Name = "New versions", ParentId = parent.Id };
+            db.PictureSets.Add(set);
+            await db.SaveChangesAsync(Ct);
+            setId = set.Id;
+        }
+
+        FilePayload Jpeg(string name, int width) =>
+            new() { Name = name, MimeType = "image/jpeg", Buffer = TestImages.Jpeg(width, 600) };
+        Task UploadAsync(TestPage t, params FilePayload[] files) =>
+            t.Page.Locator("input.upload-hidden-button").SetInputFilesAsync(files);
+
+        // first versions
+        string[] ids;
+        await using (var t = await OpenAsync($"/Pictures/Upload/{setId}"))
+        {
+            await UploadAsync(t, Jpeg("a.jpg", 800), Jpeg("b.jpg", 801));
+            var pictures = t.Page.Locator("koti-picture");
+            await Expect(pictures.Nth(1)).ToHaveAttributeAsync("picture-id", new System.Text.RegularExpressions.Regex("[0-9]+"));
+            ids = [(await pictures.Nth(0).GetAttributeAsync("picture-id"))!, (await pictures.Nth(1).GetAttributeAsync("picture-id"))!];
+            Assert.Empty(t.Errors);
+        }
+
+        // new versions, replaced: asked once, for the first one
+        await using (var t = await OpenAsync($"/Pictures/Upload/{setId}"))
+        {
+            await UploadAsync(t, Jpeg("a.jpg", 900), Jpeg("c.jpg", 802), Jpeg("b.jpg", 901));
+            var question = t.Page.Locator(".conflict-alert");
+            await Expect(question).ToBeVisibleAsync();
+            await Expect(question).ToContainTextAsync("a.jpg already exists");
+            var pictures = t.Page.Locator("koti-picture");
+            await Expect(pictures.Nth(0)).ToHaveAttributeAsync("state", "pending");
+            await question.Locator(".replace-button").ClickAsync();
+            await Expect(question).ToBeHiddenAsync();
+
+            await Expect(pictures.Nth(2)).ToHaveAttributeAsync("state", "replaced");
+            await Expect(pictures.Nth(0)).ToHaveAttributeAsync("state", "replaced");
+            await Expect(pictures.Nth(0).Locator("span")).ToHaveTextAsync("UPD");
+            await Expect(pictures.Nth(1)).ToHaveAttributeAsync("state", "");
+            await Expect(pictures.Nth(0)).ToHaveAttributeAsync("picture-id", ids[0]);
+            await Expect(pictures.Nth(2)).ToHaveAttributeAsync("picture-id", ids[1]);
+            Assert.Empty(t.Errors);
+        }
+
+        // and again, but uploaded as new
+        await using (var t = await OpenAsync($"/Pictures/Upload/{setId}"))
+        {
+            await UploadAsync(t, Jpeg("a.jpg", 1000), Jpeg("b.jpg", 1001));
+            var question = t.Page.Locator(".conflict-alert");
+            await question.Locator(".rename-button").ClickAsync();
+            var pictures = t.Page.Locator("koti-picture");
+            await Expect(pictures.Nth(1)).ToHaveAttributeAsync("title", new System.Text.RegularExpressions.Regex("b-1.jpg"));
+            await Expect(pictures.Nth(0)).ToHaveAttributeAsync("state", "");
+            Assert.Empty(t.Errors);
+        }
+
+        await using (var db = factory.OpenDb())
+        {
+            Assert.Equal(["a.jpg", "b.jpg", "c.jpg", "a-1.jpg", "b-1.jpg"], await db.Pictures
+                .Where(p => p.SetId == setId).OrderBy(p => p.Id).Select(p => p.Filename).ToListAsync(Ct));
+            Assert.Equal(900, (await db.Pictures.SingleAsync(p => p.SetId == setId && p.Filename == "a.jpg", Ct)).Width);
+        }
+    }
 }

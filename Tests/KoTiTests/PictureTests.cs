@@ -17,22 +17,25 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     private readonly HttpClient _client = factory.CreateClient();
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private record UploadResponse(int Id, string Title, string Src, string FullscreenUrl, bool IsDuplicate);
+    private record UploadResponse(int Id, string Title, string Src, string FullscreenUrl, bool IsDuplicate,
+        bool IsReplaced);
+
+    private Task<HttpResponseMessage> PostUpload(byte[] content, string filename, string query) =>
+        _client.PostAsync($"/Pictures/Upload/{Convert.ToHexStringLower(SHA1.HashData(content))}/{Uri.EscapeDataString(filename)}{query}",
+            new ByteArrayContent(content), Ct);
 
     private async Task<UploadResponse> Upload(byte[] content, string filename, string query = "")
     {
-        var hash = Convert.ToHexStringLower(SHA1.HashData(content));
-        var response = await _client.PostAsync($"/Pictures/Upload/{hash}/{Uri.EscapeDataString(filename)}{query}",
-            new ByteArrayContent(content), Ct);
+        var response = await PostUpload(content, filename, query);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return (await response.Content.ReadFromJsonAsync<UploadResponse>(Ct))!;
     }
 
     private ImageInfo Identify(string url) => Image.Identify(factory.Store.GetByUrl(url)!);
 
-    private static byte[] JpegWithExif()
+    private static byte[] JpegWithExif(int width = 1200, int height = 800)
     {
-        using var image = new Image<Rgb24>(1200, 800, new Rgb24(10, 100, 200));
+        using var image = new Image<Rgb24>(width, height, new Rgb24(10, 100, 200));
         var exif = new ExifProfile();
         exif.SetValue(ExifTag.DateTimeOriginal, "2019:08:01 12:34:56");
         exif.SetValue(ExifTag.GPSLatitude, [new Rational(60, 1), new Rational(10, 1), new Rational(3000, 100)]);
@@ -82,6 +85,13 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         Assert.Equal(result.Id, again.Id);
         Assert.Equal(1, await db.Pictures.CountAsync(p => p.Hash == hash, Ct));
 
+        // also under another name, or to another folder
+        var renamed = await Upload(content, "copy of photo.jpg", "?setName=Elsewhere");
+        Assert.True(renamed.IsDuplicate);
+        Assert.Equal(result.Id, renamed.Id);
+        Assert.Equal(1, await db.Pictures.CountAsync(p => p.Hash == hash, Ct));
+        Assert.DoesNotContain(factory.Store.Objects.Keys, k => k.StartsWith($"{hash}/copy of photo"));
+
         // fullscreen view
         var fullscreen = await factory.CreateHtmxClient().GetDocumentAsync(result.FullscreenUrl);
         Assert.NotNull(fullscreen.QuerySelector($"img[src='{picture.Url}']"));
@@ -90,14 +100,87 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     [Fact]
     public async Task UploadPng()
     {
-        var result = await Upload(TestImages.Png(600, 600), "coat.png");
+        var result = await Upload(TestImages.Png(600, 600), "arms.png");
         await using var db = factory.OpenDb();
         var picture = await db.Pictures.SingleAsync(p => p.Id == result.Id, Ct);
         Assert.Null(picture.SetId);
-        Assert.EndsWith("/coat.t.webp", picture.ThumbnailUrl);
+        Assert.EndsWith("/arms.t.webp", picture.ThumbnailUrl);
         Assert.Equal(WebpFileFormatType.Lossless, Identify(picture.ThumbnailUrl).Metadata.GetWebpMetadata().FileFormat);
         // not wide enough for details size, original is used
         Assert.Equal(picture.Url, picture.DetailsUrl);
+    }
+
+    [Fact]
+    public async Task UploadNewVersion()
+    {
+        int setId;
+        await using (var db = factory.OpenDb())
+        {
+            var set = new Holvi.Models.PictureSet { Name = "Versions" };
+            db.PictureSets.Add(set);
+            await db.SaveChangesAsync(Ct);
+            setId = set.Id;
+        }
+        var query = $"?setId={setId}";
+        var original = await Upload(JpegWithExif(1300, 800), "photo.jpg", query);
+        string oldHash;
+        await using (var db = factory.OpenDb())
+        {
+            var picture = await db.Pictures.SingleAsync(p => p.Id == original.Id, Ct);
+            picture.Title = "Kept title";
+            picture.WebsiteSizesExist = true;
+            picture.Website1xUrl = $"{Url}{picture.Hash}/photo.1x.webp";
+            factory.Store.Put($"{picture.Hash}/photo.1x.webp", [1]);
+            await db.SaveChangesAsync(Ct);
+            oldHash = picture.Hash;
+        }
+
+        // same name in another folder, or exactly the same content: no conflict
+        Assert.False((await Upload(TestImages.Jpeg(900, 600), "photo.jpg")).IsReplaced);
+        Assert.True((await Upload(JpegWithExif(1300, 800), "photo.jpg", query)).IsDuplicate);
+
+        // different content with the same name in the same folder: conflict unless told what to do
+        var newVersion = TestImages.Jpeg(1600, 1000);
+        var conflict = await PostUpload(newVersion, "photo.jpg", query);
+        Assert.Equal(HttpStatusCode.Conflict, conflict.StatusCode);
+
+        // replace: same id, new files, old files deleted, title and EXIF data the new one lacks kept
+        var replaced = await Upload(newVersion, "photo.jpg", query + "&onConflict=replace");
+        Assert.True(replaced.IsReplaced);
+        Assert.Equal(original.Id, replaced.Id);
+        await using (var db = factory.OpenDb())
+        {
+            var picture = await db.Pictures.SingleAsync(p => p.Id == original.Id, Ct);
+            Assert.Equal(Convert.ToHexStringLower(SHA1.HashData(newVersion)), picture.Hash);
+            Assert.Equal(("photo.jpg", 1600, 1000, "Kept title"), (picture.Filename, picture.Width, picture.Height, picture.Title));
+            Assert.Equal(newVersion, factory.Store.GetByUrl(picture.Url));
+            Assert.Equal($"{Url}{picture.Hash}/photo.d.webp", picture.DetailsUrl);
+            Assert.Equal(new DateTime(2019, 8, 1, 12, 34, 56, DateTimeKind.Local).ToUniversalTime(), picture.PhotographedAt);
+            Assert.Equal(60.175, picture.Lat!.Value, 6);
+            Assert.Equal("NIKON D7500", picture.Camera);
+            Assert.False(picture.WebsiteSizesExist);
+            Assert.Null(picture.Website1xUrl);
+            Assert.Equal(setId, picture.SetId);
+            Assert.DoesNotContain(factory.Store.Objects.Keys, k => k.StartsWith(oldHash + "/"));
+            Assert.Equal(1, await db.Pictures.CountAsync(p => p.SetId == setId, Ct));
+        }
+
+        // rename: new pictures as photo-1.jpg, photo-2.jpg
+        var renamed1 = await Upload(TestImages.Jpeg(1500, 1000), "photo.jpg", query + "&onConflict=rename");
+        var renamed2 = await Upload(TestImages.Jpeg(1400, 1000), "photo.jpg", query + "&onConflict=rename");
+        Assert.False(renamed1.IsReplaced);
+        await using (var db = factory.OpenDb())
+        {
+            Assert.Equal(["photo.jpg", "photo-1.jpg", "photo-2.jpg"], await db.Pictures.Where(p => p.SetId == setId)
+                .OrderBy(p => p.Id).Select(p => p.Filename).ToListAsync(Ct));
+            var picture = await db.Pictures.SingleAsync(p => p.Id == renamed2.Id, Ct);
+            Assert.Equal($"{Url}{picture.Hash}/photo-2.jpg", picture.Url);
+        }
+
+        // the option has no effect when there is no conflict
+        var png = await Upload(TestImages.Png(300, 300), "photo.png", query + "&onConflict=replace");
+        Assert.False(png.IsReplaced);
+        Assert.NotEqual(original.Id, png.Id);
     }
 
     [Fact]

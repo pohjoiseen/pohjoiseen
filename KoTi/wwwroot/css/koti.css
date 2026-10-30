@@ -424,6 +424,11 @@
       background-color: var(--color-good-bg);
       border: 1px solid var(--color-good);
     }
+
+    &.question {
+      background-color: var(--color-bg-highlight);
+      border: 1px solid var(--color-bg-shade);
+    }
   }
   
   .muted {

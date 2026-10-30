@@ -67,4 +67,16 @@ public class PictureStorage
     {
         await _amazonS3.DeleteObjectAsync(_bucketName, name);
     }
+
+    /// <summary>
+    /// Delete all objects whose keys start with the prefix, e.g. "{hash}/" for a picture with all its sizes.
+    /// </summary>
+    public async Task DeletePicturesWithPrefixAsync(string prefix)
+    {
+        var objects = await _amazonS3.ListObjectsAsync(_bucketName, prefix);
+        foreach (var o in objects.S3Objects ?? [])
+        {
+            await _amazonS3.DeleteObjectAsync(_bucketName, o.Key);
+        }
+    }
 }

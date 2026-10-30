@@ -260,8 +260,11 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         });
     }
     
+    // onConflict: what to do if the target folder already has a picture with the same filename (but different
+    // content): "replace" it, keeping its id; "rename" this one to filename-1.jpg etc.; otherwise 409 is returned
     [HttpPost("Upload/{hash}/{filename}")]
-    public async Task<IActionResult> Upload(string hash, string filename, [FromQuery] string? setName, [FromQuery] int? setId)
+    public async Task<IActionResult> Upload(string hash, string filename, [FromQuery] string? setName,
+        [FromQuery] int? setId, [FromQuery] string? onConflict)
     {
         // target set can be specified by id (must exist), or by name, see below; or not at all
         if (setId is not null && !await dbContext.PictureSets.AnyAsync(ps => ps.Id == setId))
@@ -287,14 +290,76 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
         MemoryStream input = new MemoryStream();
         await Request.Body.CopyToAsync(input);
 
+        // new version of a picture already in this folder?  (exactly the same content is a duplicate instead,
+        // detected below)
+        Picture? replaced = null;
+        if (!await dbContext.Pictures.AnyAsync(p => p.Hash == hash))
+        {
+            var sameName = await dbContext.Pictures
+                .Where(p => p.SetId == setId && p.Filename == filename)
+                .OrderBy(p => p.Id)
+                .FirstOrDefaultAsync();
+            if (sameName is not null)
+            {
+                switch (onConflict)
+                {
+                    case "replace":
+                        replaced = sameName;
+                        break;
+                    case "rename":
+                        filename = await GetFreeFilenameAsync(setId, filename);
+                        break;
+                    default:
+                        return Problem(title: $"{filename} already exists in this folder",
+                            statusCode: StatusCodes.Status409Conflict);
+                }
+            }
+        }
+
         // upload (which detects dups) and get uploaded image data
         var uploadResult = await pictureUpload.UploadAsync(input, hash, filename);
 
-        // retrieve picture if already existed, otherwise create new
+        // retrieve picture if already existed, otherwise create new or update the replaced one
         Picture picture;
         if (uploadResult.ExistingId is not null)
         {
             picture = (await dbContext.Pictures.FindAsync(uploadResult.ExistingId))!;
+        }
+        else if (replaced is not null)
+        {
+            picture = replaced;
+            var oldHash = picture.Hash;
+            picture.Hash = hash;
+            picture.Url = uploadResult.PictureUrl;
+            picture.ThumbnailUrl = uploadResult.ThumbnailUrl;
+            picture.DetailsUrl = uploadResult.DetailsUrl;
+            picture.UploadedAt = DateTime.UtcNow;
+            picture.Width = uploadResult.Width;
+            picture.Height = uploadResult.Height;
+            picture.Size = uploadResult.Size;
+            // edited versions may have lost some of EXIF, keep what the old one had then
+            if (uploadResult.PhotographedAtFromExif)
+            {
+                picture.PhotographedAt = uploadResult.PhotographedAt;
+            }
+            if (uploadResult.Lat is not null && uploadResult.Lng is not null)
+            {
+                picture.Lat = uploadResult.Lat;
+                picture.Lng = uploadResult.Lng;
+            }
+            if (!String.IsNullOrEmpty(uploadResult.Camera))
+            {
+                picture.Camera = uploadResult.Camera;
+                picture.Lens = uploadResult.Lens;
+            }
+            // website sizes get recreated for the new version when needed
+            picture.WebsiteSizesExist = false;
+            picture.Website1xUrl = null;
+            picture.Website2xUrl = null;
+            await dbContext.SaveChangesAsync();
+
+            // only after the new version is saved, delete all files of the old one
+            await pictureUpload.DeleteFromStorageAsync(oldHash);
         }
         else
         {
@@ -327,7 +392,27 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
             Title = $"{picture.PhotographedAt?.ToString("d.MM.yyyy")}\n{picture.Filename}",
             Src = picture.DetailsUrl,
             FullscreenUrl = Url.Action("Fullscreen", new { componentId = "_Upload", pictureId = picture.Id }),
-            IsDuplicate = uploadResult.ExistingId is not null
+            IsDuplicate = uploadResult.ExistingId is not null,
+            IsReplaced = replaced is not null
         });
+    }
+
+    // photo.jpg -> photo-1.jpg, photo-2.jpg, ..., first one not yet in the folder
+    private async Task<string> GetFreeFilenameAsync(int? setId, string filename)
+    {
+        var stem = Path.GetFileNameWithoutExtension(filename);
+        var extension = Path.GetExtension(filename);
+        var existing = (await dbContext.Pictures
+            .Where(p => p.SetId == setId && p.Filename.StartsWith(stem + "-"))
+            .Select(p => p.Filename)
+            .ToListAsync()).ToHashSet();
+        for (int i = 1;; i++)
+        {
+            var candidate = $"{stem}-{i}{extension}";
+            if (!existing.Contains(candidate))
+            {
+                return candidate;
+            }
+        }
     }
 }
