@@ -268,6 +268,8 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
     {
         await using var t = await OpenAsync("/Pictures/Upload/0");
         var page = t.Page;
+        // as in a background tab, where animation frames don't run: uploading must still go on
+        await page.EvaluateAsync("window.requestAnimationFrame = () => 0");
 
         await page.Locator("input.upload-hidden-button").SetInputFilesAsync(
         [

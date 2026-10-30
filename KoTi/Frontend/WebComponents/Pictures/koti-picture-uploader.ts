@@ -187,7 +187,8 @@ export default class PictureUploaderElement extends HTMLElement {
             this.#isUploading = true;
             this.#uploadButton.classList.add('loading');
             this.#errorAlert.style.display = 'none';
-            requestAnimationFrame(() => this.uploadPicture(index));
+            // not requestAnimationFrame or timers: these don't run or get throttled when the tab is in background
+            void this.uploadPicture(index);
         } else {
             this.#isUploading = false;
             this.#uploadButton.classList.remove('loading');
