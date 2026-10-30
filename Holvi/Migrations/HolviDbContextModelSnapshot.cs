@@ -15,7 +15,7 @@ namespace Holvi.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
             modelBuilder.Entity("Holvi.Models.Article", b =>
                 {
@@ -94,6 +94,24 @@ namespace Holvi.Migrations
                     b.HasIndex("TitlePictureId");
 
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("Holvi.Models.PendingPictureDeletion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PendingPictureDeletions");
                 });
 
             modelBuilder.Entity("Holvi.Models.Picture", b =>

@@ -188,12 +188,33 @@ public class PictureUpload
     }
 
     /// <summary>
-    /// Deletes all stored files of a picture (original and all resized versions) by its hash, e.g. after
-    /// the picture has been replaced with a new version.
+    /// Schedules all stored files of a picture version (original and all resized versions) for deletion after
+    /// the next publish, e.g. after the picture has been replaced with a new version.  Does not save changes.
     /// </summary>
-    public Task DeleteFromStorageAsync(string hash)
+    public void ScheduleDeletionFromStorage(string hash)
     {
-        return _pictureStorage.DeletePicturesWithPrefixAsync($"{hash}/");
+        _context.PendingPictureDeletions.Add(new PendingPictureDeletion { Hash = hash, CreatedAt = DateTime.UtcNow });
+    }
+
+    /// <summary>
+    /// Deletes files scheduled with <see cref="ScheduleDeletionFromStorage"/>, to be called after publishing.
+    /// Skips those that are in use again (a picture replaced back with an earlier version).
+    /// </summary>
+    /// <returns>Number of picture versions deleted</returns>
+    public async Task<int> DeleteScheduledFromStorageAsync()
+    {
+        int deleted = 0;
+        foreach (var pending in await _context.PendingPictureDeletions.ToListAsync())
+        {
+            if (!await _context.Pictures.AnyAsync(p => p.Hash == pending.Hash))
+            {
+                await _pictureStorage.DeletePicturesWithPrefixAsync($"{pending.Hash}/");
+                deleted++;
+            }
+            _context.PendingPictureDeletions.Remove(pending);
+            await _context.SaveChangesAsync();
+        }
+        return deleted;
     }
 
     /// <summary>

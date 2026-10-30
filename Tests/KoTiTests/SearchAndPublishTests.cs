@@ -1,4 +1,5 @@
 using System.Net;
+using Holvi.Models;
 using Tests.Infrastructure;
 using static Tests.Infrastructure.TestData;
 
@@ -79,5 +80,35 @@ public class PublishTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         // publish command (cp in tests) has copied the database
         await using var live = TestDatabase.Open(factory.LiveDatabasePath);
         Assert.Equal("Опубликованный Турку", live.Posts.Find(TurkuId)!.Title);
+    }
+
+    [Fact]
+    public async Task PublishDeletesFilesOfReplacedPictureVersions()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        factory.Store.Put("oldversion/photo.jpg", [1]);
+        factory.Store.Put("oldversion/photo.t.webp", [1]);
+        factory.Store.Put("oldversionX/photo.jpg", [1]);
+        await using (var db = factory.OpenDb())
+        {
+            // second one is in use again (replaced back with this version)
+            var inUse = db.Pictures.Find(CoatId)!.Hash;
+            factory.Store.Put($"{inUse}/coat.png", [1]);
+            db.PendingPictureDeletions.AddRange(
+                new PendingPictureDeletion { Hash = "oldversion" }, new PendingPictureDeletion { Hash = inUse });
+            await db.SaveChangesAsync(ct);
+        }
+
+        var response = await factory.CreateClient().PostAsync("/Publish", null, ct);
+        var doc = HttpClientExtensions.ParseHtml(await response.Content.ReadAsStringAsync(ct));
+        Assert.Contains(doc.QuerySelectorAll(".alert.good"), a => a.TextContent.Contains("Deleted files of 1 replaced"));
+
+        Assert.DoesNotContain(factory.Store.Objects.Keys, k => k.StartsWith("oldversion/"));
+        Assert.Contains("oldversionX/photo.jpg", factory.Store.Objects.Keys);
+        await using (var db = factory.OpenDb())
+        {
+            Assert.Contains($"{db.Pictures.Find(CoatId)!.Hash}/coat.png", factory.Store.Objects.Keys);
+            Assert.Empty(db.PendingPictureDeletions);
+        }
     }
 }

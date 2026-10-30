@@ -144,7 +144,7 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         var conflict = await PostUpload(newVersion, "photo.jpg", query);
         Assert.Equal(HttpStatusCode.Conflict, conflict.StatusCode);
 
-        // replace: same id, new files, old files deleted, title and EXIF data the new one lacks kept
+        // replace: same id, new files, title and EXIF data the new one lacks kept
         var replaced = await Upload(newVersion, "photo.jpg", query + "&onConflict=replace");
         Assert.True(replaced.IsReplaced);
         Assert.Equal(original.Id, replaced.Id);
@@ -161,7 +161,9 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
             Assert.False(picture.WebsiteSizesExist);
             Assert.Null(picture.Website1xUrl);
             Assert.Equal(setId, picture.SetId);
-            Assert.DoesNotContain(factory.Store.Objects.Keys, k => k.StartsWith(oldHash + "/"));
+            // old files are deleted only after next publish (see PublishTests)
+            Assert.Contains($"{oldHash}/photo.d.webp", factory.Store.Objects.Keys);
+            Assert.Contains(oldHash, await db.PendingPictureDeletions.Select(d => d.Hash).ToListAsync(Ct));
             Assert.Equal(1, await db.Pictures.CountAsync(p => p.SetId == setId, Ct));
         }
 

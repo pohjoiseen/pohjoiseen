@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoTi.Controllers.App;
 
-public class HomeController(HolviDbContext dbContext, IConfiguration configuration) : Controller
+public class HomeController(HolviDbContext dbContext, PictureUpload pictureUpload, IConfiguration configuration) : Controller
 {
     [HttpGet("")]
     public async Task<IActionResult> GetStats()
@@ -84,6 +84,19 @@ public class HomeController(HolviDbContext dbContext, IConfiguration configurati
                 await using var unlockCommand = lockConnection.CreateCommand();
                 unlockCommand.CommandText = "ROLLBACK"; // nothing was written anyway
                 await unlockCommand.ExecuteNonQueryAsync();
+            }
+
+            // the live site no longer uses files of replaced picture versions
+            if (ViewBag.ExitCode == 0)
+            {
+                try
+                {
+                    ViewBag.DeletedPictureVersions = await pictureUpload.DeleteScheduledFromStorageAsync();
+                }
+                catch (Exception e)
+                {
+                    ViewBag.DeletePictureVersionsError = e.Message;
+                }
             }
         }
 

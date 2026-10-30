@@ -356,10 +356,9 @@ public class PicturesController(HolviDbContext dbContext, PictureUpload pictureU
             picture.WebsiteSizesExist = false;
             picture.Website1xUrl = null;
             picture.Website2xUrl = null;
+            // files of the old version are still used by the live site, delete them only after next publish
+            pictureUpload.ScheduleDeletionFromStorage(oldHash);
             await dbContext.SaveChangesAsync();
-
-            // only after the new version is saved, delete all files of the old one
-            await pictureUpload.DeleteFromStorageAsync(oldHash);
         }
         else
         {

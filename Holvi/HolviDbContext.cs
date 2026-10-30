@@ -12,6 +12,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     public DbSet<Post> Posts { get; init; } = null!;
     public DbSet<Book> Books { get; init; } = null!;
     public DbSet<Redirect> Redirects { get; init; } = null!;
+    public DbSet<PendingPictureDeletion> PendingPictureDeletions { get; init; } = null!;
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {

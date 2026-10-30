@@ -31,6 +31,21 @@
                 </div>
             }
             
+            @if (ViewBag.DeletedPictureVersions > 0)
+            {
+                <div class="alert good mt">
+                    Deleted files of @ViewBag.DeletedPictureVersions replaced picture version(s) from storage.
+                </div>
+            }
+
+            @if (ViewBag.DeletePictureVersionsError is not null)
+            {
+                <div class="alert mt">
+                    Error deleting files of replaced picture versions from storage (will retry on next publish):
+                    @ViewBag.DeletePictureVersionsError
+                </div>
+            }
+
             @if (ViewBag.ExitCode > 0)
             {
                 <div class="alert mt">
