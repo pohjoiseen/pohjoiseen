@@ -2,13 +2,6 @@ using System.Globalization;
 using Holvi.Models;
 using Holvi.ResponseModels;
 using Microsoft.EntityFrameworkCore;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
-using SixLabors.ImageSharp.Processing;
 
 namespace Holvi;
 
@@ -19,22 +12,6 @@ public class PictureUpload
 {
     private readonly PictureStorage _pictureStorage;
     private readonly HolviDbContext _context;
-
-    /// <summary>
-    /// This is only for resized versions, the original is always kept as is.  75 seems to be a good compromise
-    /// </summary>
-    private const int JpegQualityLevel = 75;
-
-    /// <summary>
-    /// Same for lossy WebP, which resized versions are normally saved as since 3.5 (before, they were .jpg/.png;
-    /// these are not reconverted)
-    /// </summary>
-    private const int WebpQualityLevel = 75;
-
-    /// <summary>
-    /// WebP cannot store larger images, resized versions of very long panoramas fall back to JPEG/PNG
-    /// </summary>
-    private const int WebpMaxDimension = 16383;
 
     public PictureUpload(PictureStorage pictureStorage, HolviDbContext context)
     {
@@ -92,85 +69,74 @@ public class PictureUpload
         };
 
         input.Seek(0, SeekOrigin.Begin);
-        using (var inputImage = await Image.LoadAsync(input))
+        var content = new byte[input.Length];
+        await input.ReadExactlyAsync(content);
+
+        var inputImage = new PictureImage(content);
+        int width = inputImage.Width, height = inputImage.Height;
+        result.Width = width;
+        result.Height = height;
+        result.Size = content.Length;
+
+        // generate thumbnail, if not exists yet
+        // always match height, resize width as important
+        // if height is no bigger than target size, do not do anything else, base filename will be used
+        if (height > Picture.ThumbnailSize * 2)
         {
-            int width = inputImage.Width, height = inputImage.Height;
-            result.Width = width;
-            result.Height = height;
-            result.Size = (int)input.Length;
-
-            // generate thumbnail, if not exists yet
-            // always match height, resize width as important
-            // if height is no bigger than target size, do not do anything else, base filename will be used
-            if (height > Picture.ThumbnailSize * 2)
+            string? outputName = existingKey is null
+                ? null
+                : await FindDownsizedVersionAsync(baseOutputName, Picture.ThumbnailSuffix);
+            if (outputName is null)
             {
-                string? outputName = existingKey is null
-                    ? null
-                    : await FindDownsizedVersionAsync(baseOutputName, Picture.ThumbnailSuffix);
-                if (outputName is null)
-                {
-                    double scale = Picture.ThumbnailSize * 2.0 / height;
-                    outputName = await UploadDownsizedVersionAsync(inputImage, (int)(width * scale),
-                        Picture.ThumbnailSize * 2, baseOutputName, Picture.ThumbnailSuffix, false);
-                }
+                double scale = Picture.ThumbnailSize * 2.0 / height;
+                outputName = await UploadDownsizedVersionAsync(inputImage, (int)(width * scale),
+                    Picture.ThumbnailSize * 2, baseOutputName, Picture.ThumbnailSuffix, false);
+            }
 
-                result.ThumbnailUrl = outputName;
-            }
-            
-            // generate "details" size, also if not exists
-            // same but match width
-            if (width > Picture.DetailsSize * 2)
-            {
-                string? outputName = existingKey is null
-                    ? null
-                    : await FindDownsizedVersionAsync(baseOutputName, Picture.DetailsSuffix);
-                if (outputName is null)
-                {
-                    double scale = Picture.DetailsSize * 2.0 / width;
-                    outputName = await UploadDownsizedVersionAsync(inputImage, Picture.DetailsSize * 2,
-                        (int)(height * scale), baseOutputName, Picture.DetailsSuffix, false);
-                }
-
-                result.DetailsUrl = outputName;
-            }
-            
-            // extract EXIF metadata
-        
-            // find original datetime from EXIF, if any, default to now
-            DateTime date = DateTime.UtcNow;
-            var originalDateTimeString = (string?)inputImage.Metadata.ExifProfile?.Values
-                .FirstOrDefault(v => v.Tag == ExifTag.DateTimeOriginal)?.GetValue();
-            if (originalDateTimeString != null && originalDateTimeString != "0000:00:00 00:00:00" &&
-                DateTime.TryParseExact(originalDateTimeString, "yyyy:MM:dd HH:mm:ss",
-                    CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var exifDate))
-            {
-                date = exifDate.ToUniversalTime();
-                result.PhotographedAtFromExif = true;
-            }
-            result.PhotographedAt = date;
-
-            // find coordinates from EXIF, if any
-            var exif = inputImage.Metadata.ExifProfile;
-            result.Lat = GetExifCoordinate(exif, ExifTag.GPSLatitude, ExifTag.GPSLatitudeRef, "S");
-            result.Lng = GetExifCoordinate(exif, ExifTag.GPSLongitude, ExifTag.GPSLongitudeRef, "W");
-            
-            // camera and lens
-            if (inputImage.Metadata.ExifProfile?.TryGetValue(ExifTag.Model, out IExifValue<string>? model) == true)
-            { 
-                result.Camera = model.Value;
-            }
-            if (inputImage.Metadata.ExifProfile?.TryGetValue(ExifTag.LensModel, out IExifValue<string>? lensModel) == true)
-            {
-                if (!String.IsNullOrWhiteSpace(result.Camera))
-                {
-                    result.Lens = lensModel.Value.TrimStart(result.Camera + "_").ToString();
-                }
-                else
-                {
-                    result.Lens = lensModel.Value;
-                }
-            }
+            result.ThumbnailUrl = outputName;
         }
+        
+        // generate "details" size, also if not exists
+        // same but match width
+        if (width > Picture.DetailsSize * 2)
+        {
+            string? outputName = existingKey is null
+                ? null
+                : await FindDownsizedVersionAsync(baseOutputName, Picture.DetailsSuffix);
+            if (outputName is null)
+            {
+                double scale = Picture.DetailsSize * 2.0 / width;
+                outputName = await UploadDownsizedVersionAsync(inputImage, Picture.DetailsSize * 2,
+                    (int)(height * scale), baseOutputName, Picture.DetailsSuffix, false);
+            }
+
+            result.DetailsUrl = outputName;
+        }
+        
+        // extract EXIF metadata
+    
+        // find original datetime from EXIF, if any, default to now
+        var exif = inputImage.ReadExif();
+        DateTime date = DateTime.UtcNow;
+        if (exif.DateTimeOriginal != null && exif.DateTimeOriginal != "0000:00:00 00:00:00" &&
+            DateTime.TryParseExact(exif.DateTimeOriginal, "yyyy:MM:dd HH:mm:ss",
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var exifDate))
+        {
+            date = exifDate.ToUniversalTime();
+            result.PhotographedAtFromExif = true;
+        }
+        result.PhotographedAt = date;
+
+        // coordinates from EXIF, if any
+        result.Lat = exif.Lat;
+        result.Lng = exif.Lng;
+        
+        // camera and lens
+        if (exif.Camera != null)
+        { 
+            result.Camera = exif.Camera;
+        }
+        result.Lens = GetLensWithoutCamera(exif.Lens, result.Camera);
         
         // upload the original image last, unless already done
         if (existingKey is null)
@@ -233,7 +199,7 @@ public class PictureUpload
             return false;
         }
 
-        Image? image = null;
+        PictureImage? image = null;
 
         var sizes = new Dictionary<string, int>
         {
@@ -262,7 +228,22 @@ public class PictureUpload
                 if (image == null)
                 {
                     await using var responseStream = await _pictureStorage.DownloadPictureAsync(picture.Url);
-                    image = await Image.LoadAsync(responseStream);
+                    var content = new MemoryStream();
+                    await responseStream.CopyToAsync(content);
+                    image = new PictureImage(content.ToArray());
+
+                    // pictures uploaded before 3.6.9 have dimensions as stored in the file, without EXIF
+                    // orientation applied; correct these now
+                    if ((picture.Width, picture.Height) != (image.Width, image.Height))
+                    {
+                        picture.Width = image.Width;
+                        picture.Height = image.Height;
+                        (width, height) = picture.GetDownsizedDimensions(targetSize);
+                        if (width == 0 || height == 0)
+                        {
+                            continue;
+                        }
+                    }
                 }
 
                 // actually resize and save, clearing metadata
@@ -283,41 +264,9 @@ public class PictureUpload
         picture.WebsiteSizesExist = true;
         await _context.SaveChangesAsync();
         
-        if (image != null)
-        {
-            image.Dispose();
-        }
         return image != null;
     }
     
-    /// <summary>
-    /// Read GPS latitude or longitude from EXIF (degrees, minutes, seconds as rationals, plus N/S or E/W reference).
-    /// </summary>
-    private static double? GetExifCoordinate(ExifProfile? exif, ExifTag<Rational[]> valueTag, ExifTag<string> refTag,
-        string negativeRef)
-    {
-        if (exif?.TryGetValue(valueTag, out var parts) != true || parts!.Value?.Length != 3)
-        {
-            return null;
-        }
-
-        var degrees = parts.Value[0].ToDouble();
-        var minutes = parts.Value[1].ToDouble();
-        var seconds = parts.Value[2].ToDouble();
-        if (!double.IsFinite(degrees) || !double.IsFinite(minutes) || !double.IsFinite(seconds))
-        {
-            return null;
-        }
-
-        var coordinate = degrees + minutes / 60D + seconds / 3600D;
-        if (exif.TryGetValue(refTag, out var reference) &&
-            reference!.Value?.Trim().Equals(negativeRef, StringComparison.OrdinalIgnoreCase) == true)
-        {
-            coordinate = -coordinate;
-        }
-        return coordinate;
-    }
-
     /// <summary>
     /// Find a resized version (by suffix) of an already uploaded picture, in whatever format it was saved.
     /// </summary>
@@ -329,50 +278,32 @@ public class PictureUpload
     }
 
     /// <summary>
-    /// Resize a picture and upload it.  Saves as WebP, lossy for lossy originals (JPEG, lossy WebP),
-    /// lossless otherwise (PNG, lossless WebP); unless too large for WebP, then JPEG/PNG respectively.
+    /// Resize a picture and upload it, in the format chosen by <see cref="PictureImage.Resize"/>.
     /// </summary>
     /// <returns>Key in storage</returns>
-    private async Task<string> UploadDownsizedVersionAsync(Image image, int width, int height, string baseName,
+    private async Task<string> UploadDownsizedVersionAsync(PictureImage image, int width, int height, string baseName,
         string suffix, bool clearMetadata)
     {
-        var format = image.Metadata.DecodedImageFormat;
-        bool isLossy = format is JpegFormat ||
-                       (format is WebpFormat && image.Metadata.GetWebpMetadata().FileFormat == WebpFileFormatType.Lossy);
-
-        IImageEncoder encoder;
-        string extension;
-        if (width <= WebpMaxDimension && height <= WebpMaxDimension)
-        {
-            encoder = isLossy
-                ? new WebpEncoder { FileFormat = WebpFileFormatType.Lossy, Quality = WebpQualityLevel }
-                : new WebpEncoder { FileFormat = WebpFileFormatType.Lossless };
-            extension = ".webp";
-        }
-        else if (isLossy)
-        {
-            encoder = new JpegEncoder { Quality = JpegQualityLevel };
-            extension = ".jpg";
-        }
-        else
-        {
-            encoder = new PngEncoder();
-            extension = ".png";
-        }
-
-        using var resizedImage = image.Clone(x => x.Resize(width, height));
-        if (clearMetadata)
-        {
-            resizedImage.Metadata.ExifProfile = null;
-            resizedImage.Metadata.XmpProfile = null;
-        }
-
+        var (content, extension) = image.Resize(width, height, clearMetadata);
         var name = GetFilenameWithSuffix(baseName, suffix, extension);
-        var output = new MemoryStream();
-        await resizedImage.SaveAsync(output, encoder);
-        output.Seek(0, SeekOrigin.Begin);
-        await _pictureStorage.UploadPictureAsync(name, output);
+        await _pictureStorage.UploadPictureAsync(name, new MemoryStream(content));
         return name;
+    }
+
+    /// <summary>
+    /// Some cameras (phones mostly) repeat their own name in the lens name, e.g. "iPhone 6 back camera 4.15mm f/2.2",
+    /// drop that.
+    /// </summary>
+    public static string? GetLensWithoutCamera(string? lens, string? camera)
+    {
+        if (lens != null && !String.IsNullOrWhiteSpace(camera) &&
+            lens.StartsWith(camera, StringComparison.OrdinalIgnoreCase))
+        {
+            var rest = lens[camera.Length..].TrimStart(' ', '_');
+            // unless nothing else is left
+            return rest.Length > 0 ? rest : lens;
+        }
+        return lens;
     }
 
     private static string GetFilenameWithSuffix(string filename, string suffix, string newExtension)

@@ -2,6 +2,11 @@ This is **Holvi** _(Finnish "Vault")_, the backend library for KoTi and Fennica3
 little more than Entity Framework models/migrations/database context and code for accessing S3 for picture storage,
 and also for resizing pictures.  It should be mostly self-explanatory.
 
+Pictures are decoded, resized and encoded with [libvips](https://www.libvips.org/) through NetVips, and EXIF data
+is read with MetadataExtractor (`PictureImage`).  The native libvips binary comes from the `NetVips.Native.linux-x64`
+package (glibc; needs nothing installed on the system); to build or run on another platform, reference the matching
+`NetVips.Native.*` package, or `NetVips.Native` for all of them (adds ~190 MB to the publish output).
+
 Database updates during development should be run for this project; you
 would just need to add path to the database file to `dotnet ef database update`
 command.

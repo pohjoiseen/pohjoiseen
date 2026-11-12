@@ -218,6 +218,6 @@ public static class TestData
                 }
             }
         }
-        store.Put($"hash{NoWebSizesId}/big.jpg", TestImages.Jpeg(2400, 1600));
+        store.Put($"hash{NoWebSizesId}/big.jpg", TestImages.JpegWithExif(2400, 1600));
     }
 }

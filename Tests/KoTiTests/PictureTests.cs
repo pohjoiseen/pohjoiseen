@@ -2,11 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
-using SixLabors.ImageSharp.PixelFormats;
+using Holvi;
 using Tests.Infrastructure;
 using static Tests.Infrastructure.TestData;
 
@@ -31,29 +27,12 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         return (await response.Content.ReadFromJsonAsync<UploadResponse>(Ct))!;
     }
 
-    private ImageInfo Identify(string url) => Image.Identify(factory.Store.GetByUrl(url)!);
-
-    private static byte[] JpegWithExif(int width = 1200, int height = 800)
-    {
-        using var image = new Image<Rgb24>(width, height, new Rgb24(10, 100, 200));
-        var exif = new ExifProfile();
-        exif.SetValue(ExifTag.DateTimeOriginal, "2019:08:01 12:34:56");
-        exif.SetValue(ExifTag.GPSLatitude, [new Rational(60, 1), new Rational(10, 1), new Rational(3000, 100)]);
-        exif.SetValue(ExifTag.GPSLatitudeRef, "N");
-        exif.SetValue(ExifTag.GPSLongitude, [new Rational(24, 1), new Rational(57, 1), new Rational(0, 1)]);
-        exif.SetValue(ExifTag.GPSLongitudeRef, "W");
-        exif.SetValue(ExifTag.Model, "NIKON D7500");
-        exif.SetValue(ExifTag.LensModel, "18-140mm");
-        image.Metadata.ExifProfile = exif;
-        using var output = new MemoryStream();
-        image.Save(output, new JpegEncoder());
-        return output.ToArray();
-    }
+    private byte[] Stored(string url) => factory.Store.GetByUrl(url)!;
 
     [Fact]
     public async Task UploadJpeg()
     {
-        var content = JpegWithExif();
+        var content = TestImages.JpegWithExif();
         var result = await Upload(content, "photo.jpg", "?setName=Uploads");
         Assert.False(result.IsDuplicate);
 
@@ -72,10 +51,14 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         Assert.Equal($"{Url}{hash}/photo.jpg", picture.Url);
         Assert.Equal(content, factory.Store.GetByUrl(picture.Url));
         Assert.Equal($"{Url}{hash}/photo.t.webp", picture.ThumbnailUrl);
-        Assert.Equal((375, 250), (Identify(picture.ThumbnailUrl).Width, Identify(picture.ThumbnailUrl).Height));
+        Assert.Equal((375, 250), TestImages.Size(Stored(picture.ThumbnailUrl)));
         Assert.Equal($"{Url}{hash}/photo.d.webp", picture.DetailsUrl);
-        Assert.Equal(1000, Identify(picture.DetailsUrl).Width);
-        Assert.Equal(WebpFileFormatType.Lossy, Identify(picture.DetailsUrl).Metadata.GetWebpMetadata().FileFormat);
+        Assert.Equal((1000, 666), TestImages.Size(Stored(picture.DetailsUrl)));
+        Assert.True(PictureImage.IsLossyWebp(Stored(picture.DetailsUrl)));
+        // these keep EXIF data and color profile
+        Assert.Equal("NIKON D7500", new PictureImage(Stored(picture.ThumbnailUrl)).ReadExif().Camera);
+        Assert.Equal("2019:08:01 12:34:56", new PictureImage(Stored(picture.DetailsUrl)).ReadExif().DateTimeOriginal);
+        Assert.True(TestImages.HasColorProfile(Stored(picture.DetailsUrl)));
         Assert.Equal("image/webp", factory.Store.Objects[$"{hash}/photo.d.webp"].ContentType);
         Assert.Equal(picture.DetailsUrl, result.Src);
 
@@ -105,7 +88,8 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         var picture = await db.Pictures.SingleAsync(p => p.Id == result.Id, Ct);
         Assert.Null(picture.SetId);
         Assert.EndsWith("/arms.t.webp", picture.ThumbnailUrl);
-        Assert.Equal(WebpFileFormatType.Lossless, Identify(picture.ThumbnailUrl).Metadata.GetWebpMetadata().FileFormat);
+        Assert.Equal((250, 250), TestImages.Size(Stored(picture.ThumbnailUrl)));
+        Assert.False(PictureImage.IsLossyWebp(Stored(picture.ThumbnailUrl)));
         // not wide enough for details size, original is used
         Assert.Equal(picture.Url, picture.DetailsUrl);
     }
@@ -122,7 +106,7 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
             setId = set.Id;
         }
         var query = $"?setId={setId}";
-        var original = await Upload(JpegWithExif(1300, 800), "photo.jpg", query);
+        var original = await Upload(TestImages.JpegWithExif(1300, 800), "photo.jpg", query);
         string oldHash;
         await using (var db = factory.OpenDb())
         {
@@ -137,7 +121,7 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
 
         // same name in another folder, or exactly the same content: no conflict
         Assert.False((await Upload(TestImages.Jpeg(900, 600), "photo.jpg")).IsReplaced);
-        Assert.True((await Upload(JpegWithExif(1300, 800), "photo.jpg", query)).IsDuplicate);
+        Assert.True((await Upload(TestImages.JpegWithExif(1300, 800), "photo.jpg", query)).IsDuplicate);
 
         // different content with the same name in the same folder: conflict unless told what to do
         var newVersion = TestImages.Jpeg(1600, 1000);
@@ -196,9 +180,73 @@ public class PictureTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         Assert.True(picture.WebsiteSizesExist);
         Assert.Equal($"{Url}hash{NoWebSizesId}/big.1x.webp", picture.Website1xUrl);
         Assert.Equal($"{Url}hash{NoWebSizesId}/big.2x.webp", picture.Website2xUrl);
-        Assert.Equal((1015, 677), (Identify(picture.Website1xUrl!).Width, Identify(picture.Website1xUrl!).Height));
+        Assert.Equal((1015, 677), TestImages.Size(Stored(picture.Website1xUrl!)));
         // (2400 * 1354 / 1600 = 2031, but scale is a double and gets truncated)
-        Assert.Equal((2030, 1354), (Identify(picture.Website2xUrl!).Width, Identify(picture.Website2xUrl!).Height));
+        Assert.Equal((2030, 1354), TestImages.Size(Stored(picture.Website2xUrl!)));
+        Assert.True(PictureImage.IsLossyWebp(Stored(picture.Website1xUrl!)));
+        // the original has EXIF data and a color profile, these keep only the latter
+        Assert.Equal("NIKON D7500", new PictureImage(Stored(picture.Url)).ReadExif().Camera);
+        Assert.Equal(new PictureExif(), new PictureImage(Stored(picture.Website1xUrl!)).ReadExif());
+        Assert.Equal(new PictureExif(), new PictureImage(Stored(picture.Website2xUrl!)).ReadExif());
+        Assert.True(TestImages.HasColorProfile(Stored(picture.Website1xUrl!)));
+    }
+
+    [Fact]
+    public async Task UploadWithOrientationAndWithoutGps()
+    {
+        // EXIF orientation is applied: dimensions are as displayed, resized versions are turned upright
+        // (the original is left as is, browsers turn it themselves)
+        var result = await Upload(TestImages.JpegWithExif(1200, 800, orientation: 6, zeroGps: true), "rotated.jpg");
+        await using var db = factory.OpenDb();
+        var picture = await db.Pictures.SingleAsync(p => p.Id == result.Id, Ct);
+        Assert.Equal((800, 1200), (picture.Width, picture.Height));
+        Assert.Equal((166, 250), TestImages.Size(Stored(picture.ThumbnailUrl)));
+        Assert.Equal(1, TestImages.Orientation(Stored(picture.ThumbnailUrl)));
+        // not wide enough for details size anymore
+        Assert.Equal(picture.Url, picture.DetailsUrl);
+
+        // website sizes too
+        var response = await _client.PostAsync($"/api/Pictures/{picture.Id}/WebSizes", null, Ct);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        await db.Entry(picture).ReloadAsync(Ct);
+        Assert.Equal((677, 1015), TestImages.Size(Stored(picture.Website1xUrl!)));
+        Assert.Equal(1, TestImages.Orientation(Stored(picture.Website1xUrl!)));
+        Assert.Null(picture.Website2xUrl);
+
+        // a picture uploaded earlier, dimensions in database are without orientation: these get corrected
+        var content = TestImages.JpegWithExif(1500, 1000, orientation: 8);
+        var old = new Holvi.Models.Picture
+        {
+            Filename = "old.jpg", Hash = "oldrotated", Url = $"{Url}oldrotated/old.jpg", Width = 1500, Height = 1000,
+            ThumbnailUrl = "", DetailsUrl = "", Size = content.Length, UploadedAt = DateTime.UtcNow
+        };
+        factory.Store.Put("oldrotated/old.jpg", content);
+        db.Pictures.Add(old);
+        await db.SaveChangesAsync(Ct);
+        response = await _client.PostAsync($"/api/Pictures/{old.Id}/WebSizes", null, Ct);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        await db.Entry(old).ReloadAsync(Ct);
+        Assert.Equal((1000, 1500), (old.Width, old.Height));
+        Assert.Equal((677, 1015), TestImages.Size(Stored(old.Website1xUrl!)));
+        // 0/0 coordinates are no coordinates
+        Assert.Equal((null, null), (picture.Lat, picture.Lng));
+        Assert.Equal("NIKON D7500", picture.Camera);
+    }
+
+    [Fact]
+    public async Task UploadWebp()
+    {
+        var lossy = await Upload(TestImages.Webp(1300, 700, lossless: false), "lossy.webp");
+        var lossless = await Upload(TestImages.Webp(1200, 700, lossless: true), "lossless.webp");
+        await using var db = factory.OpenDb();
+        var picture = await db.Pictures.SingleAsync(p => p.Id == lossy.Id, Ct);
+        Assert.Equal((1300, 700), (picture.Width, picture.Height));
+        Assert.EndsWith("/lossy.t.webp", picture.ThumbnailUrl);
+        Assert.True(PictureImage.IsLossyWebp(Stored(picture.ThumbnailUrl)));
+        picture = await db.Pictures.SingleAsync(p => p.Id == lossless.Id, Ct);
+        Assert.EndsWith("/lossless.d.webp", picture.DetailsUrl);
+        Assert.False(PictureImage.IsLossyWebp(Stored(picture.DetailsUrl)));
+        Assert.Equal((1000, 583), TestImages.Size(Stored(picture.DetailsUrl)));
     }
 
     [Theory]

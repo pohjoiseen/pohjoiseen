@@ -8,7 +8,7 @@ Ideas and known gaps, roughly in order of payoff within each section.
   several MB on every post view.  Use `Website2xUrl` for the background, keep the original only for click-through.
 * Resized versions are WebP since 3.5, but pictures uploaded/resized earlier still have `.jpg`/`.png` ones.  Could
   convert those in the background (S3 keys and `Picture` URLs change, so the nginx cache needs a DB redeploy anyway).
-  AVIF would save more but ImageSharp cannot write it.
+  AVIF would save more (libvips can write it, see `PictureImage`).
 * `ContentFormatter` calls `EnsureWebsiteVersionsExist` during public page rendering, i.e. Fennica3 may download
   an original from S3 and resize it inside a request on a 1 GB droplet, and needs S3 write credentials for it.
   Move to KoTi (on save/publish) so Fennica3 is read-only and credential-free (see also TODO in `HolviExtensions`).

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Three .NET 10 projects in a single solution (`Pohjoiseen.sln`), plus their TypeScript client apps:
 
-- **Holvi/** — shared library: EF Core SQLite `HolviDbContext`, EF migrations, `PictureStorage` (S3/DigitalOcean Spaces), `PictureUpload`, and the domain models (`Article`, `Book`, `Post`, `Picture`, `PictureSet`, `Tag`, `Redirect`). All DB migrations live here; both apps consume its `AddHolviServices`.
+- **Holvi/** — shared library: EF Core SQLite `HolviDbContext`, EF migrations, `PictureStorage` (S3/DigitalOcean Spaces), `PictureUpload`, `PictureImage` (resizing with libvips via NetVips, linux-x64 native package only; EXIF with MetadataExtractor), and the domain models (`Article`, `Book`, `Post`, `Picture`, `PictureSet`, `Tag`, `Redirect`). All DB migrations live here; both apps consume its `AddHolviServices`.
 - **Fennica3/** — public blog at fennica.pohjoiseen.fi. ASP.NET MVC + Razor. The `ContentFormatter` class is the critical piece: it renders Markdown/HTML and resolves internal `post:XXX` / `picture:XXX` links and picture markup (figure/figcaption, srcset). Client assets under `Fennica3/Client/` (TypeScript, Bun, Leaflet + Glider for the map and galleries — no JS framework).
 - **KoTi/** — private backoffice (blog editor). ASP.NET MVC + Razor + Htmx + Web Components. Imports Fennica3 as a project reference **and registers it as an MVC ApplicationPart** (see `KoTi/Program.cs`) so KoTi can serve Fennica3 previews directly. Frontend:
   - `KoTi/Frontend/` (Bun, TypeScript, Htmx, vanilla Web Components, Leaflet, Monaco) — the server-rendered UI. Built to `KoTi/wwwroot/frontend/` (git-ignored). Entry point: `koti.ts` registers all custom elements.
