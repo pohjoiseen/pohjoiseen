@@ -17,10 +17,11 @@ public class PictureImage
     private const int JpegQualityLevel = 75;
 
     /// <summary>
-    /// Same for lossy WebP, which resized versions are normally saved as since 3.5 (before, they were .jpg/.png;
-    /// these are not reconverted)
+    /// For lossy WebP, which resized versions are normally saved as since 3.5 (before, they were .jpg/.png;
+    /// these are not reconverted).  WebP smooths out low-contrast textures (distant forest, grain) noticeably
+    /// more than JPEG at the same level; 85 is about on par with the old JPEGs there, at about the same file size
     /// </summary>
-    private const int WebpQualityLevel = 75;
+    private const int WebpQualityLevel = 85;
 
     /// <summary>
     /// WebP cannot store larger images, resized versions of very long panoramas fall back to JPEG/PNG
