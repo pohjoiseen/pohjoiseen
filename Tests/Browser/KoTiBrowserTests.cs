@@ -71,6 +71,65 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
     }
 
     [Fact]
+    public async Task SaveConflictKeepsEditorUsable()
+    {
+        int id;
+        await using (var db = factory.OpenDb())
+        {
+            var post = new Post { Name = "locking", Title = "Исходное", Language = "ru", Date = new DateOnly(2020, 6, 15), Draft = true, ContentMD = "Исходный текст." };
+            db.Add(post);
+            await db.SaveChangesAsync(Ct);
+            id = post.Id;
+        }
+
+        await using var t = await OpenAsync($"/Posts/{id}/ru/");
+        var page = t.Page;
+        var editor = page.Locator(".monaco-editor .view-lines");
+        await editor.ClickAsync();
+
+        // meanwhile saved from elsewhere
+        using var other = new HttpClient { BaseAddress = new Uri(factory.BaseUrl) };
+        other.DefaultRequestHeaders.Add("HX-Request", "true");
+        var otherDoc = await other.GetDocumentAsync($"/Posts/{id}/ru");
+        var fields = new Dictionary<string, string>
+        {
+            ["Name"] = "locking", ["Title"] = "Пост (с другой машины)", ["Date"] = "2020-06-15", ["Language"] = "ru",
+            ["ContentMD"] = "Сохранено с другой машины.",
+            ["Version"] = otherDoc.QuerySelector("#content-form input[name=Version]")!.GetAttribute("value")!,
+        };
+        (await other.PutAsync($"/Posts/{id}/ru", new FormUrlEncodedContent(fields), Ct)).EnsureSuccessStatusCode();
+
+        await page.Locator("#content-form input#title").FillAsync("Пост (здесь)");
+        await editor.ClickAsync();
+        await page.Keyboard.PressAsync("Control+End");
+        await page.Keyboard.TypeAsync("\nНе должно потеряться.");
+
+        // saving is rejected, repeatedly, with everything kept on the page and still editable
+        for (var i = 0; i < 2; i++)
+        {
+            var response = await page.RunAndWaitForResponseAsync(() => page.Locator("#save-button").ClickAsync(),
+                r => r.Request.Method == "PUT");
+            Assert.Equal(409, response.Status);
+            await Expect(page.Locator("#conflict-indicator")).ToContainTextAsync("Not saved");
+            await Expect(page.Locator("#conflict-alert a")).ToHaveAttributeAsync("href", $"/Posts/{id}/ru/");
+            await Expect(page.Locator("#content-form input#title")).ToHaveValueAsync("Пост (здесь)");
+            await Expect(editor).ToContainTextAsync("Не должно потеряться." + (i > 0 ? " И это." : ""));
+            await Expect(page.Locator("#save-button")).ToBeEnabledAsync();
+            await editor.ClickAsync();
+            await page.Keyboard.PressAsync("Control+End");
+            await page.Keyboard.TypeAsync(" И это.");
+        }
+
+        await using (var db = factory.OpenDb())
+        {
+            var post = await db.Posts.SingleAsync(p => p.Id == id, Ct);
+            Assert.Equal(("Пост (с другой машины)", "Сохранено с другой машины."), (post.Title, post.ContentMD));
+        }
+
+        Assert.Empty(t.Errors);
+    }
+
+    [Fact]
     public async Task CreatePost()
     {
         await using var t = await OpenAsync("/Posts/ru/");

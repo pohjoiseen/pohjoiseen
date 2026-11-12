@@ -37,6 +37,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
             Language = language,
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
+            Version = entity.Version,
             AllLanguages = await dbContext.Articles
                 .Where(a => a.Name == entity.Name)
                 .ToDictionaryAsync(a => a.Language, a => a.Id)
@@ -57,7 +58,7 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
         entity.Language = model.Language;
         entity.ContentMD = model.ContentMD ?? "";
         entity.Draft = model.Draft;
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveVersionedAsync(entity, model.Version);
         return entity;
     }
 

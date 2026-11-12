@@ -25,5 +25,11 @@ public class Book : IContentEntity
 
     public DateTime UpdatedAt { get; set; }
 
+    /// <summary>
+    /// For optimistic locking in KoTi, incremented on every save from the edit page.
+    /// </summary>
+    [ConcurrencyCheck]
+    public int Version { get; set; }
+
     public IList<Post> Posts { get; set; } = [];
 }

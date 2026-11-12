@@ -21,4 +21,10 @@ public class Article : IContentEntity
     public string Language { get; set; } = "";
     
     public DateTime UpdatedAt { get; set; }
+
+    /// <summary>
+    /// For optimistic locking in KoTi, incremented on every save from the edit page.
+    /// </summary>
+    [ConcurrencyCheck]
+    public int Version { get; set; }
 }

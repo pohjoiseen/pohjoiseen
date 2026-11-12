@@ -49,6 +49,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
             Geo = entity.Geo ?? new List<Post.GeoPoint>(),
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
+            Version = entity.Version,
             Mini = entity.Mini,
             BookId = entity.BookId,
             AllLanguages = await dbContext.Posts
@@ -85,7 +86,7 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
         entity.BookId = model.BookId;
         entity.Draft = model.Draft;
         entity.Mini = model.Mini;
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveVersionedAsync(entity, model.Version);
         return entity;
     }
     

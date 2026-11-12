@@ -391,6 +391,9 @@ export default class ContentEditorElement extends HTMLElement {
             }
         }
 
+        // changes with every save
+        formData.delete('Version');
+
         const obj = Object.fromEntries(
             Array.from(formData.keys()).toSorted().map(key => [
                 key, formData.getAll(key).length > 1 ?

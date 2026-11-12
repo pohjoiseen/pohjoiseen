@@ -1,3 +1,6 @@
 namespace Holvi.Models;
 
-public interface IContentEntity;
+public interface IContentEntity
+{
+    int Version { get; set; }
+}

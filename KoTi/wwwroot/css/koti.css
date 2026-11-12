@@ -408,6 +408,19 @@
     }
   }
   
+  .conflict-indicator {
+    align-self: center;
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+    background-color: var(--color-bad-bg);
+    border: 1px solid var(--color-bad);
+    white-space: nowrap;
+
+    &:empty {
+      display: none;
+    }
+  }
+
   .alert {
     padding: 8px;
     border-radius: var(--border-radius);

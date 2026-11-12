@@ -32,6 +32,8 @@
         }
     </koti-dropdown>
     
+    <span id="conflict-indicator"></span>
+
     <button class="koti-btn primary with-indicator" onclick="document.dispatchEvent(new CustomEvent('koti-content-editor:save'))" id="save-button">
         <span id="save-button-indicator" class="spinner htmx-indicator"></span>
         <i class="bi bi-save"></i> Save
@@ -46,6 +48,7 @@
     <koti-tabs component-id="topleveltab">
         <koti-tab name="Properties">
             <form id="content-form" class="h100" hx-put hx-disabled-elt="#save-button" hx-indicator="#save-button-indicator">
+                <input type="hidden" name="Version" value="@Model.Version" />
                 @await Component.InvokeAsync((Type)ViewData["FormViewComponentType"]!, new { model = Model })
             </form>
         </koti-tab>

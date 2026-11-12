@@ -131,6 +131,12 @@ public class Post : IContentEntity
     
     public DateTime UpdatedAt { get; set; }
 
+    /// <summary>
+    /// For optimistic locking in KoTi, incremented on every save from the edit page.
+    /// </summary>
+    [ConcurrencyCheck]
+    public int Version { get; set; }
+
     public override string ToString()
     {
         return $"{Date.ToString("yyyy-MM-dd")}-{Name}";

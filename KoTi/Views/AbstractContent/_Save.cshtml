@@ -1,6 +1,10 @@
 @model KoTi.ViewModels.AbstractContentViewModel
 
-@if (ViewData.ModelState.IsValid)
+@{
+    var conflict = ViewData["Conflict"] is true;
+}
+
+@if (ViewData.ModelState.IsValid && !conflict)
 {
     <h2 id="header-title" hx-swap-oob="true">
         <partial name="_Title.cshtml" model="Model" />        
@@ -17,4 +21,23 @@
     </div>
 }
 
+@if (conflict)
+{
+    <span id="conflict-indicator" class="conflict-indicator" hx-swap-oob="true"
+          title="This page has an outdated version and cannot be saved, see Properties tab">
+        <i class="bi bi-exclamation-triangle-fill"></i> Not saved: changed elsewhere
+    </span>
+    <div class="alert mb" id="conflict-alert">
+        <div>
+            <b>Not saved:</b> this @Model.KindLink was saved from elsewhere (another tab or machine) after this page was loaded,
+            and saving from here would overwrite those changes.  Nothing is lost on this page, the editor and all fields
+            still have your changes, but they cannot be saved from here anymore.
+            <a href="@Url.Action("Edit", new { id = Model.Id, language = Model.Language })" target="_blank">Open the current version in a new tab</a>
+            and copy your changes over manually.
+        </div>
+    </div>
+}
+
+@* plain input and not asp-for, so that the new version is used after saving and not the submitted one *@
+<input type="hidden" name="Version" value="@Model.Version" />
 @await Component.InvokeAsync((Type)ViewData["FormViewComponentType"]!, new { model = Model })

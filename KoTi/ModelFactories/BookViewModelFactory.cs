@@ -37,6 +37,7 @@ public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory
             Language = language,
             ContentMD = entity.ContentMD,
             Draft = entity.Draft,
+            Version = entity.Version,
             TitlePictureId = entity.TitlePictureId,
             AllLanguages = await dbContext.Books
                 .Where(a => a.Name == entity.Name)
@@ -89,7 +90,7 @@ public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory
             }
         }
         
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveVersionedAsync(entity, model.Version);
         return entity;
     }
     

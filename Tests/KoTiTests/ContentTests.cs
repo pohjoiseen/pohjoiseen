@@ -149,6 +149,73 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         Assert.Equal(new DateOnly(2020, 6, 15), (await db.Posts.SingleAsync(p => p.Id == TurkuId, Ct)).Date);
     }
 
+    [Theory]
+    [InlineData("Posts")]
+    [InlineData("Articles")]
+    [InlineData("Books")]
+    public async Task SaveWithOutdatedVersionIsRejected(string kind)
+    {
+        int id;
+        await using (var db = factory.OpenDb())
+        {
+            IContentEntity entity = kind switch
+            {
+                "Posts" => new Post { Name = "locking", Title = "Исходное", Language = "ru", Date = new DateOnly(2020, 6, 15), Draft = true },
+                "Articles" => new Article { Name = "locking", Title = "Исходное", Language = "ru", Draft = true },
+                _ => new Book { Name = "locking", Title = "Исходное", Language = "ru", Draft = true },
+            };
+            db.Add(entity);
+            await db.SaveChangesAsync(Ct);
+            id = (int)db.Entry(entity).Property("Id").CurrentValue!;
+        }
+
+        async Task<(string Title, int Version)> InDb()
+        {
+            await using var db = factory.OpenDb();
+            return kind switch
+            {
+                "Posts" => await db.Posts.Where(p => p.Id == id).Select(p => ValueTuple.Create(p.Title, p.Version)).SingleAsync(Ct),
+                "Articles" => await db.Articles.Where(a => a.Id == id).Select(a => ValueTuple.Create(a.Title, a.Version)).SingleAsync(Ct),
+                _ => await db.Books.Where(b => b.Id == id).Select(b => ValueTuple.Create(b.Title, b.Version)).SingleAsync(Ct),
+            };
+        }
+        Task<HttpResponseMessage> Save(string title, string version) => _htmx.PutAsync($"/{kind}/{id}/ru", Form(
+            ("Name", "locking"), ("Title", title), ("Date", "2020-06-15"), ("Language", "ru"), ("ContentMD", "Текст"), ("Version", version)), Ct);
+
+        // the same page opened in two places, with the same version
+        var doc = await _client.GetDocumentAsync($"/{kind}/{id}/ru");
+        var version = doc.QuerySelector("#content-form input[name=Version]")!.GetAttribute("value")!;
+        var (_, versionBefore) = await InDb();
+        Assert.Equal(versionBefore.ToString(), version);
+
+        // saved from the first one, gets the new version for the next save
+        var response = await Save("Первое", version);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var saved = HttpClientExtensions.ParseHtml(await response.Content.ReadAsStringAsync(Ct));
+        var newVersion = saved.QuerySelector("input[name=Version]")!.GetAttribute("value")!;
+        Assert.Equal((versionBefore + 1).ToString(), newVersion);
+        Assert.Null(saved.QuerySelector("#conflict-alert"));
+
+        // saving from the second one is rejected, and stays so; submitted values are kept in the form
+        for (var i = 0; i < 2; i++)
+        {
+            response = await Save("Второе", version);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            var rejected = HttpClientExtensions.ParseHtml(await response.Content.ReadAsStringAsync(Ct));
+            Assert.Contains($"/{kind}/{id}/ru/", rejected.QuerySelector("#conflict-alert a[target=_blank]")!.GetAttribute("href"));
+            Assert.NotNull(rejected.QuerySelector("#conflict-indicator[hx-swap-oob]"));
+            Assert.Null(rejected.QuerySelector("#header-title"));
+            Assert.Equal("Второе", rejected.QuerySelector("input#title")!.GetAttribute("value"));
+            Assert.Equal(version, rejected.QuerySelector("input[name=Version]")!.GetAttribute("value"));
+            Assert.Equal(("Первое", versionBefore + 1), await InDb());
+        }
+
+        // the first one can save further
+        response = await Save("Третье", newVersion);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(("Третье", versionBefore + 2), await InDb());
+    }
+
     [Fact]
     public async Task CopyPostToLanguage()
     {

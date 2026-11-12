@@ -51,6 +51,7 @@ Secrets (S3 access key etc.) are expected via .NET user secrets or the environme
 - Posts store `CoatsOfArms` and `Geo` (with nested `Links`) as JSON-mapped owned entities (see `HolviDbContext.OnModelCreating`).
 - Fennica3 supports multiple languages (`ru`, `en`, `fi`) via the `language` route parameter; Russian is the primary/default and the only one with meaningful content today.
 - KoTi's `AbstractContentController<TEntity, TViewModel, TFormViewComponent>` is the base for all content edit flows (Posts, Articles, Books) with stock `Edit`/`Save`/`CopyToLanguage` actions.
+- Posts, Articles and Books have optimistic locking: `Version` (EF concurrency token) goes to the edit form as a hidden field and is checked and incremented only by the edit page save (`ContentVersioning.SaveVersionedAsync`); a mismatch gives 409 with the form re-rendered as submitted. Other writes (e.g. reordering posts in a book) deliberately don't touch it.
 - Fennica3 is deployed behind an nginx cache that holds pages until the DB is redeployed, so the app doesn't implement HTTP caching of its own.
 
 ## Conventions
