@@ -68,6 +68,7 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
         var document = XElement.Parse("<html>" + html + "</html>", LoadOptions.PreserveWhitespace);
         await ConvertPostLinks(document, language);
         await ConvertPictureLinks(document);
+        NumberParagraphs(document);
         AddHeaderIds(document);
         WrapAsides(document);
         
@@ -361,6 +362,24 @@ public class ContentFormatter(HolviDbContext dbContext, PictureUpload pictureUpl
             node.Remove();
         }
         return nodes.All(n => n is XText text && String.IsNullOrWhiteSpace(text.Value)) ? null : new XElement("p", nodes);
+    }
+
+    /// <summary>
+    /// Replace "X." at the beginning of a paragraph (alone or followed by whitespace) with an incrementing number,
+    /// starting from 1, for automatic numbering of photos in posts.  Needs to run after pictures are moved out of
+    /// paragraphs, since a picture might directly precede "X." without a blank line.
+    /// </summary>
+    /// <param name="document">HTML as XHTML document</param>
+    private static void NumberParagraphs(XElement document)
+    {
+        var number = 0;
+        foreach (var paragraph in document.Descendants("p"))
+        {
+            if (paragraph.FirstNode is XText text)
+            {
+                text.Value = Regex.Replace(text.Value, @"^(\s*)X\.(?=\s|$)", match => $"{match.Groups[1].Value}{++number}.");
+            }
+        }
     }
 
     /// <summary>

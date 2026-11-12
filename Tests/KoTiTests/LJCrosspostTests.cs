@@ -55,6 +55,14 @@ public class LJCrosspostTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     // --- basics and HTML shortening
 
     [Fact]
+    public async Task AutomaticNumbersAreKept()
+    {
+        var html = await Body("X. a\n\nX. b");
+        Assert.Contains("1. a", html);
+        Assert.Contains("2. b", html);
+    }
+
+    [Fact]
     public async Task WrappedInLJRaw()
     {
         Assert.Equal("<lj-raw><p>Текст</lj-raw>", await Convert("Текст"));

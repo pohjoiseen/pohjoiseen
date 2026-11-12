@@ -327,6 +327,50 @@ public class ContentFormatterTests(Fennica3Factory factory) : IClassFixture<Fenn
             await Format("<!--aside wide-->\nNote\n<!--/aside-->"));
     }
 
+    // --- automatic numbering
+
+    [Fact]
+    public async Task ParagraphsStartingWithXAreNumbered()
+    {
+        // with space, alone in paragraph, escaped, with nbsp, with a line break, followed by inline markup
+        Assert.Equal(
+            "<p>1. a</p>\n<p>2.</p>\n<p>3. b</p>\n<p>4.\u00a0c</p>\n<p>5.\nd</p>\n<p>6. <strong>e</strong></p>\n<p>no number</p>\n<p>7. f</p>\n",
+            await Format("X. a\n\nX.\n\nX\\. b\n\nX.\u00a0c\n\nX.\nd\n\nX. **e**\n\nno number\n\nX. f"));
+    }
+
+    [Theory]
+    [InlineData("X.Y", "<p>X.Y</p>\n")]
+    [InlineData("X.5. a", "<p>X.5. a</p>\n")]
+    [InlineData("Xa. b", "<p>Xa. b</p>\n")]
+    [InlineData("x. a", "<p>x. a</p>\n")]
+    [InlineData("a X. b", "<p>a\u00a0X. b</p>\n")]
+    [InlineData("a\nX. b", "<p>a\nX. b</p>\n")]
+    [InlineData("*X. a*", "<p><em>X. a</em></p>\n")]
+    [InlineData("# X. a", "<h1 id=\"x-a\">X. a</h1>\n")]
+    [InlineData("* X. a", "<ul>\n<li>X. a</li>\n</ul>\n")]
+    public async Task OtherXsAreNotNumbered(string markdown, string expected)
+    {
+        Assert.Equal(expected, await Format(markdown));
+    }
+
+    [Fact]
+    public async Task NumberingWorksAroundPictures()
+    {
+        // both after a blank line, and right after the picture, which then is split from the paragraph
+        var html = await Format($"![](picture:{SmallPngId})\n\nX. a\n\n![](picture:{SmallPngId})\nX. b\n\n![](picture:{SmallPngId})\n\nX.");
+        var numbers = System.Text.RegularExpressions.Regex.Matches(html, "<p>\\s*(.*?)</p>", System.Text.RegularExpressions.RegexOptions.Singleline)
+            .Select(m => m.Groups[1].Value);
+        Assert.Equal(["1. a", "2. b", "3."], numbers);
+        Assert.DoesNotContain("X.", html);
+    }
+
+    [Fact]
+    public async Task NumberingStartsAgainForEachText()
+    {
+        Assert.Equal("<p>1. a</p>\n", await Format("X. a"));
+        Assert.Equal("<p>1. b</p>\n", await Format("X. b"));
+    }
+
     // --- typography
 
     [Fact]
