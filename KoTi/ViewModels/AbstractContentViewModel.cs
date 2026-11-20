@@ -10,7 +10,7 @@ public abstract class AbstractContentViewModel
     
     public string Title { get; set; } = "";
     public string? ContentMD { get; set; } = "";
-    public string Language { get; set; } = "ru";
+    public string Language { get; set; } = Fennica3.Fennica3.Languages[0];
     public IDictionary<string, int> AllLanguages { get; set; } = new Dictionary<string, int>();
     public bool Draft { get; set; }
 

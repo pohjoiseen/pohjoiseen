@@ -17,11 +17,8 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         {
             return NotFound();
         }
-        if (languages.ContainsKey("ru"))
-        {
-            return RedirectToAction("Edit", new {id, language = "ru"});
-        }
-        return RedirectToAction("Edit", new {id, language = languages.First()});
+        // an id is of one language version only
+        return RedirectToAction("Edit", new {id, language = languages.First(l => l.Value == id).Key});
     }
     
     [HttpGet("{id:int}/{language}")]

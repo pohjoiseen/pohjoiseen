@@ -16,7 +16,7 @@ public class PostsController(PostViewModelFactory modelFactory, HolviDbContext d
     [HttpGet]
     public IActionResult Index()
     {
-        return RedirectToAction("Index", new { language = "ru" });
+        return RedirectToAction("Index", new { language = Fennica3.Fennica3.Languages[0] });
     }
     
     [HttpGet("{language:length(2):alpha}")]

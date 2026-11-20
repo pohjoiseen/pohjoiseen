@@ -52,10 +52,17 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     [InlineData("Books", LaplandBookId, "Лапландия")]
     public async Task EditPage(string kind, int id, string title)
     {
-        // without language, redirects to Russian version
+        // without language, redirects to the language of that id
         var response = await _client.GetAsync($"/{kind}/{id}", Ct);
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         Assert.Equal($"/{kind}/{id}/ru/", response.Headers.Location!.ToString());
+
+        // id of a version in another language
+        if (kind == "Posts")
+        {
+            response = await _client.GetAsync($"/{kind}/{HelsinkiEnId}", Ct);
+            Assert.Equal($"/{kind}/{HelsinkiEnId}/en/", response.Headers.Location!.ToString());
+        }
 
         var doc = await _client.GetDocumentAsync($"/{kind}/{id}/ru");
         Assert.Equal(title, doc.QuerySelector("#content-form input#title")!.GetAttribute("value"));
