@@ -15,6 +15,15 @@ public abstract class AbstractContentViewModel
     public bool Draft { get; set; }
 
     /// <summary>
+    /// Neighbors in the same language, in the order of the list page (for posts previous is the older one).
+    /// Only set when loading for the edit page.
+    /// </summary>
+    public Neighbor? Previous { get; set; }
+    public Neighbor? Next { get; set; }
+
+    public record Neighbor(int Id, string Title);
+
+    /// <summary>
     /// Version of the entity this model was loaded from, saving fails if the entity has a different one by then.
     /// </summary>
     public int Version { get; set; }

@@ -11,6 +11,19 @@
 }
 
 @section HeaderNav {
+    @foreach (var (neighbor, label, icon) in new[] { (Model.Previous, "Previous", "left"), (Model.Next, "Next", "right") })
+    {
+        @if (neighbor is not null)
+        {
+            <a class="koti-btn" id="@label.ToLower()-link" title="@label: @(String.IsNullOrWhiteSpace(neighbor.Title) ? "Untitled" : neighbor.Title)"
+               href="@Url.Action("Edit", new { id = neighbor.Id, language = Model.Language })"><i class="bi bi-chevron-@icon"></i></a>
+        }
+        else
+        {
+            <button class="koti-btn" disabled="disabled" title="No @label.ToLower() one"><i class="bi bi-chevron-@icon"></i></button>
+        }
+    }
+
     <koti-dropdown selected="@Model.Language">
         @foreach (var language in Fennica3.Fennica3.Languages)
         {

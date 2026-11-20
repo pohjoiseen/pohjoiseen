@@ -42,6 +42,19 @@ public class ArticleViewModelFactory(HolviDbContext dbContext) : IContentViewMod
                 .Where(a => a.Name == entity.Name)
                 .ToDictionaryAsync(a => a.Language, a => a.Id)
         };
+
+        // by name, same as in the list
+        var sameLanguage = dbContext.Articles.Where(a => a.Language == language);
+        model.Previous = await sameLanguage
+            .Where(a => a.Name.CompareTo(entity.Name) < 0)
+            .OrderByDescending(a => a.Name)
+            .Select(a => new AbstractContentViewModel.Neighbor(a.Id, a.Title))
+            .FirstOrDefaultAsync();
+        model.Next = await sameLanguage
+            .Where(a => a.Name.CompareTo(entity.Name) > 0)
+            .OrderBy(a => a.Name)
+            .Select(a => new AbstractContentViewModel.Neighbor(a.Id, a.Title))
+            .FirstOrDefaultAsync();
         return model;
     }
 

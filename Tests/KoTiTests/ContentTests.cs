@@ -25,6 +25,8 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         var text = doc.Body!.TextContent;
         Assert.Contains("3.6", text);  // version
         Assert.Contains("test", text);  // bucket
+        Assert.Equal("/ru/", doc.QuerySelector("#preview-link")!.GetAttribute("href"));
+        Assert.Equal("https://fennica.pohjoiseen.fi/ru/", doc.QuerySelector("#live-link")!.GetAttribute("href"));
     }
 
     [Theory]
@@ -59,6 +61,19 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
         Assert.Equal(title, doc.QuerySelector("#content-form input#title")!.GetAttribute("value"));
         Assert.NotNull(doc.QuerySelector("koti-content-editor"));
         Assert.NotNull(doc.QuerySelector("textarea#content-md-initial"));
+    }
+
+    [Theory]
+    [InlineData("Posts", TurkuId, "ru", HelsinkiId, DraftPostId)]  // by date
+    [InlineData("Posts", HelsinkiEnId, "en", null, null)]  // only within the language
+    [InlineData("Articles", AboutId, "ru", BlogIntroId, DraftArticleId)]  // by name
+    [InlineData("Books", LaplandBookId, "ru", BigBookId, DraftBookId)]
+    public async Task EditPageNavigation(string kind, int id, string language, int? previousId, int? nextId)
+    {
+        var doc = await _client.GetDocumentAsync($"/{kind}/{id}/{language}");
+        Assert.Equal($"/{kind}/{language}/", doc.QuerySelector("#header-title a")!.GetAttribute("href"));
+        Assert.Equal(previousId is null ? null : $"/{kind}/{previousId}/{language}/", doc.QuerySelector("#previous-link")?.GetAttribute("href"));
+        Assert.Equal(nextId is null ? null : $"/{kind}/{nextId}/{language}/", doc.QuerySelector("#next-link")?.GetAttribute("href"));
     }
 
     [Fact]

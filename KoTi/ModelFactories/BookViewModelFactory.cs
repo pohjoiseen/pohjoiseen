@@ -43,6 +43,19 @@ public class BookViewModelFactory(HolviDbContext dbContext, PostViewModelFactory
                 .Where(a => a.Name == entity.Name)
                 .ToDictionaryAsync(a => a.Language, a => a.Id)
         };
+
+        // by name, same as in the list
+        var sameLanguage = dbContext.Books.Where(a => a.Language == language);
+        model.Previous = await sameLanguage
+            .Where(a => a.Name.CompareTo(entity.Name) < 0)
+            .OrderByDescending(a => a.Name)
+            .Select(a => new AbstractContentViewModel.Neighbor(a.Id, a.Title))
+            .FirstOrDefaultAsync();
+        model.Next = await sameLanguage
+            .Where(a => a.Name.CompareTo(entity.Name) > 0)
+            .OrderBy(a => a.Name)
+            .Select(a => new AbstractContentViewModel.Neighbor(a.Id, a.Title))
+            .FirstOrDefaultAsync();
         
         // load posts
         var posts = await dbContext.Posts

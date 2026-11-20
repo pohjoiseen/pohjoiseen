@@ -56,6 +56,19 @@ public class PostViewModelFactory(HolviDbContext dbContext) : IContentViewModelF
                 .Where(p => p.Name == entity.Name && p.Date == entity.Date)
                 .ToDictionaryAsync(p => p.Language, p => p.Id)
         };
+
+        // chronological, same as on the website
+        var sameLanguage = dbContext.Posts.Where(p => p.Language == language);
+        model.Previous = await sameLanguage
+            .Where(p => p.Date < entity.Date || (p.Date == entity.Date && p.Name.CompareTo(entity.Name) < 0))
+            .OrderByDescending(p => p.Date).ThenByDescending(p => p.Name)
+            .Select(p => new AbstractContentViewModel.Neighbor(p.Id, p.Title))
+            .FirstOrDefaultAsync();
+        model.Next = await sameLanguage
+            .Where(p => p.Date > entity.Date || (p.Date == entity.Date && p.Name.CompareTo(entity.Name) > 0))
+            .OrderBy(p => p.Date).ThenBy(p => p.Name)
+            .Select(p => new AbstractContentViewModel.Neighbor(p.Id, p.Title))
+            .FirstOrDefaultAsync();
         return model;
     }
 
