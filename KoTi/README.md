@@ -48,8 +48,9 @@ through a JSON API (in practice by Claude Code working from my machine), and KoT
 go through them.  Nothing changes any text until I accept a suggestion and save the page.
 
 A suggestion (`Holvi/Models/Suggestion.cs`) is "replace this exact text with that one" for one post/article/book,
-with a kind (`correction` is a silent fix; `update` is a new development and its text includes a visible dated
-note like `**Обновление ноябрь 2026**: ...`; `link`; `other`), a comment explaining why, source URLs, and a batch
+with a kind (`correction`: an error or a typo in the original text, fixed silently; `update`: things have changed
+since, either a visible note after the outdated sentence, `_(2026: ...)_`, or for figures just the new figure
+with its year; `link`; `other`), a comment explaining why, source URLs, and a batch
 name of the run which made it.  It is anchored by text and not by position: it applies only while the old text
 occurs in the content exactly once.  To insert something, a nearby sentence is used as the old text and repeated
 in the new one.  Only `ContentMD` can be changed this way, not title or other fields.

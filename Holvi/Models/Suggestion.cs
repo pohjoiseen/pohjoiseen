@@ -23,8 +23,8 @@ public class Suggestion
     public static readonly string[] TargetTypes = [Post, Article, Book];
 
     /// <summary>
-    /// correction: fix in place, not marked in the text; update: new development, text of the suggestion
-    /// includes a visible dated note; link: only adds a link.
+    /// correction: error or typo in the original text, fixed silently; update: things have changed since,
+    /// text of the suggestion includes a visible dated note (or just a newer figure); link: only adds a link.
     /// </summary>
     public static readonly string[] Kinds = ["correction", "update", "link", "other"];
 
