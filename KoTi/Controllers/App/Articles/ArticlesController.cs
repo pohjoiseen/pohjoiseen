@@ -2,6 +2,7 @@ using Holvi;
 using Holvi.Models;
 using Koti.Controllers.App;
 using KoTi.ModelFactories;
+using KoTi.Revisions;
 using KoTi.Suggestions;
 using KoTi.ViewModels;
 using KoTi.ViewModels.Articles;
@@ -10,8 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace KoTi.Controllers.App.Articles;
 
 [Route("[controller]")]
-public class ArticlesController(ArticleViewModelFactory modelFactory, HolviDbContext dbContext, SuggestionService suggestionService)
-    : AbstractContentController<Article, ArticleViewModel, ArticleFormViewComponent>(modelFactory, suggestionService)
+public class ArticlesController(ArticleViewModelFactory modelFactory, HolviDbContext dbContext, SuggestionService suggestionService, RevisionService revisionService)
+    : AbstractContentController<Article, ArticleViewModel, ArticleFormViewComponent>(modelFactory, suggestionService, revisionService)
 {
     [HttpGet]
     public IActionResult Index()
@@ -83,6 +84,7 @@ public class ArticlesController(ArticleViewModelFactory modelFactory, HolviDbCon
         }
         
         await SuggestionService.RemoveForTargetAsync(Suggestion.Article, id);
+        await RevisionRecorder.RemoveForTargetAsync(dbContext, Suggestion.Article, id);
         dbContext.Articles.Remove(article);
         await dbContext.SaveChangesAsync();
         

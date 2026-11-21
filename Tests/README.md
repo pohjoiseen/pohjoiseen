@@ -27,12 +27,13 @@ or `--filter-namespace Tests.Browser`.
 * `Fennica3Tests/PageTests.cs` — all public pages, RSS, post JSON, redirects, 404s, drafts.
 * `KoTiTests/` — content create/edit/delete, lists, redirects, search (FTS triggers), publish, picture upload
   (formats, EXIF) and web sizes, API.  `SuggestionTests.cs`: suggestions API (validation against content,
-  declining, withdrawing a batch), edit page and accepting on save, lists.  `LJCrosspostTests.cs`: LiveJournal crosspost HTML, Markdown in through
+  declining, withdrawing a batch), edit page and accepting on save, lists.  `RevisionTests.cs`: history of
+  content (which saves make a revision, thinning, publish, API).  `LJCrosspostTests.cs`: LiveJournal crosspost HTML, Markdown in through
   the real ContentFormatter, expected LJ HTML out, plus the dialog endpoints.
 * `DatabaseTests.cs` — no model changes without migration, search triggers exist after all migrations.
 * `UnitTests/` — small pure functions.
 * `Browser/` — Playwright in headless Chromium: Fennica3 maps/popups, galleries, keyboard navigation; KoTi
-  editor save round trip (Monaco + web components), rejected save of an outdated page, accepting/declining suggestions, creating posts, uploading pictures, LJ crosspost dialog, searching in list panels.  These use the system
+  editor save round trip (Monaco + web components), rejected save of an outdated page, accepting/declining suggestions, comparing with and restoring an earlier text, creating posts, uploading pictures, LJ crosspost dialog, searching in list panels.  These use the system
   Chromium (`/usr/bin/chromium`, or set `CHROMIUM_PATH`), or one installed by Playwright
   (`pwsh Tests/bin/Debug/net10.0/playwright.ps1 install chromium`); skipped if there is none.  KoTi browser tests
   need the KoTi frontend built (`cd KoTi/Frontend && bun run build`).  All external requests (fonts, CDNs,

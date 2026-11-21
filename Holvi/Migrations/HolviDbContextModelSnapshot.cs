@@ -354,6 +354,46 @@ namespace Holvi.Migrations
                     b.ToTable("Redirects");
                 });
 
+            modelBuilder.Entity("Holvi.Models.Revision", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("ContentGz")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<int>("ContentLength")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Keep")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SavedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetType", "TargetId");
+
+                    b.ToTable("Revisions");
+                });
+
             modelBuilder.Entity("Holvi.Models.Suggestion", b =>
                 {
                     b.Property<int>("Id")

@@ -1,4 +1,5 @@
 using Holvi.Models;
+using KoTi.Revisions;
 using KoTi.ModelFactories;
 using KoTi.Suggestions;
 using KoTi.ViewModels;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Koti.Controllers.App;
 
 public abstract class AbstractContentController<TEntity, TViewModel, TFormViewComponent>(
-    IContentViewModelFactory<TViewModel, TEntity> modelFactory, SuggestionService suggestionService) : Controller
+    IContentViewModelFactory<TViewModel, TEntity> modelFactory, SuggestionService suggestionService, RevisionService revisionService) : Controller
     where TEntity : IContentEntity where TViewModel : AbstractContentViewModel where TFormViewComponent : ViewComponent
 {
     protected SuggestionService SuggestionService => suggestionService;
@@ -32,6 +33,7 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         if (model is not null)
         {
             model.Suggestions = await suggestionService.GetPendingAsync(model.KindLink, id);
+            model.Revisions = await revisionService.ListAsync(model.KindLink, id);
             model.NextWithSuggestionsId = await suggestionService.GetNextTargetWithPendingAsync(model.KindLink, id);
         }
         

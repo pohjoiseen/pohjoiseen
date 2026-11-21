@@ -22,6 +22,14 @@ public class Suggestion
     public const string Book = "book";
     public static readonly string[] TargetTypes = [Post, Article, Book];
 
+    public static string TargetTypeOf(IContentEntity entity) => entity switch
+    {
+        Models.Post => Post,
+        Models.Article => Article,
+        Models.Book => Book,
+        _ => throw new ArgumentException($"Unknown content entity {entity.GetType().Name}")
+    };
+
     /// <summary>
     /// correction: error or typo in the original text, fixed silently; update: things have changed since,
     /// text of the suggestion includes a visible dated note (or just a newer figure); link: only adds a link.

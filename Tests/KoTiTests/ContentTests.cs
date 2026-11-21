@@ -23,7 +23,7 @@ public class ContentTests(KoTiFactory factory) : IClassFixture<KoTiFactory>
     {
         var doc = await _client.GetDocumentAsync("/");
         var text = doc.Body!.TextContent;
-        Assert.Contains("3.7", text);  // version
+        Assert.Contains("3.8", text);  // version
         Assert.Contains("test", text);  // bucket
         Assert.Equal("/ru/", doc.QuerySelector("#preview-link")!.GetAttribute("href"));
         Assert.Equal("https://fennica.pohjoiseen.fi/ru/", doc.QuerySelector("#live-link")!.GetAttribute("href"));

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Holvi;
 using Holvi.Models;
+using KoTi.Revisions;
 using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -91,6 +92,9 @@ public class HomeController(HolviDbContext dbContext, PictureUpload pictureUploa
             // the live site no longer uses files of replaced picture versions
             if (ViewBag.ExitCode == 0)
             {
+                // texts which are live now stay in history
+                await RevisionRecorder.KeepLatestAsync(dbContext);
+
                 try
                 {
                     ViewBag.DeletedPictureVersions = await pictureUpload.DeleteScheduledFromStorageAsync();

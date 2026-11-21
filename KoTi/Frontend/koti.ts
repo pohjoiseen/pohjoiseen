@@ -15,6 +15,7 @@ import PictureItemElement from './WebComponents/Pictures/koti-picture.ts';
 import PicturePickerElement from './WebComponents/Pictures/koti-picture-picker.ts';
 import PictureUploadModalElement from './WebComponents/Pictures/koti-picture-upload-modal.ts';
 import PictureUploaderElement from './WebComponents/Pictures/koti-picture-uploader.ts';
+import HistoryElement from './WebComponents/History/koti-history.ts';
 import SuggestionsElement from './WebComponents/Suggestions/koti-suggestions.ts';
 import RedirectFormElement from './WebComponents/Redirects/koti-redirect-form.ts';
 import GeoExternalLinksElement from './WebComponents/Posts/koti-geo-external-links.ts';
@@ -55,6 +56,9 @@ customElements.define('koti-lj-crosspost', LJCrosspostElement);
 customElements.define('koti-post-coats-of-arms', PostCoatsOfArmsElement);
 customElements.define('koti-post-geo', PostGeoElement);
 customElements.define('koti-post-title-picture', PostTitlePictureElement);
+
+// history
+customElements.define('koti-history', HistoryElement);
 
 // suggestions
 customElements.define('koti-suggestions', SuggestionsElement);

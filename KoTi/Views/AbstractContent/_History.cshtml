@@ -1,0 +1,43 @@
+@model AbstractContentViewModel
+
+@*
+    Earlier texts.  The list is as of page load (saving does not refresh it); comparing with the text in the editor
+    and restoring is done by <koti-history>.
+*@
+<koti-history>
+    @if (Model.Revisions.Count == 0)
+    {
+        <p class="muted">No earlier versions of the text recorded yet.</p>
+    }
+    else
+    {
+        <p class="muted">
+            Earlier versions of the text, as of when this page was loaded.  Not every save is kept: saves within an hour
+            make one version, after a month one per day is left.  Times are UTC.
+        </p>
+        <table class="history-table">
+            <tbody>
+            @foreach (var revision in Model.Revisions.Reverse())
+            {
+                <tr data-id="@revision.Id" data-label="@revision.SavedAt.ToString("yyyy-MM-dd HH:mm")">
+                    <td>@revision.SavedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="muted">@revision.ContentLength.ToString("N0") chars</td>
+                    <td class="muted">@(revision.Keep ? "kept" : "")</td>
+                    <td><button type="button" class="koti-btn history-compare"><i class="bi bi-file-diff"></i> Compare</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    <dialog class="history-dialog">
+        <header class="hbox">
+            <b class="history-title flex-grow"></b>
+            <button type="button" class="koti-btn primary history-restore"
+                    title="Replaces the text in the editor with this version (not saved until you save, Ctrl-Z undoes it)">
+                <i class="bi bi-arrow-counterclockwise"></i> Restore this text into the editor
+            </button>
+            <button type="button" class="koti-btn history-close"><i class="bi bi-x-lg"></i> Close</button>
+        </header>
+        <div class="history-diff"></div>
+    </dialog>
+</koti-history>

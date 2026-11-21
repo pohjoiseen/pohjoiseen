@@ -74,4 +74,26 @@ API (`Controllers/API/`, same access as everything else in KoTi):
 * `PUT /api/Suggestions/7/status` with `{"status": "declined"}` or `"pending"` — used by the edit page.
   There is deliberately no way to accept a suggestion or to change content through the API
 
+The procedure for reviewing a post this way is a Claude Code skill, `.claude/skills/review-post/` (with a small
+command-line client for the API, `koti.py`).
+
+### History
+
+Earlier texts of posts, articles and books (`Holvi/Models/Revision.cs`, `KoTi/Revisions/`), to see what changed
+and to get an old text back, and later to know what a translation was made from.  I save constantly while
+writing, so not every save is kept:
+
+* a save which does not change the text (only properties) records nothing;
+* saves within an hour of the start of the latest revision overwrite that revision, so an evening of writing
+  leaves a few revisions and not a hundred;
+* of revisions older than a month only the last one of each day is left;
+* revisions marked as kept are never overwritten or removed: the text as it was before history started for
+  that post, and the text at the moment of every publish.
+
+Texts are stored gzipped (about 10 KB for a typical post).  History tab on the edit page lists revisions;
+Compare shows one side by side with the text in the editor, and from there it can be put back into the editor
+(and then saved as usual).  `GET /api/Revisions?targetType=post&targetId=5` lists them, `GET /api/Revisions/7`
+returns one with its text.  Like suggestions, revisions go to the live database with everything else when
+publishing; nothing there uses them.
+
 Alexander

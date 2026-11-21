@@ -36,6 +36,11 @@ public abstract class AbstractContentViewModel
     public IList<Suggestion> Suggestions { get; set; } = [];
 
     /// <summary>
+    /// Earlier texts, without the texts themselves, oldest first.  Only set when loading for the edit page.
+    /// </summary>
+    public IList<Revision> Revisions { get; set; } = [];
+
+    /// <summary>
     /// Next one of the same kind with pending suggestions, if any.  Only set when loading for the edit page.
     /// </summary>
     public int? NextWithSuggestionsId { get; set; }

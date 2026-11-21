@@ -228,6 +228,56 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
     }
 
     [Fact]
+    public async Task HistoryCompareAndRestore()
+    {
+        int id, revisionId;
+        await using (var db = factory.OpenDb())
+        {
+            var post = new Post { Name = "history", Title = "История", Language = "ru", Date = new DateOnly(2020, 6, 17), Draft = true, ContentMD = "Первая версия текста.\n\nВторой абзац." };
+            db.Add(post);
+            await db.SaveChangesAsync(Ct);
+            id = post.Id;
+            post.ContentMD = "Вторая версия текста.\n\nВторой абзац.";
+            await KoTi.ModelFactories.ContentVersioning.SaveVersionedAsync(db, post, post.Version);
+            revisionId = (await db.Revisions.Where(r => r.TargetId == id).OrderBy(r => r.Id).FirstAsync(Ct)).Id;
+        }
+
+        await using var t = await OpenAsync($"/Posts/{id}/ru/");
+        var page = t.Page;
+        await Expect(page.Locator(".monaco-editor .view-lines").First).ToContainTextAsync("Вторая версия");
+        await page.Locator("label[for='topleveltab-History']").ClickAsync();
+        await Expect(page.Locator("koti-history tr[data-id]")).ToHaveCountAsync(2);
+
+        // side by side with the text in the editor
+        await page.Locator($"koti-history tr[data-id='{revisionId}'] .history-compare").ClickAsync();
+        var dialog = page.Locator("koti-history dialog");
+        await Expect(dialog).ToBeVisibleAsync();
+        await Expect(dialog.Locator(".editor.original .view-lines")).ToContainTextAsync("Первая версия");
+        await Expect(dialog.Locator(".editor.modified .view-lines")).ToContainTextAsync("Вторая версия");
+
+        // restoring only changes the editor
+        await dialog.Locator(".history-restore").ClickAsync();
+        await Expect(dialog).ToBeHiddenAsync();
+        Assert.Equal("Первая версия текста.\n\nВторой абзац.", (await page.EvaluateAsync<string>(
+            "document.querySelector('koti-content-editor').editor.getValue()")).Replace("\r\n", "\n"));
+        await using (var db = factory.OpenDb())
+        {
+            Assert.StartsWith("Вторая версия", (await db.Posts.SingleAsync(p => p.Id == id, Ct)).ContentMD);
+        }
+
+        // and saving it makes it the newest version
+        var response = await page.RunAndWaitForResponseAsync(() => page.Locator("#save-button").ClickAsync(),
+            r => r.Request.Method == "PUT" && r.Url.Contains("/Posts/"));
+        Assert.Equal(200, response.Status);
+        await using (var db = factory.OpenDb())
+        {
+            Assert.StartsWith("Первая версия", (await db.Posts.SingleAsync(p => p.Id == id, Ct)).ContentMD);
+        }
+
+        Assert.Empty(t.Errors);
+    }
+
+    [Fact]
     public async Task CreatePost()
     {
         await using var t = await OpenAsync("/Posts/ru/");

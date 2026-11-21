@@ -14,6 +14,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     public DbSet<Redirect> Redirects { get; init; } = null!;
     public DbSet<PendingPictureDeletion> PendingPictureDeletions { get; init; } = null!;
     public DbSet<Suggestion> Suggestions { get; init; } = null!;
+    public DbSet<Revision> Revisions { get; init; } = null!;
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -62,5 +63,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
             builder.HasIndex(s => new { s.TargetType, s.TargetId, s.Status });
             builder.HasIndex(s => s.Batch);
         });
+
+        modelBuilder.Entity<Revision>().HasIndex(r => new { r.TargetType, r.TargetId });
     }
 }
