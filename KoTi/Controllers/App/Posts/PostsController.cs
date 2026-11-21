@@ -3,6 +3,7 @@ using Holvi.Models;
 using Koti.Controllers.App;
 using KoTi.LiveJournal;
 using KoTi.ModelFactories;
+using KoTi.Suggestions;
 using KoTi.ViewModels;
 using KoTi.ViewModels.Posts;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace KoTi.Controllers.App.Posts;
 
 [Route("[controller]")]
-public class PostsController(PostViewModelFactory modelFactory, HolviDbContext dbContext, LJCrosspostFormatter ljFormatter)
-    : AbstractContentController<Post, PostViewModel, PostFormViewComponent>(modelFactory)
+public class PostsController(PostViewModelFactory modelFactory, HolviDbContext dbContext, LJCrosspostFormatter ljFormatter, SuggestionService suggestionService)
+    : AbstractContentController<Post, PostViewModel, PostFormViewComponent>(modelFactory, suggestionService)
 {
     [HttpGet]
     public IActionResult Index()
@@ -94,6 +95,7 @@ public class PostsController(PostViewModelFactory modelFactory, HolviDbContext d
             return NotFound();
         }
         
+        await SuggestionService.RemoveForTargetAsync(Suggestion.Post, id);
         dbContext.Posts.Remove(posts);
         await dbContext.SaveChangesAsync();
         

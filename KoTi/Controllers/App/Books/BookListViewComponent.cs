@@ -1,4 +1,6 @@
 using Holvi;
+using Holvi.Models;
+using KoTi.Suggestions;
 using KoTi.ViewModels.Books;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KoTi.Controllers.App.Books;
 
-public class BookListViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache) : ViewComponent
+public class BookListViewComponent(HolviDbContext dbContext, IMemoryCache memoryCache, SuggestionService suggestionService) : ViewComponent
 {
     public static readonly int DefaultLimit = 25;
 
@@ -72,7 +74,8 @@ public class BookListViewComponent(HolviDbContext dbContext, IMemoryCache memory
             Offset = offset,
             Books = await queryPaginated.ToListAsync(),
             BookSearchQuery = bookSearch,
-            LinkOnly = linkOnly ?? false
+            LinkOnly = linkOnly ?? false,
+            PendingSuggestions = await suggestionService.GetPendingCountsAsync(Suggestion.Book)
         });
     }
 }

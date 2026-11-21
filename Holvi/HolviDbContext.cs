@@ -13,6 +13,7 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
     public DbSet<Book> Books { get; init; } = null!;
     public DbSet<Redirect> Redirects { get; init; } = null!;
     public DbSet<PendingPictureDeletion> PendingPictureDeletions { get; init; } = null!;
+    public DbSet<Suggestion> Suggestions { get; init; } = null!;
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -53,5 +54,13 @@ public class HolviDbContext(DbContextOptions<HolviDbContext> options) : DbContex
                 builder.ToJson();
                 builder.OwnsMany(g => g.Links);
             });
+
+        modelBuilder.Entity<Suggestion>(builder =>
+        {
+            // readable in the database
+            builder.Property(s => s.Status).HasConversion<string>().HasMaxLength(16);
+            builder.HasIndex(s => new { s.TargetType, s.TargetId, s.Status });
+            builder.HasIndex(s => s.Batch);
+        });
     }
 }

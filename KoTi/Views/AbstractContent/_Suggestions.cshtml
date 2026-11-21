@@ -1,0 +1,65 @@
+@model AbstractContentViewModel
+
+@*
+    Pending suggested edits to the content.  Everything dynamic (diffs, whether a suggestion still applies to the text
+    in the editor, accepting and declining) is done by <koti-suggestions>.
+*@
+<koti-suggestions form-id="content-form" tab-label-for="topleveltab-Suggestions">
+    @if (Model.Suggestions.Count == 0)
+    {
+        <p class="muted">No pending suggestions.</p>
+    }
+    else
+    {
+        <p class="suggestions-help muted">
+            Accepting changes the text in the editor only and selects it there, edit further as needed.
+            Accepted suggestions are recorded when the page is saved.
+        </p>
+    }
+    @foreach (var suggestion in Model.Suggestions)
+    {
+        <div class="suggestion" data-id="@suggestion.Id" data-old="@suggestion.OldText" data-new="@suggestion.NewText">
+            <div class="suggestion-head">
+                <span class="suggestion-kind kind-@suggestion.Kind">@suggestion.Kind</span>
+                <span class="suggestion-state"></span>
+                <span class="muted suggestion-batch" title="Batch">@suggestion.Batch</span>
+            </div>
+            <div class="suggestion-diff" title="Click to show in the editor"></div>
+            @if (!String.IsNullOrWhiteSpace(suggestion.Comment))
+            {
+                <div class="suggestion-comment">@suggestion.Comment</div>
+            }
+            @if (!String.IsNullOrWhiteSpace(suggestion.Sources))
+            {
+                <ul class="suggestion-sources">
+                    @foreach (var source in suggestion.Sources.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <li>
+                            @if (source.StartsWith("https://") || source.StartsWith("http://"))
+                            {
+                                <a href="@source" target="_blank" rel="noopener noreferrer">@source</a>
+                            }
+                            else
+                            {
+                                @source
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            <div class="suggestion-buttons">
+                <button type="button" class="koti-btn primary suggestion-accept"><i class="bi bi-check-lg"></i> Accept</button>
+                <button type="button" class="koti-btn suggestion-decline"><i class="bi bi-x-lg"></i> Decline</button>
+                <button type="button" class="koti-btn suggestion-undo" hidden><i class="bi bi-arrow-counterclockwise"></i> Undo</button>
+            </div>
+        </div>
+    }
+    @if (Model.NextWithSuggestionsId is not null)
+    {
+        <p>
+            <a id="next-with-suggestions-link" href="@Url.Action("EditAnyLanguage", new { id = Model.NextWithSuggestionsId })">
+                Next @Model.KindLink with suggestions <i class="bi bi-arrow-right"></i>
+            </a>
+        </p>
+    }
+</koti-suggestions>

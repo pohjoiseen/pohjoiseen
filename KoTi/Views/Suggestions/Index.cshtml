@@ -1,0 +1,36 @@
+@model KoTi.ViewModels.Suggestions.SuggestionsIndexViewModel
+@{
+    ViewBag.Title = "Suggestions";
+    Layout = "_Layout";
+}
+
+@section HeaderTitle {
+    <i class="bi bi-caret-right"></i> Suggestions
+}
+
+<div id="suggestions-index">
+    @if (Model.Targets.Count == 0)
+    {
+        <p class="muted align-center mt">No pending suggestions.</p>
+    }
+    else
+    {
+        <table class="suggestions-table">
+            <thead>
+            <tr><th></th><th>Title</th><th></th><th>Pending</th><th>Batches</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var target in Model.Targets)
+            {
+                <tr>
+                    <td class="muted">@target.Kind</td>
+                    <td><a href="@target.EditUrl">@(String.IsNullOrWhiteSpace(target.Title) ? "Untitled" : target.Title)</a></td>
+                    <td class="muted">@target.Language</td>
+                    <td><span class="suggestions-badge"><i class="bi bi-lightbulb"></i> @target.Count</span></td>
+                    <td class="muted">@String.Join(", ", target.Batches)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>

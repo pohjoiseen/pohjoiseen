@@ -1,6 +1,7 @@
 //
 // <koti-tabs>: tab component, must include one or more <koti-tab> children.  Handles storing selected tab state
-// across page reloads.  <koti-tab> elements must have "name" attribute, one of them may be "selected".
+// across page reloads.  <koti-tab> elements must have "name" attribute, one of them may be "selected";
+// "label" attribute is shown instead of the name if set.
 // Currently tabs must be defined statically, won't be updated if anything changes.
 //
 import { generateId } from '../../Common/common.ts';
@@ -72,7 +73,7 @@ export default class TabsElement extends HTMLElement {
             // tab header button
             const labelEl = document.createElement('label');
             labelEl.setAttribute('for', inputEl.id);
-            labelEl.textContent = name;
+            labelEl.textContent = tab.getAttribute('label') || name;
             labelEl.tabIndex = 0;
             wrapperEl.appendChild(labelEl);
             // wrap tab content.  This will cause connectedCallback() on children web components to re-fire!

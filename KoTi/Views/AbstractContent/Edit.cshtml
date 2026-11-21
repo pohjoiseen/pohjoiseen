@@ -66,6 +66,10 @@
             </form>
         </koti-tab>
 
+        <koti-tab name="Suggestions" label="@(Model.Suggestions.Count > 0 ? $"Suggestions ({Model.Suggestions.Count})" : "Suggestions")">
+            <partial name="~/Views/AbstractContent/_Suggestions.cshtml" model="Model" />
+        </koti-tab>
+
         <koti-tab name="Insert">
             <div class="insert-pane h100">
                 <koti-tabs component-id="inserttab">

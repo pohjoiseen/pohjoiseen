@@ -39,4 +39,38 @@ as part of this project as well, to handle previews.
 
 There are few comments and no docs or tests.  As I said, it is just a personal project.
 
+
+### Suggestions
+
+Suggested edits to the text of posts, articles and books, for AI-assisted reviewing (typos, factual errors,
+outdated information, links to newer posts).  The AI part is not in KoTi: suggestions are created from outside
+through a JSON API (in practice by Claude Code working from my machine), and KoTi only stores them and lets me
+go through them.  Nothing changes any text until I accept a suggestion and save the page.
+
+A suggestion (`Holvi/Models/Suggestion.cs`) is "replace this exact text with that one" for one post/article/book,
+with a kind (`correction` is a silent fix; `update` is a new development and its text includes a visible dated
+note like `**Обновление ноябрь 2026**: ...`; `link`; `other`), a comment explaining why, source URLs, and a batch
+name of the run which made it.  It is anchored by text and not by position: it applies only while the old text
+occurs in the content exactly once.  To insert something, a nearby sentence is used as the old text and repeated
+in the new one.  Only `ContentMD` can be changed this way, not title or other fields.
+
+On the edit page, Suggestions tab shows pending ones as word diffs.  Accept replaces the text in the editor
+(as a regular edit, Ctrl-Z works) and selects it; it is recorded as accepted when the page is saved, together
+with the content.  Decline is saved right away.  A suggestion whose old text is no longer in the editor is shown
+as not applicable.  Lists show the number of pending suggestions per item, `/Suggestions` lists everything
+which has any.
+
+API (`Controllers/API/`, same access as everything else in KoTi):
+
+* `GET /api/Posts?language=ru`, `/api/Articles`, `/api/Books` — lists without content (id, name, title,
+  content length, number of pending suggestions...); `GET /api/Posts/5` etc. — one with content
+* `POST /api/Suggestions` — create suggestions for one target:
+  `{"targetType": "post", "targetId": 5, "batch": "review-2026-11", "suggestions": [{"kind": "correction",
+  "oldText": "...", "newText": "...", "comment": "...", "sources": ["https://..."]}]}`.  Each is checked against
+  the current text; the response has `created` and `rejected` (index in the request and the reason)
+* `GET /api/Suggestions?targetType=post&targetId=5&status=pending&batch=...` — all filters optional
+* `DELETE /api/Suggestions?batch=...` — withdraw a batch, deletes those of it which are still pending
+* `PUT /api/Suggestions/7/status` with `{"status": "declined"}` or `"pending"` — used by the edit page.
+  There is deliberately no way to accept a suggestion or to change content through the API
+
 Alexander

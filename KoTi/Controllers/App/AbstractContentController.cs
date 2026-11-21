@@ -1,14 +1,18 @@
 using Holvi.Models;
 using KoTi.ModelFactories;
+using KoTi.Suggestions;
 using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Koti.Controllers.App;
 
-public abstract class AbstractContentController<TEntity, TViewModel, TFormViewComponent>(IContentViewModelFactory<TViewModel, TEntity> modelFactory) : Controller
+public abstract class AbstractContentController<TEntity, TViewModel, TFormViewComponent>(
+    IContentViewModelFactory<TViewModel, TEntity> modelFactory, SuggestionService suggestionService) : Controller
     where TEntity : IContentEntity where TViewModel : AbstractContentViewModel where TFormViewComponent : ViewComponent
 {
+    protected SuggestionService SuggestionService => suggestionService;
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> EditAnyLanguage(int id)
     {
@@ -25,6 +29,11 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
     public async Task<IActionResult> Edit(int id, string language)
     {
         var model = await modelFactory.LoadAsync(id, language);
+        if (model is not null)
+        {
+            model.Suggestions = await suggestionService.GetPendingAsync(model.KindLink, id);
+            model.NextWithSuggestionsId = await suggestionService.GetNextTargetWithPendingAsync(model.KindLink, id);
+        }
         
         ViewData["FormViewComponentType"] = typeof(TFormViewComponent);
         return View("~/Views/AbstractContent/Edit.cshtml", model);
@@ -37,6 +46,8 @@ public abstract class AbstractContentController<TEntity, TViewModel, TFormViewCo
         {
             try
             {
+                // saved together with the content, or not at all
+                await suggestionService.MarkAcceptedAsync(model.KindLink, id, model.AcceptedSuggestionIds);
                 var entity = await modelFactory.SaveAsync(id, language, model);
                 if (entity is not null)
                 {

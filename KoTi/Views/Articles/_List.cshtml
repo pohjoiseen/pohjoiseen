@@ -12,7 +12,7 @@
 <div class="list" data-remember-state="@Model.ComponentId-offset@(Model.Offset)">
     @foreach (var article in Model.Articles)
     {
-        <koti-content-item kind="article" id="@article.Id" name="@article.Name" title="@article.Title" draft="@(article.Draft ? "true" : "")"
+        <koti-content-item kind="article" id="@article.Id" name="@article.Name" title="@article.Title" draft="@(article.Draft ? "true" : "")" suggestions="@(Model.PendingSuggestions.TryGetValue(article.Id, out var pending) ? pending : null)"
                            edit-url="@Url.Action("Edit", "Articles", new { id = article.Id, language = article.Language })" link-only="@Model.LinkOnly"></koti-content-item>
     }
 </div>

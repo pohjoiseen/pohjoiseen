@@ -130,6 +130,104 @@ public class KoTiBrowserTests(BrowserFixture browser, KoTiLiveFactory factory) :
     }
 
     [Fact]
+    public async Task SuggestionsAcceptDeclineAndSave()
+    {
+        const string content = "Первый абзац с ашипкой.\n\nВторой абзац, поезда ходят.\n\nПовтор. Повтор.";
+        int id;
+        List<int> ids;
+        await using (var db = factory.OpenDb())
+        {
+            var post = new Post { Name = "suggestions", Title = "Предложения", Language = "ru", Date = new DateOnly(2020, 6, 16), Draft = true, ContentMD = content };
+            db.Add(post);
+            await db.SaveChangesAsync(Ct);
+            id = post.Id;
+            Suggestion New(string kind, string oldText, string newText) => new()
+            {
+                TargetType = Suggestion.Post, TargetId = id, Kind = kind, OldText = oldText, NewText = newText,
+                Comment = "Комментарий", Batch = "browser", CreatedAt = DateTime.UtcNow
+            };
+            var suggestions = new[]
+            {
+                New("correction", "ашипкой", "ошибкой"),
+                // over several lines
+                New("update", "поезда ходят.\n\nПовтор.", "поезда ходят. **Обновление**: уже нет.\n\nПовтор."),
+                New("correction", "Первый абзац", "Начальный абзац"),
+                // same place as the first one
+                New("correction", "абзац с ашипкой", "абзац с очепяткой"),
+            };
+            db.AddRange(suggestions);
+            await db.SaveChangesAsync(Ct);
+            ids = suggestions.Select(s => s.Id).ToList();
+        }
+
+        await using var t = await OpenAsync($"/Posts/{id}/ru/");
+        var page = t.Page;
+        var editor = page.Locator(".monaco-editor .view-lines");
+        await Expect(editor).ToContainTextAsync("ашипкой");
+        var tab = page.Locator("label[for='topleveltab-Suggestions']");
+        await Expect(tab).ToHaveTextAsync("Suggestions (4)");
+        await tab.ClickAsync();
+
+        ILocator Card(int index) => page.Locator($"koti-suggestions .suggestion[data-id='{ids[index]}']");
+        async Task<string> EditorValue() => (await page.EvaluateAsync<string>(
+            "document.querySelector('koti-content-editor').editor.getValue()")).Replace("\r\n", "\n");
+
+        // word diff
+        await Expect(Card(0).Locator(".suggestion-diff del")).ToHaveTextAsync("ашипкой");
+        await Expect(Card(0).Locator(".suggestion-diff ins")).ToHaveTextAsync("ошибкой");
+        await Expect(Card(1).Locator(".suggestion-diff ins")).ToHaveTextAsync(" **Обновление**: уже нет.");
+        await Expect(Card(0)).ToHaveAttributeAsync("data-state", "pending");
+
+        // accepting changes the text in the editor and selects it; the overlapping suggestion no longer applies
+        await Card(0).Locator(".suggestion-accept").ClickAsync();
+        await Expect(Card(0)).ToHaveAttributeAsync("data-state", "accepted");
+        Assert.Equal(content.Replace("ашипкой", "ошибкой"), await EditorValue());
+        Assert.Equal("ошибкой", await page.EvaluateAsync<string>(
+            "(() => { const e = document.querySelector('koti-content-editor').editor; return e.getModel().getValueInRange(e.getSelection()); })()"));
+        await Expect(Card(3)).ToHaveAttributeAsync("data-state", "stale");
+        await Expect(Card(3).Locator(".suggestion-accept")).ToBeDisabledAsync();
+
+        // undo puts the old text back
+        await Card(0).Locator(".suggestion-undo").ClickAsync();
+        await Expect(Card(0)).ToHaveAttributeAsync("data-state", "pending");
+        await Expect(Card(3)).ToHaveAttributeAsync("data-state", "pending");
+        Assert.Equal(content, await EditorValue());
+
+        await Card(0).Locator(".suggestion-accept").ClickAsync();
+        await Card(1).Locator(".suggestion-accept").ClickAsync();
+        await Expect(Card(1)).ToHaveAttributeAsync("data-state", "accepted");
+        var expected = content.Replace("ашипкой", "ошибкой").Replace("поезда ходят.", "поезда ходят. **Обновление**: уже нет.");
+        Assert.Equal(expected, await EditorValue());
+
+        // declining is saved right away, nothing else is until the page is saved
+        await Card(2).Locator(".suggestion-decline").ClickAsync();
+        await Expect(Card(2)).ToHaveAttributeAsync("data-state", "declined");
+        await Expect(tab).ToHaveTextAsync("Suggestions (3)");
+        await using (var db = factory.OpenDb())
+        {
+            Assert.Equal([SuggestionStatus.Pending, SuggestionStatus.Pending, SuggestionStatus.Declined, SuggestionStatus.Pending],
+                await db.Suggestions.Where(s => s.TargetId == id).OrderBy(s => s.Id).Select(s => s.Status).ToListAsync(Ct));
+            Assert.Equal(content, (await db.Posts.SingleAsync(p => p.Id == id, Ct)).ContentMD);
+        }
+
+        var response = await page.RunAndWaitForResponseAsync(() => page.Locator("#save-button").ClickAsync(),
+            r => r.Request.Method == "PUT" && r.Url.Contains("/Posts/"));
+        Assert.Equal(200, response.Status);
+        await Expect(Card(0)).ToHaveAttributeAsync("data-state", "saved");
+        await Expect(Card(1)).ToHaveAttributeAsync("data-state", "saved");
+        await Expect(Card(3)).ToHaveAttributeAsync("data-state", "stale");
+        await Expect(tab).ToHaveTextAsync("Suggestions (1)");
+        await using (var db = factory.OpenDb())
+        {
+            Assert.Equal([SuggestionStatus.Accepted, SuggestionStatus.Accepted, SuggestionStatus.Declined, SuggestionStatus.Pending],
+                await db.Suggestions.Where(s => s.TargetId == id).OrderBy(s => s.Id).Select(s => s.Status).ToListAsync(Ct));
+            Assert.Equal(expected, (await db.Posts.SingleAsync(p => p.Id == id, Ct)).ContentMD.Replace("\r\n", "\n"));
+        }
+
+        Assert.Empty(t.Errors);
+    }
+
+    [Fact]
     public async Task CreatePost()
     {
         await using var t = await OpenAsync("/Posts/ru/");

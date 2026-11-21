@@ -14,6 +14,10 @@ export default class ContentEditorElement extends HTMLElement {
     #savingFormData: string | null = null;
     #lastSavedFormData: string | null = null;
 
+    get editor() {
+        return this.#editor;
+    }
+
     connectedCallback() {
         const initialContentMdEl = $id(this.getAttribute('initial-content-md-id')!) as HTMLTextAreaElement;
         this.#formEl = $id(this.getAttribute('content-form-id')!) as HTMLFormElement;

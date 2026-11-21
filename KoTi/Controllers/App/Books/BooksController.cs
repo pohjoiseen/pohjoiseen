@@ -2,6 +2,7 @@ using Holvi;
 using Holvi.Models;
 using Koti.Controllers.App;
 using KoTi.ModelFactories;
+using KoTi.Suggestions;
 using KoTi.ViewModels;
 using KoTi.ViewModels.Books;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace KoTi.Controllers.App.Books;
 
 [Route("[controller]")]
-public class BooksController(BookViewModelFactory modelFactory, HolviDbContext dbContext)
-    : AbstractContentController<Book, BookViewModel, BookFormViewComponent>(modelFactory)
+public class BooksController(BookViewModelFactory modelFactory, HolviDbContext dbContext, SuggestionService suggestionService)
+    : AbstractContentController<Book, BookViewModel, BookFormViewComponent>(modelFactory, suggestionService)
 {
     [HttpGet]
     public IActionResult Index()
@@ -86,6 +87,7 @@ public class BooksController(BookViewModelFactory modelFactory, HolviDbContext d
             return NotFound();
         }
         
+        await SuggestionService.RemoveForTargetAsync(Suggestion.Book, id);
         dbContext.Books.Remove(book);
         await dbContext.SaveChangesAsync();
         

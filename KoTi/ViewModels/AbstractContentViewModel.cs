@@ -1,3 +1,5 @@
+using Holvi.Models;
+
 namespace KoTi.ViewModels;
 
 public abstract class AbstractContentViewModel
@@ -27,4 +29,20 @@ public abstract class AbstractContentViewModel
     /// Version of the entity this model was loaded from, saving fails if the entity has a different one by then.
     /// </summary>
     public int Version { get; set; }
+
+    /// <summary>
+    /// Pending suggested edits to the content.  Only set when loading for the edit page.
+    /// </summary>
+    public IList<Suggestion> Suggestions { get; set; } = [];
+
+    /// <summary>
+    /// Next one of the same kind with pending suggestions, if any.  Only set when loading for the edit page.
+    /// </summary>
+    public int? NextWithSuggestionsId { get; set; }
+
+    /// <summary>
+    /// Submitted with the form: suggestions which were applied to the content in the editor, they become
+    /// accepted if the content is saved.
+    /// </summary>
+    public IList<int> AcceptedSuggestionIds { get; set; } = [];
 }

@@ -5,6 +5,7 @@ using Fennica3;
 using Holvi;
 using KoTi.LiveJournal;
 using KoTi.ModelFactories;
+using KoTi.Suggestions;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<PostViewModelFactory>();
 builder.Services.AddScoped<ArticleViewModelFactory>();
 builder.Services.AddScoped<BookViewModelFactory>();
 builder.Services.AddScoped<LJCrosspostFormatter>();
+builder.Services.AddScoped<SuggestionService>();
 
 var app = builder.Build();
 

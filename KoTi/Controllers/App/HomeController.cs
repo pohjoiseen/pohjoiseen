@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Holvi;
+using Holvi.Models;
 using KoTi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -32,6 +33,7 @@ public class HomeController(HolviDbContext dbContext, PictureUpload pictureUploa
             Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion,
             DatabaseLastPublishedAt = dbFileInfo.LastWriteTime,
             DatabaseSize = dbFileInfo.Length,
+            PendingSuggestions = await dbContext.Suggestions.CountAsync(s => s.Status == SuggestionStatus.Pending),
             S3Bucket =
                 $"{configuration["Holvi:S3:Bucket"]!} ({configuration["Holvi:S3:PublicURL"]!.Replace("https://", "").Replace("/", "")})"
         });

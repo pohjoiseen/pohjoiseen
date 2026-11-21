@@ -10,4 +10,5 @@ public class HomeViewModel
     public DateTime DatabaseLastPublishedAt { get; set; }
     public long DatabaseSize { get; set; }
     public required string S3Bucket { get; set; }
+    public int PendingSuggestions { get; set; }
 }

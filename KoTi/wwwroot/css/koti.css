@@ -456,6 +456,115 @@
   .muted {
     color: var(--color-muted);
   }
+
+  .suggestions-badge {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--color-primary);
+    color: var(--color-primary-invert);
+    font-size: 0.85em;
+    white-space: nowrap;
+  }
+
+  .suggestions-table {
+    border-collapse: collapse;
+    margin: 20px auto;
+
+    & td, & th {
+      padding: 5px 10px;
+      border-bottom: 1px solid var(--color-bg-shade);
+      text-align: left;
+    }
+  }
+
+  koti-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    & .suggestion {
+      border: 1px solid var(--color-bg-shade);
+      border-radius: var(--border-radius);
+      background: var(--color-bg-highlight);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      &[data-state="stale"], &[data-state="declined"], &[data-state="saved"] {
+        background: var(--color-bg);
+        & .suggestion-diff {
+          opacity: 0.6;
+        }
+      }
+
+      &[data-state="accepted"], &[data-state="saved"] {
+        border-color: var(--color-good);
+      }
+
+      &[data-state="stale"] .suggestion-state {
+        color: var(--color-bad);
+      }
+    }
+
+    & .suggestion-head {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    & .suggestion-kind {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.8em;
+    }
+
+    & .suggestion-state {
+      flex-grow: 1;
+      font-size: 0.9em;
+    }
+
+    & .suggestion-batch {
+      font-size: 0.8em;
+    }
+
+    & .suggestion-diff {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      max-height: 40vh;
+      overflow-y: auto;
+
+      & del {
+        background: var(--color-bad-bg);
+        color: #333;
+      }
+
+      & ins {
+        background: var(--color-good-bg);
+        color: #333;
+        text-decoration: none;
+      }
+    }
+
+    & .suggestion-comment {
+      white-space: pre-wrap;
+    }
+
+    & .suggestion-sources {
+      font-size: 0.85em;
+      padding-left: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    & .suggestion-buttons {
+      display: flex;
+      gap: 5px;
+    }
+  }
   
   dialog {
     margin: auto;

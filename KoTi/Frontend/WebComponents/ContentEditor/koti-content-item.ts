@@ -20,9 +20,19 @@ export default class ContentItemElement extends HTMLElement {
         const width = this.getAttribute('width');
         const height = this.getAttribute('height');
         const draft = this.getAttribute('draft');
+        const suggestions = this.getAttribute('suggestions');
 
         this.#button.classList.toggle('draft', !!draft);
         this.#text.innerHTML = `${title}<br><span class="muted">${name}</span>`;
+        if (suggestions) {
+            // number of pending suggested edits
+            const badgeEl = document.createElement('span');
+            badgeEl.className = 'suggestions-badge';
+            badgeEl.title = 'Pending suggestions';
+            badgeEl.innerHTML = '<i class="bi bi-lightbulb"></i> ';
+            badgeEl.append(suggestions);
+            this.#text.append(' ', badgeEl);
+        }
         if (src) {
             this.#img.style.display = '';
             this.#img.src = src;
@@ -35,7 +45,7 @@ export default class ContentItemElement extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['src', 'title', 'width', 'height', 'draft'];
+        return ['src', 'title', 'width', 'height', 'draft', 'suggestions'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
